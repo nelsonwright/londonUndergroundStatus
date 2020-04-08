@@ -5,7 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.tubestatus.R
-import com.example.tubestatus.TflApiService
+import com.example.tubestatus.api.TflApiService
 import com.example.tubestatus.api.TubeStatus
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -14,7 +14,7 @@ import io.reactivex.schedulers.Schedulers
 
 class TubeStatusViewModel(application: Application) : AndroidViewModel(application) {
 
-    val repo by lazy {
+    private val repo by lazy {
         TflApiService.create()
     }
 

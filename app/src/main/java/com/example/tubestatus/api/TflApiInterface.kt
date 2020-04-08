@@ -1,6 +1,5 @@
-package com.example.tubestatus
+package com.example.tubestatus.api
 
-import com.example.tubestatus.api.TubeStatus
 import io.reactivex.Observable
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
