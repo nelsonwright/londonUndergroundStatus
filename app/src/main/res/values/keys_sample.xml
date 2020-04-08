@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--    you will need to request your own application id and key from TFL.  Remove the "_sample" part of the name-->
+    <string name="applicationId_sample">12345</string>
+    <string name="applicationKey_sample">1245</string>
+</resources>
