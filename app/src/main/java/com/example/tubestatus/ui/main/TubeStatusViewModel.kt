@@ -18,9 +18,11 @@ class TubeStatusViewModel(application: Application) : AndroidViewModel(applicati
         TflApiService.create()
     }
 
-    var disposable: Disposable? = null
+    private val loadError = MutableLiveData<Boolean>()
+    private val loading = MutableLiveData<Boolean>()
 
-    val tubeLines: MutableLiveData<List<TubeStatus>> = MutableLiveData()
+    private var disposable: Disposable? = null
+    private val tubeLines: MutableLiveData<List<TubeStatus>> = MutableLiveData()
 
     init {
         loadTubeLines()
@@ -47,5 +49,5 @@ class TubeStatusViewModel(application: Application) : AndroidViewModel(applicati
                 tubeLines.value = it
             }
     }
-
 }
+
