@@ -15,7 +15,7 @@ enum class RowType {
 }
 
 interface TubeListClickListener {
-    fun onTubeLineClicked()
+    fun onTubeLineClicked(view: View)
 }
 
 class TubeListAdapter(
@@ -53,7 +53,7 @@ class TubeListAdapter(
                 holder as RowViewHolder
                 holder.bindView(
                     context = context,
-                    details = tubeDetailsList[position - 1],
+                    tubeStatus = tubeDetailsList[position - 1],
                     listener = listener
                 )
             }

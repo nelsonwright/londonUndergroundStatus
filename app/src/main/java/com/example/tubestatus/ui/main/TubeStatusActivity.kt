@@ -1,6 +1,7 @@
 package com.example.tubestatus.ui.main
 
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.activity.viewModels
@@ -32,6 +33,10 @@ class TubeStatusActivity : AppCompatActivity(), TubeListClickListener {
         viewModel.onPause()
     }
 
+    override fun onTubeLineClicked(view: View) {
+        Toast.makeText(this, "Clicked a tube line", LENGTH_SHORT).show()
+    }
+
     private fun setupRecyclerView() {
         viewManager = LinearLayoutManager(this)
         viewAdapter = TubeListAdapter(this, arrayListOf(), this)
@@ -43,13 +48,6 @@ class TubeStatusActivity : AppCompatActivity(), TubeListClickListener {
     }
 
     private fun updateView(lines: List<TubeStatus>) {
-        lines.map {
-            Toast.makeText(this, it.name, LENGTH_SHORT).show()
-        }
         (viewAdapter as TubeListAdapter).update(lines)
-    }
-
-    override fun onTubeLineClicked() {
-        Toast.makeText(this, "Clicked a tube line", LENGTH_SHORT).show()
     }
 }
