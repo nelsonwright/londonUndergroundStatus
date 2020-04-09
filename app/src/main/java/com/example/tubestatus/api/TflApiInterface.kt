@@ -13,7 +13,7 @@ interface TflApiService {
     fun getLinesStatus(
         @Query("app_id") appID: String,
         @Query("app_key") appKey: String
-    ): Observable<List<TubeStatus>>
+    ): Observable<List<TubeLine>>
 
     companion object {
         fun create(): TflApiService {

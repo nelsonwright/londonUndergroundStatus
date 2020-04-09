@@ -1,17 +1,15 @@
 package com.example.tubestatus.api
 
 import com.google.gson.annotations.SerializedName
-import retrofit2.http.Query
+import java.io.Serializable
 
-data class TubeStatus(
+data class TubeLine(
     @SerializedName("id") val id: String = "",
     @SerializedName("name") val name: String? = "",
     @SerializedName("lineStatuses") val lineStatuses: List<TubeLineStatus>? = emptyList()
-)
+) : Serializable
 
 data class TubeLineStatus(
     @SerializedName("statusSeverityDescription") val severityDescription: String? = "",
     @SerializedName("reason") val reason: String? = ""
-)
-
-data class TubeStatusResult(val query: Query)
+) : Serializable

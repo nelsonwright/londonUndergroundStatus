@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tubestatus.R
-import com.example.tubestatus.api.TubeStatus
+import com.example.tubestatus.api.TubeLine
 
 enum class RowType {
     HEADER,
@@ -15,16 +15,15 @@ enum class RowType {
 }
 
 interface TubeListClickListener {
-    fun onTubeLineClicked(view: View)
+    fun onTubeLineClicked(tubeLine: TubeLine)
 }
 
 class TubeListAdapter(
-    private val context: Context, private var tubeDetailsList: List<TubeStatus>,
+    private val context: Context, private var tubeDetailsList: List<TubeLine>,
     private val listener: TubeListClickListener
-) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>(), View.OnClickListener {
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), View.OnClickListener {
 
-    fun update(tubeDetails: List<TubeStatus>) {
+    fun update(tubeDetails: List<TubeLine>) {
         tubeDetailsList = tubeDetails
         notifyDataSetChanged()
     }
@@ -53,7 +52,7 @@ class TubeListAdapter(
                 holder as RowViewHolder
                 holder.bindView(
                     context = context,
-                    tubeStatus = tubeDetailsList[position - 1],
+                    tubeLine = tubeDetailsList[position - 1],
                     listener = listener
                 )
             }

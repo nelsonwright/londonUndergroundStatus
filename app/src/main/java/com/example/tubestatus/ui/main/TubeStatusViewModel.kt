@@ -6,7 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.tubestatus.R
 import com.example.tubestatus.api.TflApiService
-import com.example.tubestatus.api.TubeStatus
+import com.example.tubestatus.api.TubeLine
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -22,7 +22,7 @@ class TubeStatusViewModel(application: Application) : AndroidViewModel(applicati
     private var loading = MutableLiveData<Boolean>()
 
     private var disposable: Disposable? = null
-    private val tubeLines: MutableLiveData<List<TubeStatus>> = MutableLiveData()
+    private val tubeLines: MutableLiveData<List<TubeLine>> = MutableLiveData()
 
     init {
         loadError.value = false
@@ -30,7 +30,7 @@ class TubeStatusViewModel(application: Application) : AndroidViewModel(applicati
         loadTubeLines()
     }
 
-    fun getTubeLines(): LiveData<List<TubeStatus>> {
+    fun getTubeLines(): LiveData<List<TubeLine>> {
         return tubeLines
     }
 

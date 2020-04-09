@@ -1,17 +1,16 @@
 package com.example.tubestatus.ui.main
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
-import android.widget.Toast.LENGTH_SHORT
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tubestatus.R
-import com.example.tubestatus.api.TubeStatus
-import kotlinx.android.synthetic.main.tube_status_activity.*
+import com.example.tubestatus.api.TubeLine
+import kotlinx.android.synthetic.main.tube_status_overview_activity.*
 
 class TubeStatusActivity : AppCompatActivity(), TubeListClickListener {
     private val viewModel: TubeStatusViewModel by viewModels()
@@ -21,7 +20,7 @@ class TubeStatusActivity : AppCompatActivity(), TubeListClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.tube_status_activity)
+        setContentView(R.layout.tube_status_overview_activity)
         setupRecyclerView()
         observeViewModel()
         setListeners()
@@ -38,8 +37,12 @@ class TubeStatusActivity : AppCompatActivity(), TubeListClickListener {
         viewModel.onPause()
     }
 
-    override fun onTubeLineClicked(view: View) {
-        Toast.makeText(this, "Clicked a tube line", LENGTH_SHORT).show()
+    override fun onTubeLineClicked(tubeLine: TubeLine) {
+        val intent = Intent(this, TubeStatusDetailsActivity::class.java).apply {
+            putExtra("LINES", tubeLine)
+        }
+
+        startActivity(intent)
     }
 
     private fun setupRecyclerView() {
@@ -64,7 +67,7 @@ class TubeStatusActivity : AppCompatActivity(), TubeListClickListener {
         })
     }
 
-    private fun updateView(lines: List<TubeStatus>) {
+    private fun updateView(lines: List<TubeLine>) {
         (viewAdapter as TubeListAdapter).update(lines)
     }
 
