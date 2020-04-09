@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tubestatus.R
 import com.example.tubestatus.api.TubeLine
+import com.example.tubestatus.models.TubeLineColours
 import kotlinx.android.synthetic.main.tube_status_overview_activity.*
 
 class TubeStatusActivity : AppCompatActivity(), TubeListClickListener {
@@ -38,8 +39,13 @@ class TubeStatusActivity : AppCompatActivity(), TubeListClickListener {
     }
 
     override fun onTubeLineClicked(tubeLine: TubeLine) {
+        val tube = TubeLineColours.values().firstOrNull() { it.id == tubeLine.id }
+
         val intent = Intent(this, TubeStatusDetailsActivity::class.java).apply {
-            putExtra("LINES", tubeLine)
+            putExtra(EXTRA_LINES, tubeLine)
+            tube?.let {
+                putExtra(EXTRA_LINE_COLOUR, it.backgroundColour)
+            }
         }
 
         startActivity(intent)

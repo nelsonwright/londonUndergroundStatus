@@ -19,7 +19,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.main.TubeStatusDetailsActivity" />
+        <activity
+            android:name=".ui.main.TubeStatusDetailsActivity"
+            android:parentActivityName=".ui.main.TubeStatusActivity" />
     </application>
 
 </manifest>
