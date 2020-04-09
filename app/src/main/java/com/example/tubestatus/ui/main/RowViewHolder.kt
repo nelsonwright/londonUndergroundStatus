@@ -15,8 +15,10 @@ class RowViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             it.id == tubeStatus.id
         }
 
-        itemView.tube_name.setBackgroundColor(Color.parseColor(tube?.backgroundColour))
-        itemView.tube_name.setTextColor(Color.parseColor(if (tube?.whiteForegroundColour == true) "#ffffff" else "#000000"))
+        tube?.let {
+            itemView.tube_name.setBackgroundColor(Color.parseColor(it.backgroundColour))
+            itemView.tube_name.setTextColor(Color.parseColor(if (it.whiteForegroundColour == true) "#ffffff" else "#000000"))
+        }
 
         itemView.tube_status_severity.text = getLineSeverityText(tubeStatus)
 

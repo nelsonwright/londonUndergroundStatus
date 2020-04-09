@@ -9,8 +9,7 @@ import retrofit2.http.Query
 
 interface TflApiService {
 
-    //    @GET("line/mode/tube,overground,dlr,tflrail/status")
-    @GET("line/mode/tube/status")
+    @GET("line/mode/tube,dlr,tflrail,overground/status")
     fun getLinesStatus(
         @Query("app_id") appID: String,
         @Query("app_key") appKey: String

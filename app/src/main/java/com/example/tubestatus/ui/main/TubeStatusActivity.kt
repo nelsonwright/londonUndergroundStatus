@@ -23,9 +23,14 @@ class TubeStatusActivity : AppCompatActivity(), TubeListClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.tube_status_activity)
         setupRecyclerView()
-        viewModel.getTubeLines().observe(this, Observer { lines ->
-            updateView(lines)
-        })
+        observeViewModel()
+        setListeners()
+    }
+
+    private fun setListeners() {
+        refresh_button.setOnClickListener {
+            viewModel.onRefreshClicked()
+        }
     }
 
     override fun onPause() {
@@ -47,7 +52,27 @@ class TubeStatusActivity : AppCompatActivity(), TubeListClickListener {
         }
     }
 
+    private fun observeViewModel() {
+        viewModel.getTubeLines().observe(this, Observer { lines ->
+            updateView(lines)
+        })
+        viewModel.getLoadError().observe(this, Observer {
+            showLoadError(it)
+        })
+        viewModel.getLoading().observe(this, Observer {
+            showLoadingState(it)
+        })
+    }
+
     private fun updateView(lines: List<TubeStatus>) {
         (viewAdapter as TubeListAdapter).update(lines)
+    }
+
+    private fun showLoadingState(showLoading: Boolean?) {
+        progress_bar.visibility = if (showLoading == true) View.VISIBLE else View.GONE
+    }
+
+    private fun showLoadError(showError: Boolean) {
+        loading_error_group.visibility = if (showError == true) View.VISIBLE else View.GONE
     }
 }
