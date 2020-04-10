@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.londonundergroundstatus.api.TubeLine
-import com.example.tubestatus.R
+import com.londonundergroundstatus.R
 
 enum class RowType {
     HEADER,

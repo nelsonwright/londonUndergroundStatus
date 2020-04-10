@@ -10,7 +10,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.londonundergroundstatus.api.TubeLine
 import com.example.londonundergroundstatus.models.TubeLineColours
-import com.example.tubestatus.R
+import com.example.londonundergroundstatus.models.TubeStatusViewState
+import com.londonundergroundstatus.R
 import kotlinx.android.synthetic.main.tube_status_overview_activity.*
 
 class TubeStatusActivity : AppCompatActivity(), TubeListClickListener {
@@ -62,27 +63,20 @@ class TubeStatusActivity : AppCompatActivity(), TubeListClickListener {
     }
 
     private fun observeViewModel() {
-        viewModel.getTubeLines().observe(this, Observer { lines ->
-            updateView(lines)
-        })
-        viewModel.getLoadError().observe(this, Observer {
-            showLoadError(it)
-        })
-        viewModel.getLoading().observe(this, Observer {
-            showLoadingState(it)
+        viewModel.getViewState().observe(this, Observer { state ->
+            updateView(state)
         })
     }
 
-    private fun updateView(lines: List<TubeLine>) {
-        (viewAdapter as TubeListAdapter).update(lines)
-    }
+    private fun updateView(viewState: TubeStatusViewState) {
+        with(viewState) {
+            (viewAdapter as TubeListAdapter).update(tubeLines)
 
-    private fun showLoadingState(showLoading: Boolean?) {
-        progress_bar.visibility = if (showLoading == true) View.VISIBLE else View.GONE
-    }
+            progress_bar.visibility = if (loading) View.VISIBLE else View.GONE
 
-    private fun showLoadError(showError: Boolean) {
-        lines_recycler_view.visibility = if (showError) View.GONE else View.VISIBLE
-        loading_error_group.visibility = if (showError) View.VISIBLE else View.GONE
+            lines_recycler_view.visibility = if (loadingError) View.GONE else View.VISIBLE
+            loading_error_group.visibility = if (loadingError) View.VISIBLE else View.GONE
+        }
+
     }
 }

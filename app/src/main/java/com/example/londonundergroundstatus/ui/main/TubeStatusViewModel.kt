@@ -5,8 +5,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.londonundergroundstatus.api.TflApiService
-import com.example.londonundergroundstatus.api.TubeLine
-import com.example.tubestatus.R
+import com.example.londonundergroundstatus.models.TubeStatusViewState
+import com.londonundergroundstatus.R
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -18,28 +18,16 @@ class TubeStatusViewModel(application: Application) : AndroidViewModel(applicati
         TflApiService.create()
     }
 
-    private var loadError = MutableLiveData<Boolean>()
-    private var loading = MutableLiveData<Boolean>()
-
     private var disposable: Disposable? = null
-    private val tubeLines: MutableLiveData<List<TubeLine>> = MutableLiveData()
+    private var viewState: MutableLiveData<TubeStatusViewState> = MutableLiveData()
 
     init {
-        loadError.value = false
-        loading.value = true
+        viewState.value = TubeStatusViewState(loading = true)
         loadTubeLines()
     }
 
-    fun getTubeLines(): LiveData<List<TubeLine>> {
-        return tubeLines
-    }
-
-    fun getLoadError(): LiveData<Boolean> {
-        return loadError
-    }
-
-    fun getLoading(): LiveData<Boolean> {
-        return loading
+    fun getViewState(): LiveData<TubeStatusViewState> {
+        return viewState
     }
 
     fun onPause() {
@@ -47,8 +35,8 @@ class TubeStatusViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     fun onRefreshClicked() {
-        loadError.value = false
-        loading.value = true
+        viewState.value = TubeStatusViewState(loading = true)
+
         loadTubeLines()
     }
 
@@ -63,13 +51,10 @@ class TubeStatusViewModel(application: Application) : AndroidViewModel(applicati
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { lines ->
-                    tubeLines.value = lines
-                    loading.value = false
-                    loadError.value = false
+                    viewState.value = TubeStatusViewState(tubeLines = lines)
                 }
             ) { error ->
-                loadError.value = true
-                loading.value = false
+                viewState.value = TubeStatusViewState(loadingError = true)
             }
     }
 }

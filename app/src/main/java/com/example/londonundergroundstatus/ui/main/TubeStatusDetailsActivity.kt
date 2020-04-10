@@ -5,7 +5,7 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.londonundergroundstatus.api.TubeLine
-import com.example.tubestatus.R
+import com.londonundergroundstatus.R
 import kotlinx.android.synthetic.main.tube_status_details_activity.*
 
 const val EXTRA_LINES = "EXTRA_LINES"
