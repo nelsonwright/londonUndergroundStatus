@@ -52,10 +52,10 @@ class TubeStatusViewModel(application: Application) : AndroidViewModel(applicati
             .subscribe(
                 { lines ->
                     viewState.value = TubeStatusViewState(tubeLines = lines)
-                }
-            ) { error ->
-                viewState.value = TubeStatusViewState(loadingError = true)
-            }
+                },
+                { error ->
+                    viewState.value = TubeStatusViewState(loadingError = true)
+                })
     }
 }
 

@@ -19,7 +19,8 @@ enum class TubeLineColours(
     METROPOLITAN("metropolitan", "#893267"),
     NORTHERN("northern", "#000000"),
     PICCADILLY("piccadilly", "#0450a1"),
-    TFL_RAIL("tfl-rail", "#0019a8", true),
-    VICTORIA("victoria", "#009fe0", false),
+    TFL_RAIL("tfl-rail", "#0019a8"),
+    TRAM("tram", "#66cc00", false),
+    VICTORIA("victoria", "#009fe0"),
     WATERLOO_AND_CITY("waterloo-city", "#70c3ce", false),
 }

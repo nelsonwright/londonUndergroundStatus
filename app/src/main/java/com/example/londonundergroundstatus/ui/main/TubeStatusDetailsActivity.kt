@@ -19,9 +19,9 @@ class TubeStatusDetailsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.tube_status_details_activity)
 
-        intent.extras?.let {
-            tubeLine = it.getSerializable(EXTRA_LINES) as TubeLine
-            lineColour = it.getSerializable(EXTRA_LINE_COLOUR) as String
+        intent.extras?.let { bundle ->
+            tubeLine = bundle.getSerializable(EXTRA_LINES) as TubeLine
+            lineColour = bundle.getSerializable(EXTRA_LINE_COLOUR) as String
             title = tubeLine.name
         }
 
