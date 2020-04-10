@@ -1,4 +1,4 @@
-package com.example.tubestatus.ui.main
+package com.example.londonundergroundstatus.ui.main
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -6,11 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
+import com.example.londonundergroundstatus.api.TubeLineStatus
 import com.example.tubestatus.R
-import com.example.tubestatus.api.TubeLineStatus
 
 class TubeListDetailsAdapter(
-    private val context: Context,
+    context: Context,
     private val dataSource: List<TubeLineStatus>
 ) : BaseAdapter() {
 

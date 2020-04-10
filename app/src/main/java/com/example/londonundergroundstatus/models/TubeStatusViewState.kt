@@ -1,6 +1,6 @@
-package com.example.tubestatus.models
+package com.example.londonundergroundstatus.models
 
-import com.example.tubestatus.api.TubeLine
+import com.example.londonundergroundstatus.api.TubeLine
 
 data class TubeStatusViewState(
     val loading: Boolean = true,

@@ -3,4 +3,6 @@
     <string name="error_loading_statuses">Sorry, there was an error loading the line statuses. Please try refreshing, or try again later.</string>
     <string name="tube_status">Tube Status</string>
     <string name="refresh">Refresh</string>
+    <string name="powered_by_tfl">Powered by TfL Open Data</string>
+    <string name="contains_os_data">Contains OS data &#169; Crown copyright and database rights 2016 and Geomni UK Map data &#169; and database rights [2019]</string>
 </resources>

@@ -1,12 +1,12 @@
-package com.example.tubestatus.ui.main
+package com.example.londonundergroundstatus.ui.main
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.example.londonundergroundstatus.api.TflApiService
+import com.example.londonundergroundstatus.api.TubeLine
 import com.example.tubestatus.R
-import com.example.tubestatus.api.TflApiService
-import com.example.tubestatus.api.TubeLine
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers

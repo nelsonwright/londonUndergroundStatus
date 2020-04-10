@@ -1,4 +1,4 @@
-package com.example.tubestatus.api
+package com.example.londonundergroundstatus.api
 
 import io.reactivex.Observable
 import retrofit2.Retrofit

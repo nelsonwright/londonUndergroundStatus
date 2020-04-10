@@ -1,4 +1,4 @@
-package com.example.tubestatus.ui.main
+package com.example.londonundergroundstatus.ui.main
 
 import android.content.Intent
 import android.os.Bundle
@@ -8,9 +8,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.londonundergroundstatus.api.TubeLine
+import com.example.londonundergroundstatus.models.TubeLineColours
 import com.example.tubestatus.R
-import com.example.tubestatus.api.TubeLine
-import com.example.tubestatus.models.TubeLineColours
 import kotlinx.android.synthetic.main.tube_status_overview_activity.*
 
 class TubeStatusActivity : AppCompatActivity(), TubeListClickListener {
@@ -39,7 +39,7 @@ class TubeStatusActivity : AppCompatActivity(), TubeListClickListener {
     }
 
     override fun onTubeLineClicked(tubeLine: TubeLine) {
-        val tube = TubeLineColours.values().firstOrNull() { it.id == tubeLine.id }
+        val tube = TubeLineColours.values().firstOrNull { it.id == tubeLine.id }
 
         val intent = Intent(this, TubeStatusDetailsActivity::class.java).apply {
             putExtra(EXTRA_LINES, tubeLine)
@@ -82,6 +82,7 @@ class TubeStatusActivity : AppCompatActivity(), TubeListClickListener {
     }
 
     private fun showLoadError(showError: Boolean) {
-        loading_error_group.visibility = if (showError == true) View.VISIBLE else View.GONE
+        lines_recycler_view.visibility = if (showError) View.GONE else View.VISIBLE
+        loading_error_group.visibility = if (showError) View.VISIBLE else View.GONE
     }
 }

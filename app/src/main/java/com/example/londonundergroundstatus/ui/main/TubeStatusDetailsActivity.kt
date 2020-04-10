@@ -1,11 +1,11 @@
-package com.example.tubestatus.ui.main
+package com.example.londonundergroundstatus.ui.main
 
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.example.londonundergroundstatus.api.TubeLine
 import com.example.tubestatus.R
-import com.example.tubestatus.api.TubeLine
 import kotlinx.android.synthetic.main.tube_status_details_activity.*
 
 const val EXTRA_LINES = "EXTRA_LINES"
@@ -22,7 +22,7 @@ class TubeStatusDetailsActivity : AppCompatActivity() {
         intent.extras?.let {
             tubeLine = it.getSerializable(EXTRA_LINES) as TubeLine
             lineColour = it.getSerializable(EXTRA_LINE_COLOUR) as String
-            setTitle(tubeLine.name)
+            title = tubeLine.name
         }
 
         tubeLine.lineStatuses?.let {

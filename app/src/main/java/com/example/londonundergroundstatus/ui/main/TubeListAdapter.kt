@@ -1,4 +1,4 @@
-package com.example.tubestatus.ui.main
+package com.example.londonundergroundstatus.ui.main
 
 import android.content.Context
 import android.util.Log
@@ -6,12 +6,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.londonundergroundstatus.api.TubeLine
 import com.example.tubestatus.R
-import com.example.tubestatus.api.TubeLine
 
 enum class RowType {
     HEADER,
-    BODY
+    BODY,
+    FOOTER
 }
 
 interface TubeListClickListener {
@@ -35,6 +36,11 @@ class TubeListAdapter(
                     .inflate(R.layout.recycler_view_header, parent, false)
             )
 
+            RowType.FOOTER.ordinal -> FooterViewHolder(
+                LayoutInflater.from(parent.context)
+                    .inflate(R.layout.recycler_view_footer, parent, false)
+            )
+
             else -> RowViewHolder(
                 LayoutInflater.from(parent.context)
                     .inflate(R.layout.recycler_view_row, parent, false)
@@ -48,6 +54,10 @@ class TubeListAdapter(
                 holder as HeaderViewHolder
                 holder.bindView(listener = listener)
             }
+            RowType.FOOTER.ordinal -> {
+                holder as FooterViewHolder
+                holder.bindView(listener = listener)
+            }
             else -> {
                 holder as RowViewHolder
                 holder.bindView(
@@ -59,12 +69,13 @@ class TubeListAdapter(
         }
     }
 
-    // add 1 to the size in item count, because we are going to add header in list
-    override fun getItemCount(): Int = tubeDetailsList.size + 1
+    // add 1 to the size in item count, because we are going to add header and footer in list
+    override fun getItemCount(): Int = tubeDetailsList.size + 2
 
     override fun getItemViewType(position: Int): Int {
         return when (position) {
             0 -> RowType.HEADER.ordinal
+            tubeDetailsList.size + 1 -> RowType.FOOTER.ordinal
             else -> RowType.BODY.ordinal
         }
     }
