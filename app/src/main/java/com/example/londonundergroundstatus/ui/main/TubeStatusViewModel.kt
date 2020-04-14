@@ -40,7 +40,7 @@ class TubeStatusViewModel(application: Application) : AndroidViewModel(applicati
         loadTubeLines()
     }
 
-    private fun loadTubeLines() {
+    fun loadTubeLines() {
         val appId =
             getApplication<Application>().applicationContext.getString(R.string.applicationId)
         val appKey =

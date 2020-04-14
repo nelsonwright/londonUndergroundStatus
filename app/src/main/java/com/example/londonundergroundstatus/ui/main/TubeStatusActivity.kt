@@ -2,6 +2,8 @@ package com.example.londonundergroundstatus.ui.main
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -28,12 +30,6 @@ class TubeStatusActivity : AppCompatActivity(), TubeListClickListener {
         setListeners()
     }
 
-    private fun setListeners() {
-        refresh_button.setOnClickListener {
-            viewModel.onRefreshClicked()
-        }
-    }
-
     override fun onPause() {
         super.onPause()
         viewModel.onPause()
@@ -52,6 +48,23 @@ class TubeStatusActivity : AppCompatActivity(), TubeListClickListener {
         startActivity(intent)
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.tube_status_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Handle presses on the action bar items
+        return when (item.getItemId()) {
+            R.id.menu_refresh -> {
+                swipe_refresh.isRefreshing = true
+                viewModel.loadTubeLines()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
     private fun setupRecyclerView() {
         viewManager = LinearLayoutManager(this)
         viewAdapter = TubeListAdapter(this, arrayListOf(), this)
@@ -68,8 +81,18 @@ class TubeStatusActivity : AppCompatActivity(), TubeListClickListener {
         })
     }
 
+    private fun setListeners() {
+        refresh_button.setOnClickListener {
+            viewModel.onRefreshClicked()
+        }
+        swipe_refresh.setOnRefreshListener {
+            viewModel.loadTubeLines()
+        }
+    }
+
     private fun updateView(viewState: TubeStatusViewState) {
         with(viewState) {
+            swipe_refresh.isRefreshing = false
             (viewAdapter as TubeListAdapter).update(tubeLines)
 
             progress_bar.visibility = if (loading) View.VISIBLE else View.GONE
