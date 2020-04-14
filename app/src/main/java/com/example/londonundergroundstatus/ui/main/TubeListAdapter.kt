@@ -56,7 +56,7 @@ class TubeListAdapter(
             }
             RowType.FOOTER.ordinal -> {
                 holder as FooterViewHolder
-                holder.bindView(listener = listener)
+                holder.bindView()
             }
             else -> {
                 holder as RowViewHolder
