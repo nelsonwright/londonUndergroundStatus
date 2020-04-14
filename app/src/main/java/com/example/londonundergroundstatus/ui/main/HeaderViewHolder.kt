@@ -3,8 +3,8 @@ package com.example.londonundergroundstatus.ui.main
 
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
-import com.londonundergroundstatus.R
 import kotlinx.android.synthetic.main.recycler_view_header.view.*
+import uk.co.nelsonwright.londonundergroundstatus.R
 import java.text.DateFormat
 import java.util.*
 

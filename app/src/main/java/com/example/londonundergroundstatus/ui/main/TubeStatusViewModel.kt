@@ -6,10 +6,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.londonundergroundstatus.api.TflApiService
 import com.example.londonundergroundstatus.models.TubeStatusViewState
-import com.londonundergroundstatus.R
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import uk.co.nelsonwright.londonundergroundstatus.R
 
 
 class TubeStatusViewModel(application: Application) : AndroidViewModel(application) {

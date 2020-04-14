@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
 import com.example.londonundergroundstatus.api.TubeLineStatus
-import com.londonundergroundstatus.R
+import uk.co.nelsonwright.londonundergroundstatus.R
 
 class TubeListDetailsAdapter(
     context: Context,

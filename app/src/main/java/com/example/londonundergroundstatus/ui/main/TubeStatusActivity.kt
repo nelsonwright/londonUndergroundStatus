@@ -13,8 +13,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.londonundergroundstatus.api.TubeLine
 import com.example.londonundergroundstatus.models.TubeLineColours
 import com.example.londonundergroundstatus.models.TubeStatusViewState
-import com.londonundergroundstatus.R
 import kotlinx.android.synthetic.main.tube_status_overview_activity.*
+import uk.co.nelsonwright.londonundergroundstatus.R
 
 class TubeStatusActivity : AppCompatActivity(), TubeListClickListener {
     private val viewModel: TubeStatusViewModel by viewModels()
