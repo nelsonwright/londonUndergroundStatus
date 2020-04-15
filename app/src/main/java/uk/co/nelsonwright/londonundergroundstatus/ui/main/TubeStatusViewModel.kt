@@ -67,21 +67,21 @@ class TubeStatusViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     fun loadTubeLinesForWeekend() {
-        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
+        val yearMonthDayFormat = SimpleDateFormat("yyyy-MM-dd")
         val appId =
             getApplication<Application>().applicationContext.getString(R.string.applicationId)
         val appKey =
             getApplication<Application>().applicationContext.getString(R.string.applicationKey)
 
-        var dateExamined = Calendar.getInstance() // start with today
+        val dateExamined = Calendar.getInstance(Locale.UK) // start with today
 
         while (dateExamined[DAY_OF_WEEK] != SATURDAY) {
             dateExamined.add(Calendar.DATE, 1)
         }
 
-        val startDateString = simpleDateFormat.format(dateExamined.time)
+        val startDateString = yearMonthDayFormat.format(dateExamined.time)
         dateExamined.add(Calendar.DATE, 1)
-        val endDateString = simpleDateFormat.format(dateExamined.time)
+        val endDateString = yearMonthDayFormat.format(dateExamined.time)
 //
 //        disposable = repo.getLinesStatusForWeekend(appId, appKey, startDateString, endDateString)
 //            .subscribeOn(Schedulers.io())
