@@ -1,6 +1,6 @@
-package com.example.londonundergroundstatus.models
+package uk.co.nelsonwright.londonundergroundstatus.models
 
-import com.example.londonundergroundstatus.api.TubeLine
+import uk.co.nelsonwright.londonundergroundstatus.api.TubeLine
 
 data class TubeStatusViewState(
     val loading: Boolean = false,

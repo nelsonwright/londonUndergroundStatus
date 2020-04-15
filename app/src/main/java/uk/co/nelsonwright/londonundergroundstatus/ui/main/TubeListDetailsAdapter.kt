@@ -1,4 +1,4 @@
-package com.example.londonundergroundstatus.ui.main
+package uk.co.nelsonwright.londonundergroundstatus.ui.main
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -6,8 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
-import com.example.londonundergroundstatus.api.TubeLineStatus
 import uk.co.nelsonwright.londonundergroundstatus.R
+import uk.co.nelsonwright.londonundergroundstatus.api.TubeLineStatus
 
 class TubeListDetailsAdapter(
     context: Context,

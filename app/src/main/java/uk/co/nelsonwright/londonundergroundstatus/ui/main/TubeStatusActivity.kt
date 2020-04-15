@@ -1,4 +1,4 @@
-package com.example.londonundergroundstatus.ui.main
+package uk.co.nelsonwright.londonundergroundstatus.ui.main
 
 import android.content.Intent
 import android.os.Bundle
@@ -10,11 +10,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.londonundergroundstatus.api.TubeLine
-import com.example.londonundergroundstatus.models.TubeLineColours
-import com.example.londonundergroundstatus.models.TubeStatusViewState
 import kotlinx.android.synthetic.main.tube_status_overview_activity.*
 import uk.co.nelsonwright.londonundergroundstatus.R
+import uk.co.nelsonwright.londonundergroundstatus.api.TubeLine
+import uk.co.nelsonwright.londonundergroundstatus.models.TubeLineColours
+import uk.co.nelsonwright.londonundergroundstatus.models.TubeStatusViewState
 
 class TubeStatusActivity : AppCompatActivity(), TubeListClickListener {
     private val viewModel: TubeStatusViewModel by viewModels()
@@ -48,6 +48,13 @@ class TubeStatusActivity : AppCompatActivity(), TubeListClickListener {
         startActivity(intent)
     }
 
+    override fun onStatusDateChanged(position: Int) {
+        when (position) {
+            1 -> viewModel.loadTubeLinesForWeekend()
+            else -> viewModel.loadTubeLines()
+        }
+    }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.tube_status_menu, menu)
         return true
@@ -55,7 +62,7 @@ class TubeStatusActivity : AppCompatActivity(), TubeListClickListener {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // Handle presses on the action bar items
-        return when (item.getItemId()) {
+        return when (item.itemId) {
             R.id.menu_refresh -> {
                 swipe_refresh.isRefreshing = true
                 viewModel.loadTubeLines()
@@ -67,7 +74,7 @@ class TubeStatusActivity : AppCompatActivity(), TubeListClickListener {
 
     private fun setupRecyclerView() {
         viewManager = LinearLayoutManager(this)
-        viewAdapter = TubeListAdapter(this, arrayListOf(), this)
+        viewAdapter = TubeListAdapter(this.applicationContext, arrayListOf(), this)
 
         lines_recycler_view.apply {
             layoutManager = viewManager

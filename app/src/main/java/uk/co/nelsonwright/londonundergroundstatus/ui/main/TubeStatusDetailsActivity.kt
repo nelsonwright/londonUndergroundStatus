@@ -1,12 +1,12 @@
-package com.example.londonundergroundstatus.ui.main
+package uk.co.nelsonwright.londonundergroundstatus.ui.main
 
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.example.londonundergroundstatus.api.TubeLine
 import kotlinx.android.synthetic.main.tube_status_details_activity.*
 import uk.co.nelsonwright.londonundergroundstatus.R
+import uk.co.nelsonwright.londonundergroundstatus.api.TubeLine
 
 const val EXTRA_LINES = "EXTRA_LINES"
 const val EXTRA_LINE_COLOUR = "EXTRA_LINE_COLOUR"

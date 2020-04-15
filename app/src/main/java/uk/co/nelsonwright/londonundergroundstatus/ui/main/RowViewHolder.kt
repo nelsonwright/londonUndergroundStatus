@@ -1,17 +1,16 @@
-package com.example.londonundergroundstatus.ui.main
+package uk.co.nelsonwright.londonundergroundstatus.ui.main
 
-import android.content.Context
 import android.graphics.Color
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
-import com.example.londonundergroundstatus.api.TubeLine
-import com.example.londonundergroundstatus.models.DARK_BLUE
-import com.example.londonundergroundstatus.models.TubeLineColours
-import com.example.londonundergroundstatus.models.WHITE
 import kotlinx.android.synthetic.main.recycler_view_row.view.*
+import uk.co.nelsonwright.londonundergroundstatus.api.TubeLine
+import uk.co.nelsonwright.londonundergroundstatus.models.DARK_BLUE
+import uk.co.nelsonwright.londonundergroundstatus.models.TubeLineColours
+import uk.co.nelsonwright.londonundergroundstatus.models.WHITE
 
 class RowViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    fun bindView(context: Context, tubeLine: TubeLine, listener: TubeListClickListener) {
+    fun bindView(tubeLine: TubeLine, listener: TubeListClickListener) {
         itemView.tube_name.text = tubeLine.name
         val tube = TubeLineColours.values().firstOrNull {
             it.id == tubeLine.id

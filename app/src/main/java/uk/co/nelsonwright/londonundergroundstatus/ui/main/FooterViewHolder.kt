@@ -1,4 +1,4 @@
-package com.example.londonundergroundstatus.ui.main
+package uk.co.nelsonwright.londonundergroundstatus.ui.main
 
 
 import android.view.View

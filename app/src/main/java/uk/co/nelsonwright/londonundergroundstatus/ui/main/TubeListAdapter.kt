@@ -1,4 +1,4 @@
-package com.example.londonundergroundstatus.ui.main
+package uk.co.nelsonwright.londonundergroundstatus.ui.main
 
 import android.content.Context
 import android.util.Log
@@ -6,8 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.londonundergroundstatus.api.TubeLine
 import uk.co.nelsonwright.londonundergroundstatus.R
+import uk.co.nelsonwright.londonundergroundstatus.api.TubeLine
 
 enum class RowType {
     HEADER,
@@ -17,10 +17,12 @@ enum class RowType {
 
 interface TubeListClickListener {
     fun onTubeLineClicked(tubeLine: TubeLine)
+    fun onStatusDateChanged(position: Int)
 }
 
 class TubeListAdapter(
-    private val context: Context, private var tubeDetailsList: List<TubeLine>,
+    private val context: Context,
+    private var tubeDetailsList: List<TubeLine>,
     private val listener: TubeListClickListener
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), View.OnClickListener {
 
@@ -30,20 +32,19 @@ class TubeListAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        val inflater = LayoutInflater.from(parent.context)
+
         return when (viewType) {
             RowType.HEADER.ordinal -> HeaderViewHolder(
-                LayoutInflater.from(parent.context)
-                    .inflate(R.layout.recycler_view_header, parent, false)
+                inflater.inflate(R.layout.recycler_view_header, parent, false)
             )
 
             RowType.FOOTER.ordinal -> FooterViewHolder(
-                LayoutInflater.from(parent.context)
-                    .inflate(R.layout.recycler_view_footer, parent, false)
+                inflater.inflate(R.layout.recycler_view_footer, parent, false)
             )
 
             else -> RowViewHolder(
-                LayoutInflater.from(parent.context)
-                    .inflate(R.layout.recycler_view_row, parent, false)
+                inflater.inflate(R.layout.recycler_view_row, parent, false)
             )
         }
     }
@@ -52,7 +53,10 @@ class TubeListAdapter(
         when (getItemViewType(position)) {
             RowType.HEADER.ordinal -> {
                 holder as HeaderViewHolder
-                holder.bindView(listener = listener)
+                holder.bindView(
+                    listener = listener,
+                    context = context
+                )
             }
             RowType.FOOTER.ordinal -> {
                 holder as FooterViewHolder
@@ -61,7 +65,6 @@ class TubeListAdapter(
             else -> {
                 holder as RowViewHolder
                 holder.bindView(
-                    context = context,
                     tubeLine = tubeDetailsList[position - 1],
                     listener = listener
                 )

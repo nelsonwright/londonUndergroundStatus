@@ -1,9 +1,15 @@
 <resources>
     <string name="app_name">London Underground Status</string>
     <string name="error_loading_statuses">Sorry, there was an error loading the line statuses. Please try refreshing, or try again later.</string>
-    <string name="line_status">Line status</string>
+    <string name="line_status">Line status for</string>
     <string name="refresh_date">Refreshed: %1$s</string>
     <string name="refresh">Refresh</string>
     <string name="powered_by_tfl">Powered by TfL Open Data</string>
     <string name="contains_os_data">Contains OS data &#169; Crown copyright and database rights 2016 and Geomni UK Map data &#169; and database rights [2019]</string>
+
+    <string-array name="status_date_array">
+        <item>now</item>
+        <item>weekend</item>
+    </string-array>
+
 </resources>

@@ -1,4 +1,4 @@
-package com.example.londonundergroundstatus.api
+package uk.co.nelsonwright.londonundergroundstatus.api
 
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable

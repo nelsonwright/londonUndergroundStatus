@@ -1,16 +1,18 @@
-package com.example.londonundergroundstatus.ui.main
+package uk.co.nelsonwright.londonundergroundstatus.ui.main
 
 import android.app.Application
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.example.londonundergroundstatus.api.TflApiService
-import com.example.londonundergroundstatus.models.TubeStatusViewState
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
 import uk.co.nelsonwright.londonundergroundstatus.R
-
+import uk.co.nelsonwright.londonundergroundstatus.api.TflApiService
+import uk.co.nelsonwright.londonundergroundstatus.models.TubeStatusViewState
+import java.text.SimpleDateFormat
+import java.util.*
+import java.util.Calendar.DAY_OF_WEEK
+import java.util.Calendar.SATURDAY
 
 class TubeStatusViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -46,16 +48,56 @@ class TubeStatusViewModel(application: Application) : AndroidViewModel(applicati
         val appKey =
             getApplication<Application>().applicationContext.getString(R.string.applicationKey)
 
-        disposable = repo.getLinesStatus(appId, appKey)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { lines ->
-                    viewState.value = TubeStatusViewState(tubeLines = lines)
-                },
-                { error ->
-                    viewState.value = TubeStatusViewState(loadingError = true)
-                })
+//        disposable = repo.getLinesStatus(appId, appKey)
+//            .subscribeOn(Schedulers.io())
+//            .observeOn(AndroidSchedulers.mainThread())
+//            .subscribe(
+//                { lines ->
+//                    viewState.value = TubeStatusViewState(tubeLines = lines)
+//                },
+//                { error ->
+//                    viewState.value = TubeStatusViewState(loadingError = true)
+//                })
+
+        Toast.makeText(
+            getApplication<Application>().applicationContext,
+            "loading tube lines . . . ",
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+
+    fun loadTubeLinesForWeekend() {
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
+        val appId =
+            getApplication<Application>().applicationContext.getString(R.string.applicationId)
+        val appKey =
+            getApplication<Application>().applicationContext.getString(R.string.applicationKey)
+
+        var dateExamined = Calendar.getInstance() // start with today
+
+        while (dateExamined[DAY_OF_WEEK] != SATURDAY) {
+            dateExamined.add(Calendar.DATE, 1)
+        }
+
+        val startDateString = simpleDateFormat.format(dateExamined.time)
+        dateExamined.add(Calendar.DATE, 1)
+        val endDateString = simpleDateFormat.format(dateExamined.time)
+//
+//        disposable = repo.getLinesStatusForWeekend(appId, appKey, startDateString, endDateString)
+//            .subscribeOn(Schedulers.io())
+//            .observeOn(AndroidSchedulers.mainThread())
+//            .subscribe(
+//                { lines ->
+//                    viewState.value = TubeStatusViewState(tubeLines = lines)
+//                },
+//                { error ->
+//                    viewState.value = TubeStatusViewState(loadingError = true)
+//                })
+        Toast.makeText(
+            getApplication<Application>().applicationContext,
+            "loading tube lines for weekend. . . ",
+            Toast.LENGTH_SHORT
+        ).show()
     }
 }
 
