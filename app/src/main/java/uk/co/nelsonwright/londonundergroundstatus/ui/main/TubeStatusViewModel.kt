@@ -25,7 +25,6 @@ class TubeStatusViewModel(application: Application) : AndroidViewModel(applicati
     private var viewState: MutableLiveData<TubeStatusViewState> = MutableLiveData()
 
     init {
-        viewState.value = TubeStatusViewState(loading = true)
         loadTubeLines()
     }
 
@@ -38,12 +37,11 @@ class TubeStatusViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     fun onRefreshClicked() {
-        viewState.value = TubeStatusViewState(loading = true)
-
         loadTubeLines()
     }
 
     fun loadTubeLines() {
+        showLoading()
         val appId =
             getApplication<Application>().applicationContext.getString(R.string.applicationId)
         val appKey =
@@ -65,6 +63,8 @@ class TubeStatusViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     fun loadTubeLinesForWeekend() {
+        showLoading()
+
         val yearMonthDayFormat = SimpleDateFormat("yyyy-MM-dd")
         val appId =
             getApplication<Application>().applicationContext.getString(R.string.applicationId)
@@ -96,6 +96,9 @@ class TubeStatusViewModel(application: Application) : AndroidViewModel(applicati
                 })
     }
 
+    private fun showLoading() {
+        viewState.value = TubeStatusViewState(loading = true)
+    }
 
     private fun getRefreshDate(): String {
         val date = Calendar.getInstance().time
