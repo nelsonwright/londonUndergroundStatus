@@ -12,16 +12,47 @@
         android:paddingStart="16dp"
         android:paddingEnd="16dp">
 
+        <TextView
+            android:id="@+id/refresh_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/refresh_date"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="24dp"
+            android:text="@string/line_status"
+            android:textSize="24sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/refresh_date" />
+
+        <Spinner
+            android:id="@+id/status_date_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            app:layout_constraintBottom_toBottomOf="@id/header"
+            app:layout_constraintStart_toEndOf="@id/header"
+            app:layout_constraintTop_toTopOf="@id/header" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/lines_recycler_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="600dp"
+            android:layout_height="0dp"
             android:scrollbars="vertical"
+            android:layout_marginTop="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/header" />
 
         <ProgressBar
             android:id="@+id/progress_bar"

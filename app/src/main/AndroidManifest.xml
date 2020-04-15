@@ -10,7 +10,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.main.TubeStatusActivity">
+        <activity android:name=".ui.main.TubeStatusOverviewActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -20,7 +20,7 @@
 
         <activity
             android:name=".ui.main.TubeStatusDetailsActivity"
-            android:parentActivityName=".ui.main.TubeStatusActivity" />
+            android:parentActivityName=".ui.main.TubeStatusOverviewActivity" />
     </application>
 
 </manifest>

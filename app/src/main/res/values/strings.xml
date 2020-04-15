@@ -7,7 +7,7 @@
     <string name="powered_by_tfl">Powered by TfL Open Data</string>
     <string name="contains_os_data">Contains OS data &#169; Crown copyright and database rights 2016 and Geomni UK Map data &#169; and database rights [2019]</string>
 
-    <string-array name="status_date_array">
+    <string-array name="now_or_weekend_array">
         <item>now</item>
         <item>weekend</item>
     </string-array>
