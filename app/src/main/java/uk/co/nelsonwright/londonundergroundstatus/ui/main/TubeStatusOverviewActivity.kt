@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.activity.viewModels
@@ -16,7 +18,8 @@ import kotlinx.android.synthetic.main.tube_status_overview_activity.*
 import uk.co.nelsonwright.londonundergroundstatus.R
 import uk.co.nelsonwright.londonundergroundstatus.api.TubeLine
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeLineColours
-import uk.co.nelsonwright.londonundergroundstatus.models.TubeStatusViewState
+import java.text.SimpleDateFormat
+import java.util.*
 
 class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, AdapterView.OnItemSelectedListener {
     private val viewModel: TubeStatusViewModel by viewModels()
@@ -84,9 +87,26 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
     }
 
     private fun observeViewModel() {
-        viewModel.getViewState().observe(this, Observer { state ->
-            updateView(state)
+        viewModel.loadingError.observe(this, Observer { error ->
+            updateView(error)
         })
+
+        viewModel.tubeLines.observe(this, Observer { lines ->
+            updateTubeLines(lines)
+        })
+
+        viewModel.getLoading().observe(this, Observer { state ->
+            updateLoading(state)
+        })
+    }
+
+    private fun updateLoading(loading: Boolean) {
+        progress_bar.visibility = if (loading) VISIBLE else GONE
+    }
+
+    private fun updateTubeLines(lines: List<TubeLine>) {
+        updateLoading(false)
+        (viewAdapter as TubeListAdapter).update(lines)
     }
 
     private fun setListeners() {
@@ -110,18 +130,19 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
         status_date_spinner.onItemSelectedListener = this
     }
 
-    private fun updateView(viewState: TubeStatusViewState) {
-        with(viewState) {
-            swipe_refresh.isRefreshing = false
-            progress_bar.visibility = if (loading) View.VISIBLE else View.GONE
+    private fun updateView(error: Boolean) {
+        swipe_refresh.isRefreshing = false
+        updateLoading(false)
 
-            (viewAdapter as TubeListAdapter).update(tubeLines)
-
-            refresh_date.text = getString(R.string.refresh_date, refreshDate)
-
-            refresh_date.visibility = if (loadingError) View.GONE else View.VISIBLE
-            lines_recycler_view.visibility = if (loadingError) View.GONE else View.VISIBLE
-            loading_error_group.visibility = if (loadingError) View.VISIBLE else View.GONE
+        if (error) {
+            refresh_date.visibility = GONE
+            lines_recycler_view.visibility = GONE
+            loading_error_group.visibility = VISIBLE
+        } else {
+            refresh_date.visibility = VISIBLE
+            lines_recycler_view.visibility = VISIBLE
+            loading_error_group.visibility = GONE
+            refresh_date.text = getString(R.string.refresh_date, getRefreshDate())
         }
 
     }
@@ -132,5 +153,11 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
         onStatusDateChanged(position)
+    }
+
+    private fun getRefreshDate(): String {
+        val date = Calendar.getInstance().time
+        val formatter = SimpleDateFormat.getDateTimeInstance()
+        return formatter.format(date)
     }
 }
