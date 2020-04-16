@@ -7,21 +7,15 @@ import androidx.lifecycle.MutableLiveData
 import io.reactivex.disposables.Disposable
 import uk.co.nelsonwright.londonundergroundstatus.R
 import uk.co.nelsonwright.londonundergroundstatus.api.TflRepository
-import java.text.SimpleDateFormat
-import java.util.*
-import java.util.Calendar.DAY_OF_WEEK
-import java.util.Calendar.SATURDAY
 
 class TubeStatusViewModel(application: Application) : AndroidViewModel(application) {
 
     private var disposable: Disposable? = null
-
-    //    private var viewState: MutableLiveData<TubeStatusViewState> = MutableLiveData()
     private val repo: TflRepository = TflRepository()
 
     val tubeLines = repo.getTubeLines()
     val loadingError = repo.getLoadingError()
-    var loading: MutableLiveData<Boolean> = MutableLiveData()
+    private var loading: MutableLiveData<Boolean> = MutableLiveData()
 
     init {
         loadTubeLines()
@@ -35,52 +29,27 @@ class TubeStatusViewModel(application: Application) : AndroidViewModel(applicati
         disposable?.dispose()
     }
 
-    fun onRefreshClicked() {
-        loadTubeLines()
+    fun onRefreshClicked(isWeekendSelected: Boolean) {
+        loadTubeLines(isWeekendSelected)
     }
 
-    fun loadTubeLines() {
+    fun loadTubeLines(weekend: Boolean = false) {
         showLoading()
-        val appId =
-            getApplication<Application>().applicationContext.getString(R.string.applicationId)
-        val appKey =
-            getApplication<Application>().applicationContext.getString(R.string.applicationKey)
+        val (appId, appKey) = getAppKeyAndId()
 
-        disposable = repo.loadTubeLinesNow(appId, appKey)
-    }
-
-    fun loadTubeLinesForWeekend() {
-        showLoading()
-
-        val yearMonthDayFormat = SimpleDateFormat("yyyy-MM-dd")
-        val appId =
-            getApplication<Application>().applicationContext.getString(R.string.applicationId)
-        val appKey =
-            getApplication<Application>().applicationContext.getString(R.string.applicationKey)
-
-        val dateExamined = Calendar.getInstance(Locale.UK) // start with today
-
-        while (dateExamined[DAY_OF_WEEK] != SATURDAY) {
-            dateExamined.add(Calendar.DATE, 1)
+        if (weekend) {
+            disposable = repo.loadTubeLinesForWeekend(appId, appKey)
+        } else {
+            disposable = repo.loadTubeLinesForNow(appId, appKey)
         }
+    }
 
-        val startDateString = yearMonthDayFormat.format(dateExamined.time)
-        dateExamined.add(Calendar.DATE, 1)
-        val endDateString = yearMonthDayFormat.format(dateExamined.time)
-
-//        disposable = repo.getLinesStatusForWeekend(appId, appKey, startDateString, endDateString)
-//            .subscribeOn(Schedulers.io())
-//            .observeOn(AndroidSchedulers.mainThread())
-//            .subscribe(
-//                { lines ->
-//                    viewState.value = TubeStatusViewState(
-//                        tubeLines = lines,
-//                        refreshDate = getRefreshDate()
-//                    )
-//                },
-//                { error ->
-//                    viewState.value = TubeStatusViewState(loadingError = true)
-//                })
+    private fun getAppKeyAndId(): Pair<String, String> {
+        val appId =
+            getApplication<Application>().applicationContext.getString(R.string.applicationId)
+        val appKey =
+            getApplication<Application>().applicationContext.getString(R.string.applicationKey)
+        return Pair(appId, appKey)
     }
 
     private fun showLoading() {

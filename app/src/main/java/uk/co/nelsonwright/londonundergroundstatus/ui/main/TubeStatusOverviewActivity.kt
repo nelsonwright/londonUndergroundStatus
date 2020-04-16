@@ -23,9 +23,11 @@ import java.util.*
 
 class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, AdapterView.OnItemSelectedListener {
     private val viewModel: TubeStatusViewModel by viewModels()
-
     private lateinit var viewAdapter: RecyclerView.Adapter<*>
     private lateinit var viewManager: RecyclerView.LayoutManager
+
+    private val isWeekendSelected
+        get() = status_date_spinner.selectedItemPosition == 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,13 +55,6 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
         startActivity(intent)
     }
 
-    private fun onStatusDateChanged(position: Int) {
-        when (position) {
-            1 -> viewModel.loadTubeLinesForWeekend()
-            else -> viewModel.loadTubeLines()
-        }
-    }
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.tube_status_menu, menu)
         return true
@@ -69,7 +64,7 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
         return when (item.itemId) {
             R.id.menu_refresh -> {
                 swipe_refresh.isRefreshing = true
-                viewModel.loadTubeLines()
+                viewModel.loadTubeLines(isWeekendSelected)
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -111,10 +106,10 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
 
     private fun setListeners() {
         refresh_button.setOnClickListener {
-            viewModel.onRefreshClicked()
+            viewModel.onRefreshClicked(isWeekendSelected)
         }
         swipe_refresh.setOnRefreshListener {
-            viewModel.loadTubeLines()
+            viewModel.loadTubeLines(isWeekendSelected)
         }
 
         ArrayAdapter.createFromResource(
@@ -144,7 +139,6 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
             loading_error_group.visibility = GONE
             refresh_date.text = getString(R.string.refresh_date, getRefreshDate())
         }
-
     }
 
     override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -153,6 +147,13 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
         onStatusDateChanged(position)
+    }
+
+    private fun onStatusDateChanged(position: Int) {
+        when (position) {
+            1 -> viewModel.loadTubeLines(weekend = true)
+            else -> viewModel.loadTubeLines()
+        }
     }
 
     private fun getRefreshDate(): String {
