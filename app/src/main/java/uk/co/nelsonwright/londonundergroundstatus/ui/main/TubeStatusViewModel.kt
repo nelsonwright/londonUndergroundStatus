@@ -37,10 +37,10 @@ class TubeStatusViewModel(application: Application) : AndroidViewModel(applicati
         showLoading()
         val (appId, appKey) = getAppKeyAndId()
 
-        if (weekend) {
-            disposable = repo.loadTubeLinesForWeekend(appId, appKey)
+        disposable = if (weekend) {
+            repo.loadTubeLinesForWeekend(appId, appKey)
         } else {
-            disposable = repo.loadTubeLinesForNow(appId, appKey)
+            repo.loadTubeLinesForNow(appId, appKey)
         }
     }
 

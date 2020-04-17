@@ -45,12 +45,13 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
     override fun onTubeLineClicked(tubeLine: TubeLine) {
         val tube = TubeLineColours.values().firstOrNull { it.id == tubeLine.id }
 
-        val intent = Intent(this, TubeStatusDetailsActivity::class.java).apply {
-            putExtra(EXTRA_LINES, tubeLine)
-            tube?.let {
-                putExtra(EXTRA_LINE_COLOUR, it.backgroundColour)
+        val intent = Intent(this, TubeStatusDetailsActivity::class.java)
+            .apply {
+                putExtra(EXTRA_LINES, tubeLine)
+                tube?.let {
+                    putExtra(EXTRA_LINE_COLOUR, it.backgroundColour)
+                }
             }
-        }
 
         startActivity(intent)
     }
@@ -91,16 +92,16 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
         })
 
         viewModel.getLoading().observe(this, Observer { state ->
-            updateLoading(state)
+            updateLoadingIndicator(state)
         })
     }
 
-    private fun updateLoading(loading: Boolean) {
-        progress_bar.visibility = if (loading) VISIBLE else GONE
+    private fun updateLoadingIndicator(loading: Boolean) {
+        swipe_refresh.isRefreshing = loading
     }
 
     private fun updateTubeLines(lines: List<TubeLine>) {
-        updateLoading(false)
+        updateLoadingIndicator(false)
         (viewAdapter as TubeListAdapter).update(lines)
     }
 
@@ -126,8 +127,7 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
     }
 
     private fun updateView(error: Boolean) {
-        swipe_refresh.isRefreshing = false
-        updateLoading(false)
+        updateLoadingIndicator(false)
 
         if (error) {
             refresh_date.visibility = GONE
@@ -146,14 +146,7 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
     }
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-        onStatusDateChanged(position)
-    }
-
-    private fun onStatusDateChanged(position: Int) {
-        when (position) {
-            1 -> viewModel.loadTubeLines(weekend = true)
-            else -> viewModel.loadTubeLines()
-        }
+        viewModel.loadTubeLines(isWeekendSelected)
     }
 
     private fun getRefreshDate(): String {
