@@ -10,7 +10,7 @@ import uk.co.nelsonwright.londonundergroundstatus.api.TflRepository
 
 class TubeStatusViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repo: TflRepository = TflRepository()
+    private val repo = TflRepository
     val tubeLines = repo.getTubeLines()
     val loadingError = repo.getLoadingError()
 

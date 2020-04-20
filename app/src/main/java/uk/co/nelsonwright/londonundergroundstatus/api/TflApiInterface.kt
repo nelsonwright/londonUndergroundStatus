@@ -5,7 +5,7 @@ import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.Query
 
-interface TflApiService {
+interface TflApiInterface {
 
     @Headers("Cache-Control: max-age=60")
     @GET("line/mode/tube,dlr,tflrail,overground,tram/status")

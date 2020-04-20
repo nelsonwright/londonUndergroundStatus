@@ -18,16 +18,20 @@ import kotlinx.android.synthetic.main.tube_status_overview_activity.*
 import uk.co.nelsonwright.londonundergroundstatus.R
 import uk.co.nelsonwright.londonundergroundstatus.api.TubeLine
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeLineColours
-import java.text.SimpleDateFormat
-import java.util.*
+import uk.co.nelsonwright.londonundergroundstatus.ui.main.CalendarUtils.Companion.getFormattedNowDate
+import uk.co.nelsonwright.londonundergroundstatus.ui.main.CalendarUtils.Companion.getFormattedSaturdayDate
+
+private const val WEEKEND_SELECTED = 1
 
 class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, AdapterView.OnItemSelectedListener {
     private val viewModel: TubeStatusViewModel by viewModels()
     private lateinit var viewAdapter: RecyclerView.Adapter<*>
     private lateinit var viewManager: RecyclerView.LayoutManager
 
-    private val isWeekendSelected
-        get() = status_date_spinner.selectedItemPosition == 1
+    private val isWeekendSelected: Boolean
+        get() {
+            return status_date_spinner.selectedItemPosition == WEEKEND_SELECTED
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,6 +76,14 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
         }
     }
 
+    override fun onNothingSelected(parent: AdapterView<*>?) {
+        // do nothing
+    }
+
+    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+        viewModel.loadTubeLines(isWeekendSelected)
+    }
+
     private fun setupRecyclerView() {
         viewManager = LinearLayoutManager(this)
         viewAdapter = TubeListAdapter(arrayListOf(), this)
@@ -113,16 +125,22 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
             viewModel.loadTubeLines(isWeekendSelected)
         }
 
-        ArrayAdapter.createFromResource(
-            this,
-            R.array.now_or_weekend_array,
-            R.layout.status_spinner_item
-        ).also { adapter ->
-            // the layout for when the list of choices appears, i.e when the down arrow is tapped
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            // assign the adapter to the spinner
-            status_date_spinner.adapter = adapter
-        }
+        setupDateDropdown()
+    }
+
+    private fun setupDateDropdown() {
+        val dropdownList: MutableList<String> = ArrayList()
+
+        dropdownList.add(getString(R.string.now))
+        dropdownList.add(getString(R.string.weekend_of, getFormattedSaturdayDate()))
+
+        ArrayAdapter(applicationContext, R.layout.status_spinner_item, dropdownList)
+            .also { adapter ->
+                // the layout for when the list of choices appears, i.e when the down arrow is tapped
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                // assign the adapter to the spinner
+                status_date_spinner.adapter = adapter
+            }
         status_date_spinner.onItemSelectedListener = this
     }
 
@@ -137,21 +155,7 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
             refresh_date.visibility = VISIBLE
             lines_recycler_view.visibility = VISIBLE
             loading_error_group.visibility = GONE
-            refresh_date.text = getString(R.string.refresh_date, getRefreshDate())
+            refresh_date.text = getString(R.string.refresh_date, getFormattedNowDate())
         }
-    }
-
-    override fun onNothingSelected(parent: AdapterView<*>?) {
-        // do nothing
-    }
-
-    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-        viewModel.loadTubeLines(isWeekendSelected)
-    }
-
-    private fun getRefreshDate(): String {
-        val date = Calendar.getInstance().time
-        val formatter = SimpleDateFormat.getDateTimeInstance()
-        return formatter.format(date)
     }
 }
