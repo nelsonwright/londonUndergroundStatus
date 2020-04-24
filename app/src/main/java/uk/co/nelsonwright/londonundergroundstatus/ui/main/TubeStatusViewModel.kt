@@ -8,9 +8,11 @@ import io.reactivex.disposables.Disposable
 import uk.co.nelsonwright.londonundergroundstatus.R
 import uk.co.nelsonwright.londonundergroundstatus.api.TflRepository
 
-class TubeStatusViewModel(application: Application) : AndroidViewModel(application) {
+class TubeStatusViewModel(
+    application: Application,
+    private val repo: TflRepository
+) : AndroidViewModel(application) {
 
-    private val repo = TflRepository
     val tubeLines = repo.getTubeLines()
     val loadingError = repo.getLoadingError()
 

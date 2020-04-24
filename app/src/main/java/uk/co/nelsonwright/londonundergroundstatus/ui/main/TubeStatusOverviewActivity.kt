@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.tube_status_overview_activity.*
 import uk.co.nelsonwright.londonundergroundstatus.R
+import uk.co.nelsonwright.londonundergroundstatus.api.TflRepository
 import uk.co.nelsonwright.londonundergroundstatus.api.TubeLine
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeLineColours
 import uk.co.nelsonwright.londonundergroundstatus.ui.main.CalendarUtils.Companion.getFormattedNowDate
@@ -24,7 +25,10 @@ import uk.co.nelsonwright.londonundergroundstatus.ui.main.CalendarUtils.Companio
 private const val WEEKEND_SELECTED = 1
 
 class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, AdapterView.OnItemSelectedListener {
-    private val viewModel: TubeStatusViewModel by viewModels()
+    private val repo: TflRepository = TflRepository
+    private lateinit var viewModelFactory: TubeStatusViewModelFactory
+    private val viewModel: TubeStatusViewModel by viewModels { viewModelFactory }
+
     private lateinit var viewAdapter: RecyclerView.Adapter<*>
     private lateinit var viewManager: RecyclerView.LayoutManager
 
@@ -36,6 +40,8 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.tube_status_overview_activity)
+
+        viewModelFactory = TubeStatusViewModelFactory(this.application, repo)
         setupRecyclerView()
         observeViewModel()
         setListeners()
