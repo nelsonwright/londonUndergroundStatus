@@ -1,17 +1,17 @@
 package uk.co.nelsonwright.londonundergroundstatus.ui.main
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import io.reactivex.disposables.Disposable
 import uk.co.nelsonwright.londonundergroundstatus.R
 import uk.co.nelsonwright.londonundergroundstatus.api.TflRepository
 
 class TubeStatusViewModel(
-    application: Application,
+    private val context: Context,
     private val repo: TflRepository
-) : AndroidViewModel(application) {
+) : ViewModel() {
 
     val tubeLines = repo.getTubeLines()
     val loadingError = repo.getLoadingError()
@@ -47,10 +47,8 @@ class TubeStatusViewModel(
     }
 
     private fun getAppKeyAndId(): Pair<String, String> {
-        val appId =
-            getApplication<Application>().applicationContext.getString(R.string.applicationId)
-        val appKey =
-            getApplication<Application>().applicationContext.getString(R.string.applicationKey)
+        val appId = context.applicationContext.getString(R.string.applicationId)
+        val appKey = context.applicationContext.getString(R.string.applicationKey)
         return Pair(appId, appKey)
     }
 

@@ -46,7 +46,7 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
         setContentView(R.layout.tube_status_overview_activity)
         (application as TubeStatusApplication).tubeStatusComponent.inject(this)
 
-        viewModelFactory = TubeStatusViewModelFactory(this.application, repo)
+        viewModelFactory = TubeStatusViewModelFactory(this, repo)
         setupRecyclerView()
         observeViewModel()
         setListeners()
