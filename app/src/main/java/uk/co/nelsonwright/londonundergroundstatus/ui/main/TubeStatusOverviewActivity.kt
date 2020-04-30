@@ -20,7 +20,7 @@ import uk.co.nelsonwright.londonundergroundstatus.TubeStatusApplication
 import uk.co.nelsonwright.londonundergroundstatus.api.TflRepository
 import uk.co.nelsonwright.londonundergroundstatus.api.TubeLine
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeLineColours
-import uk.co.nelsonwright.londonundergroundstatus.ui.main.CalendarUtils.Companion.getFormattedNowDate
+import uk.co.nelsonwright.londonundergroundstatus.models.TubeStatusViewState
 import uk.co.nelsonwright.londonundergroundstatus.ui.main.CalendarUtils.Companion.getFormattedSaturdayDate
 import javax.inject.Inject
 
@@ -106,12 +106,8 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
     }
 
     private fun observeViewModel() {
-        viewModel.loadingError.observe(this, Observer { error ->
-            updateView(error)
-        })
-
-        viewModel.tubeLines.observe(this, Observer { lines ->
-            updateTubeLines(lines)
+        viewModel.viewState.observe(this, Observer { state ->
+            updateView(state)
         })
 
         viewModel.getLoading().observe(this, Observer { state ->
@@ -123,9 +119,12 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
         swipe_refresh.isRefreshing = loading
     }
 
-    private fun updateTubeLines(lines: List<TubeLine>) {
-        updateLoadingIndicator(false)
-        (viewAdapter as TubeListAdapter).update(lines)
+    private fun updateView(state: TubeStatusViewState) {
+        with(state) {
+            updateViewVisibilities(error = loadingError)
+            refresh_date.text = getString(R.string.refresh_date, refreshDate)
+            (viewAdapter as TubeListAdapter).update(tubeLines)
+        }
     }
 
     private fun setListeners() {
@@ -155,7 +154,7 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
         status_date_spinner.onItemSelectedListener = this
     }
 
-    private fun updateView(error: Boolean) {
+    private fun updateViewVisibilities(error: Boolean) {
         updateLoadingIndicator(false)
 
         if (error) {
@@ -166,7 +165,6 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
             refresh_date.visibility = VISIBLE
             lines_recycler_view.visibility = VISIBLE
             loading_error_group.visibility = GONE
-            refresh_date.text = getString(R.string.refresh_date, getFormattedNowDate())
         }
     }
 }
