@@ -4,42 +4,33 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
 import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import kotlinx.android.synthetic.main.status_detail_row.view.*
 import uk.co.nelsonwright.londonundergroundstatus.R
 import uk.co.nelsonwright.londonundergroundstatus.api.TubeLineStatus
 
 class TubeListDetailsAdapter(
-    context: Context,
+    private val context: Context,
     private val dataSource: List<TubeLineStatus>
-) : BaseAdapter() {
+) : RecyclerView.Adapter<TubeListDetailsAdapter.ViewHolder>() {
 
-    private val inflater: LayoutInflater =
-        context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        // Get view for row item
-        val rowView = inflater.inflate(R.layout.status_detail_row, parent, false)
-
-        val statusHeader = rowView.findViewById(R.id.status_header) as TextView
-        val status = getItem(position) as TubeLineStatus
-        statusHeader.text = status.severityDescription
-
-        val statusDetail = rowView.findViewById(R.id.status_detail) as TextView
-        statusDetail.text = status.reason
-
-        return rowView
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        return ViewHolder(LayoutInflater.from(context).inflate(R.layout.status_detail_row, parent, false))
     }
 
-    override fun getItem(position: Int): Any {
-        return dataSource[position]
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val status = dataSource[position]
+        holder.statusHeader.text = status.severityDescription
+        holder.statusDetail.text = status.reason
     }
 
-    override fun getItemId(position: Int): Long {
-        return position.toLong()
-    }
-
-    override fun getCount(): Int {
+    override fun getItemCount(): Int {
         return dataSource.size
+    }
+
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        var statusHeader: TextView = itemView.status_header
+        var statusDetail: TextView = itemView.status_detail
     }
 }

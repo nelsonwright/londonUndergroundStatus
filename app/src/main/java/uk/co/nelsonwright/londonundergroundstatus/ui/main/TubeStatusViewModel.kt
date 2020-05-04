@@ -29,7 +29,7 @@ class TubeStatusViewModel(
         }
 
     private var tubeLinesResult = repo.getTubeLines()
-    private var loading = MutableLiveData<Boolean>(false)
+    private var loading = MutableLiveData(false)
     private var disposable: Disposable? = null
 
     init {

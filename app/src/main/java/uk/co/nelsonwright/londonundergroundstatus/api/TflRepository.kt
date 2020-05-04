@@ -8,10 +8,10 @@ import io.reactivex.schedulers.Schedulers
 import uk.co.nelsonwright.londonundergroundstatus.ui.main.CalendarUtils.Companion.getWeekendDates
 
 object TflRepository {
-    private var tubeLineResult: MutableLiveData<TubeLineResult> = MutableLiveData(TubeLineResult())
+    private var tubeLinesStatusResult: MutableLiveData<TubeLinesStatusResult> = MutableLiveData(TubeLinesStatusResult())
 
-    fun getTubeLines(): LiveData<TubeLineResult> {
-        return tubeLineResult
+    fun getTubeLines(): LiveData<TubeLinesStatusResult> {
+        return tubeLinesStatusResult
     }
 
     private val api by lazy {
@@ -42,13 +42,13 @@ object TflRepository {
 
     private fun success(): (tubeLinesList: List<TubeLine>) -> Unit {
         return { lines ->
-            tubeLineResult.value = TubeLineResult(tubeLines = lines)
+            tubeLinesStatusResult.value = TubeLinesStatusResult(tubeLines = lines)
         }
     }
 
     private fun error(): (t: Throwable) -> Unit {
         return { _ ->
-            tubeLineResult.value = TubeLineResult(loadingError = true)
+            tubeLinesStatusResult.value = TubeLinesStatusResult(loadingError = true)
         }
     }
 }
