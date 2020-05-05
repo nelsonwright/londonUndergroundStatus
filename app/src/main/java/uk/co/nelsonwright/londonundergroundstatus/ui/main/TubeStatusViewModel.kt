@@ -22,8 +22,7 @@ class TubeStatusViewModel(
                 TubeStatusViewState(
                     tubeLines = it.tubeLines,
                     loadingError = it.loadingError,
-                    refreshDate = getFormattedNowDate(),
-                    loading = false
+                    refreshDate = getFormattedNowDate()
                 )
             }
         }
