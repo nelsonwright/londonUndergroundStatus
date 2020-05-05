@@ -58,7 +58,8 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
     }
 
     override fun onTubeLineClicked(tubeLine: TubeLine) {
-        val tube = TubeLineColours.values().firstOrNull { it.id == tubeLine.id }
+        val tube = TubeLineColours.values()
+            .firstOrNull { it.id == tubeLine.id }
 
         val intent = Intent(this, TubeStatusDetailsActivity::class.java)
             .apply {

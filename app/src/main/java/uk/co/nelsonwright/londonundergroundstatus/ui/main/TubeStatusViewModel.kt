@@ -60,8 +60,8 @@ class TubeStatusViewModel(
     }
 
     private fun getAppKeyAndId(): Pair<String, String> {
-        val appId = context.applicationContext.getString(R.string.applicationId)
-        val appKey = context.applicationContext.getString(R.string.applicationKey)
+        val appId = context.getString(R.string.applicationId)
+        val appKey = context.getString(R.string.applicationKey)
         return Pair(appId, appKey)
     }
 
