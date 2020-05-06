@@ -6,16 +6,15 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import uk.co.nelsonwright.londonundergroundstatus.ui.main.CalendarUtils.Companion.getWeekendDates
+import javax.inject.Inject
+import javax.inject.Singleton
 
-object TflRepository {
+@Singleton
+class TflRepository @Inject constructor(val api: TflApiInterface) {
     private var tubeLinesStatusResult: MutableLiveData<TubeLinesStatusResult> = MutableLiveData(TubeLinesStatusResult())
 
     fun getTubeLines(): LiveData<TubeLinesStatusResult> {
         return tubeLinesStatusResult
-    }
-
-    private val api by lazy {
-        TflService.create()
     }
 
     fun loadTubeLinesForNow(appId: String, appKey: String): Disposable? {

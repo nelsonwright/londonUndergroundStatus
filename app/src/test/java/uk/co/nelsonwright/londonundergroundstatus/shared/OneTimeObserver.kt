@@ -1,4 +1,4 @@
-package uk.co.nelsonwright.londonundergroundstatus.ui.main
+package uk.co.nelsonwright.londonundergroundstatus.shared
 
 /*
 Copyright 2019 Alessandro Diaferia
