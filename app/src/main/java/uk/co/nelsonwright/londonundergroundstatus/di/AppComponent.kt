@@ -5,7 +5,7 @@ import uk.co.nelsonwright.londonundergroundstatus.ui.main.TubeStatusOverviewActi
 import javax.inject.Singleton
 
 @Singleton
-@Component(modules = [AppModule::class, TflRepositoryModule::class])
+@Component(modules = [AppModule::class, TflRepositoryModule::class, TimeHelperModule::class, CalendarUtilsModule::class])
 interface AppComponent {
     fun inject(target: TubeStatusOverviewActivity)
 }

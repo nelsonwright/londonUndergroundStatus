@@ -9,8 +9,11 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import uk.co.nelsonwright.londonundergroundstatus.shared.CalendarUtils
 import uk.co.nelsonwright.londonundergroundstatus.shared.RxImmediateSchedulerRule
+import uk.co.nelsonwright.londonundergroundstatus.shared.TimeHelper
 import uk.co.nelsonwright.londonundergroundstatus.shared.observeOnce
+import java.util.*
 
 
 private const val APP_ID = "APP_ID"
@@ -34,12 +37,18 @@ class TflRepositoryTest {
 
     private val mockApi = mockk<TflApiInterface>()
     private lateinit var repo: TflRepository
+    private val mockTimeHelper = mockk<TimeHelper>()
+    private val currentDateTime = Calendar.getInstance()
+    private val calendarUtils = CalendarUtils(mockTimeHelper)
+
 
     @Before
     fun setup() {
+        currentDateTime.set(2020, Calendar.MAY, 2, 13, 34)
+        every { mockTimeHelper.getCurrentDateTime() } returns currentDateTime
         every { mockApi.getLinesStatusNow(APP_ID, APP_KEY) } returns getTubeLinesObservable()
         every { mockApi.getLinesStatusForWeekend(APP_ID, APP_KEY, any(), any()) } returns getTubeLinesObservable()
-        repo = TflRepository(mockApi)
+        repo = TflRepository(mockApi, calendarUtils)
     }
 
     @Test

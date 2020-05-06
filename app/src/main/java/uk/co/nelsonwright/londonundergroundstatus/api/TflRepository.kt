@@ -5,12 +5,11 @@ import androidx.lifecycle.MutableLiveData
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import uk.co.nelsonwright.londonundergroundstatus.ui.main.CalendarUtils.Companion.getWeekendDates
-import javax.inject.Inject
+import uk.co.nelsonwright.londonundergroundstatus.shared.CalendarUtils
 import javax.inject.Singleton
 
 @Singleton
-class TflRepository @Inject constructor(val api: TflApiInterface) {
+class TflRepository(val api: TflApiInterface, private val calendarUtils: CalendarUtils) {
     private var tubeLinesStatusResult: MutableLiveData<TubeLinesStatusResult> = MutableLiveData(TubeLinesStatusResult())
 
     fun getTubeLines(): LiveData<TubeLinesStatusResult> {
@@ -28,7 +27,7 @@ class TflRepository @Inject constructor(val api: TflApiInterface) {
     }
 
     fun loadTubeLinesForWeekend(appId: String, appKey: String): Disposable? {
-        val (saturdayDateString, sundayDateString) = getWeekendDates()
+        val (saturdayDateString, sundayDateString) = calendarUtils.getWeekendDates()
 
         return api.getLinesStatusForWeekend(appId, appKey, saturdayDateString, sundayDateString)
             .subscribeOn(Schedulers.io())
@@ -41,13 +40,19 @@ class TflRepository @Inject constructor(val api: TflApiInterface) {
 
     private fun success(): (tubeLinesList: List<TubeLine>) -> Unit {
         return { lines ->
-            tubeLinesStatusResult.value = TubeLinesStatusResult(tubeLines = lines)
+            tubeLinesStatusResult.value = TubeLinesStatusResult(
+                tubeLines = lines,
+                timestamp = calendarUtils.getFormattedNowDate()
+            )
         }
     }
 
     private fun error(): (t: Throwable) -> Unit {
         return { _ ->
-            tubeLinesStatusResult.value = TubeLinesStatusResult(loadingError = true)
+            tubeLinesStatusResult.value = TubeLinesStatusResult(
+                loadingError = true,
+                timestamp = calendarUtils.getFormattedNowDate()
+            )
         }
     }
 }

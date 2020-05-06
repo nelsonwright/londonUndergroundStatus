@@ -9,7 +9,6 @@ import io.reactivex.disposables.Disposable
 import uk.co.nelsonwright.londonundergroundstatus.R
 import uk.co.nelsonwright.londonundergroundstatus.api.TflRepository
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeStatusViewState
-import uk.co.nelsonwright.londonundergroundstatus.ui.main.CalendarUtils.Companion.getFormattedNowDate
 
 class TubeStatusViewModel(
     private val context: Context,
@@ -22,7 +21,7 @@ class TubeStatusViewModel(
                 TubeStatusViewState(
                     tubeLines = it.tubeLines,
                     loadingError = it.loadingError,
-                    refreshDate = getFormattedNowDate()
+                    refreshDate = it.timestamp
                 )
             }
         }

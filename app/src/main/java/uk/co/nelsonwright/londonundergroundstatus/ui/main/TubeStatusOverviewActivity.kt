@@ -21,7 +21,7 @@ import uk.co.nelsonwright.londonundergroundstatus.api.TflRepository
 import uk.co.nelsonwright.londonundergroundstatus.api.TubeLine
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeLineColours
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeStatusViewState
-import uk.co.nelsonwright.londonundergroundstatus.ui.main.CalendarUtils.Companion.getFormattedSaturdayDate
+import uk.co.nelsonwright.londonundergroundstatus.shared.CalendarUtils
 import javax.inject.Inject
 
 private const val WEEKEND_SELECTED = 1
@@ -29,6 +29,9 @@ private const val WEEKEND_SELECTED = 1
 class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, AdapterView.OnItemSelectedListener {
     @Inject
     lateinit var repo: TflRepository
+
+    @Inject
+    lateinit var calendarUtils: CalendarUtils
 
     private lateinit var viewModelFactory: TubeStatusViewModelFactory
     private val viewModel: TubeStatusViewModel by viewModels { viewModelFactory }
@@ -143,7 +146,7 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
         val dropdownList: MutableList<String> = ArrayList()
 
         dropdownList.add(getString(R.string.now))
-        dropdownList.add(getString(R.string.weekend_of, getFormattedSaturdayDate()))
+        dropdownList.add(getString(R.string.weekend_of, calendarUtils.getFormattedSaturdayDate()))
 
         ArrayAdapter(applicationContext, R.layout.status_spinner_item, dropdownList)
             .also { adapter ->
