@@ -11,13 +11,12 @@ import org.junit.Rule
 import org.junit.Test
 import uk.co.nelsonwright.londonundergroundstatus.shared.CalendarUtils
 import uk.co.nelsonwright.londonundergroundstatus.shared.RxImmediateSchedulerRule
-import uk.co.nelsonwright.londonundergroundstatus.shared.TimeHelper
 import uk.co.nelsonwright.londonundergroundstatus.shared.observeOnce
-import java.util.*
 
 
 private const val APP_ID = "APP_ID"
 private const val APP_KEY = "APP_KEY"
+private const val FORMATTED_NOW_DATE = "formatted now date"
 
 class TflRepositoryTest {
 
@@ -37,17 +36,16 @@ class TflRepositoryTest {
 
     private val mockApi = mockk<TflApiInterface>()
     private lateinit var repo: TflRepository
-    private val mockTimeHelper = mockk<TimeHelper>()
-    private val currentDateTime = Calendar.getInstance()
-    private val calendarUtils = CalendarUtils(mockTimeHelper)
+    private val calendarUtils = mockk<CalendarUtils>()
+    private val weekendPair = Pair<String, String>("Saturday", "Sunday")
 
 
     @Before
     fun setup() {
-        currentDateTime.set(2020, Calendar.MAY, 2, 13, 34)
-        every { mockTimeHelper.getCurrentDateTime() } returns currentDateTime
         every { mockApi.getLinesStatusNow(APP_ID, APP_KEY) } returns getTubeLinesObservable()
         every { mockApi.getLinesStatusForWeekend(APP_ID, APP_KEY, any(), any()) } returns getTubeLinesObservable()
+        every { calendarUtils.getFormattedNowDate() } returns FORMATTED_NOW_DATE
+        every { calendarUtils.getWeekendDates() } returns weekendPair
         repo = TflRepository(mockApi, calendarUtils)
     }
 
@@ -60,7 +58,7 @@ class TflRepositoryTest {
     @Test
     fun shouldRequestTubeLinesForWeekend() {
         repo.loadTubeLinesForWeekend(APP_ID, APP_KEY)
-        verify { mockApi.getLinesStatusForWeekend(APP_ID, APP_KEY, any(), any()) }
+        verify { mockApi.getLinesStatusForWeekend(APP_ID, APP_KEY, weekendPair.first, weekendPair.second) }
     }
 
     @Test
@@ -69,6 +67,7 @@ class TflRepositoryTest {
 
         repo.getTubeLines().observeOnce {
             assertThat(it.tubeLines).isEqualTo(expectedTubeLinesList)
+            assertThat(it.timestamp).isEqualTo(FORMATTED_NOW_DATE)
         }
     }
 

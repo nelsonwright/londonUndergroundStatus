@@ -22,7 +22,7 @@ class CalendarUtils(private val timeHelper: TimeHelper) {
     }
 
     fun getFormattedNowDate(): String {
-        val date = Calendar.getInstance().time
+        val date = timeHelper.getCurrentDateTime().time
         val formatter = SimpleDateFormat("EEE, MMM d HH:mm:ss")
         return formatter.format(date)
     }
