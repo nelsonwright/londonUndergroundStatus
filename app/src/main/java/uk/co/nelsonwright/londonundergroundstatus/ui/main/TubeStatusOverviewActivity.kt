@@ -113,14 +113,6 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
         viewModel.viewState.observe(this, Observer { state ->
             updateView(state)
         })
-
-        viewModel.getLoading().observe(this, Observer { state ->
-            updateLoadingIndicator(state)
-        })
-    }
-
-    private fun updateLoadingIndicator(loading: Boolean) {
-        swipe_refresh.isRefreshing = loading
     }
 
     private fun updateView(state: TubeStatusViewState) {
@@ -128,7 +120,12 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
             updateViewVisibilities(error = loadingError)
             refresh_date.text = getString(R.string.refresh_date, refreshDate)
             (viewAdapter as TubeListAdapter).update(tubeLines)
+            updateLoadingIndicator(loading)
         }
+    }
+
+    private fun updateLoadingIndicator(loading: Boolean) {
+        swipe_refresh.isRefreshing = loading
     }
 
     private fun setListeners() {

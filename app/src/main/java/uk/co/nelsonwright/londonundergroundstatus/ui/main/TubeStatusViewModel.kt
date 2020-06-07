@@ -2,12 +2,13 @@ package uk.co.nelsonwright.londonundergroundstatus.ui.main
 
 import android.content.Context
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import io.reactivex.disposables.Disposable
 import uk.co.nelsonwright.londonundergroundstatus.R
 import uk.co.nelsonwright.londonundergroundstatus.api.TflRepository
+import uk.co.nelsonwright.londonundergroundstatus.api.TubeLinesStatusResult
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeStatusViewState
 
 class TubeStatusViewModel(
@@ -15,27 +16,26 @@ class TubeStatusViewModel(
     private val repo: TflRepository
 ) : ViewModel() {
 
-    val viewState: LiveData<TubeStatusViewState>
-        get() {
-            return Transformations.map(tubeLinesResult) {
-                TubeStatusViewState(
-                    tubeLines = it.tubeLines,
-                    loadingError = it.loadingError,
-                    refreshDate = it.timestamp
-                )
-            }
-        }
-
     private var tubeLinesResult = repo.getTubeLines()
+
+    val viewState: LiveData<TubeStatusViewState>
+        get() = mediatorLiveData
+
+    var mediatorLiveData = MediatorLiveData<TubeStatusViewState>()
+
     private var loading = MutableLiveData(false)
     private var disposable: Disposable? = null
 
     init {
-        loadTubeLines()
-    }
+        mediatorLiveData.addSource(tubeLinesResult) {
+            mediatorLiveData.value = combineLatestData(tubeLinesResult, loading)
+            hideLoading()
+        }
+        mediatorLiveData.addSource(loading) {
+            mediatorLiveData.value = combineLatestData(tubeLinesResult, loading)
+        }
 
-    fun getLoading(): LiveData<Boolean> {
-        return loading
+        loadTubeLines()
     }
 
     fun onPause() {
@@ -57,6 +57,25 @@ class TubeStatusViewModel(
         }
     }
 
+    private fun combineLatestData(
+        tubeLinesResult: LiveData<TubeLinesStatusResult>,
+        loadingResult: MutableLiveData<Boolean>
+    ): TubeStatusViewState? {
+        val tubeLinesStatusResult = tubeLinesResult.value
+        val loading = loadingResult.value
+
+        if (tubeLinesStatusResult == null || loading == null) {
+            return TubeStatusViewState(loading = true)
+        }
+
+        return TubeStatusViewState(
+            loadingError = tubeLinesStatusResult.loadingError,
+            tubeLines = tubeLinesStatusResult.tubeLines,
+            refreshDate = tubeLinesStatusResult.timestamp,
+            loading = loading
+        )
+    }
+
     private fun getAppKeyAndId(): Pair<String, String> {
         val appId = context.getString(R.string.applicationId)
         val appKey = context.getString(R.string.applicationKey)
@@ -65,6 +84,10 @@ class TubeStatusViewModel(
 
     private fun showLoading() {
         loading.value = true
+    }
+
+    private fun hideLoading() {
+        loading.value = false
     }
 }
 

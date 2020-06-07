@@ -5,5 +5,6 @@ import uk.co.nelsonwright.londonundergroundstatus.api.TubeLine
 data class TubeStatusViewState(
     val loadingError: Boolean = false,
     val tubeLines: List<TubeLine> = emptyList(),
-    val refreshDate: String = ""
+    val refreshDate: String = "",
+    val loading: Boolean = false
 )

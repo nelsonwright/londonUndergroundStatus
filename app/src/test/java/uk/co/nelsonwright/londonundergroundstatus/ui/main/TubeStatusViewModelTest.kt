@@ -52,14 +52,14 @@ class TubeStatusViewModelTest {
 
     @Test
     fun shouldInitiallyShowLoading() {
-        viewModel.getLoading().observeOnce { loading ->
-            assertThat(loading).isTrue()
+        viewModel.viewState.observeOnce {
+            assertThat(it.loading).isTrue()
         }
     }
 
     @Test
     fun shouldInitiallyShowLines() {
-        viewModel.viewState.observeOnce {
+        viewModel.mediatorLiveData.observeOnce {
             assertThat(it.tubeLines).isEqualTo(tubeLinesList)
             assertThat(it.loadingError).isEqualTo(false)
         }
@@ -71,7 +71,7 @@ class TubeStatusViewModelTest {
 
         viewModel = TubeStatusViewModel(mockContext, mockRepo)
 
-        viewModel.viewState.observeOnce {
+        viewModel.mediatorLiveData.observeOnce {
             assertThat(it.loadingError).isEqualTo(true)
             assertThat(it.tubeLines).isEqualTo(emptyList<TubeLine>())
         }
@@ -87,7 +87,7 @@ class TubeStatusViewModelTest {
         viewModel.loadTubeLines(weekend = false)
 
         verify { mockRepo.loadTubeLinesForNow(APP_ID, APP_KEY) }
-        viewModel.viewState.observeOnce {
+        viewModel.mediatorLiveData.observeOnce {
             assertThat(it.tubeLines).isEqualTo(tubeLinesList)
         }
     }
@@ -97,7 +97,7 @@ class TubeStatusViewModelTest {
         viewModel.loadTubeLines(weekend = true)
 
         verify { mockRepo.loadTubeLinesForWeekend(APP_ID, APP_KEY) }
-        viewModel.viewState.observeOnce {
+        viewModel.mediatorLiveData.observeOnce {
             assertThat(it.tubeLines).isEqualTo(tubeLinesList)
         }
     }
