@@ -52,11 +52,12 @@ class TubeStatusDetailsActivity : AppCompatActivity() {
 
         tubeLineStatusList.forEach { tls ->
             if (compactedList.any { cl -> cl.reason == tls.reason }) {
-                severityDescriptionCompacted = severityDescriptionCompacted + " / " + tls.severityDescription
-                compactedList.clear()
-                compactedList.add(
-                    TubeLineStatus(severityDescription = severityDescriptionCompacted, reason = tls.reason)
-                )
+                // we've already got the reason in the list i.e. the body text, so just check if we need to add the
+                // severity description to the existing header...
+
+                if (severityDescriptionCompacted != tls.severityDescription) {
+                    severityDescriptionCompacted = "$severityDescriptionCompacted / ${tls.severityDescription}"
+                }
             } else {
                 compactedList.add(
                     TubeLineStatus(severityDescription = tls.severityDescription, reason = tls.reason)

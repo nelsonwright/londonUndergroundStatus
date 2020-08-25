@@ -1,6 +1,7 @@
 package uk.co.nelsonwright.londonundergroundstatus.ui.main
 
 import android.content.Context
+import androidx.annotation.Keep
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
@@ -11,6 +12,8 @@ import uk.co.nelsonwright.londonundergroundstatus.api.TflRepository
 import uk.co.nelsonwright.londonundergroundstatus.api.TubeLinesStatusResult
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeStatusViewState
 
+
+@Keep
 class TubeStatusViewModel(
     private val context: Context,
     private val repo: TflRepository
