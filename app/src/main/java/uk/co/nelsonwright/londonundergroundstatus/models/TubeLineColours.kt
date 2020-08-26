@@ -1,7 +1,5 @@
 package uk.co.nelsonwright.londonundergroundstatus.models
 
-const val DARK_BLUE = "#113b92"
-const val WHITE = "#ffffff"
 
 enum class TubeLineColours(
     val id: String,

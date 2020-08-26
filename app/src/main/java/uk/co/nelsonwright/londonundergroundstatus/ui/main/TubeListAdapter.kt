@@ -1,5 +1,6 @@
 package uk.co.nelsonwright.londonundergroundstatus.ui.main
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,7 +21,8 @@ interface TubeListClickListener {
 
 class TubeListAdapter(
     private var tubeDetailsList: List<TubeLine>,
-    private val listener: TubeListClickListener
+    private val listener: TubeListClickListener,
+    private val context: Context,
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), View.OnClickListener {
 
     fun update(tubeDetails: List<TubeLine>) {
@@ -53,7 +55,8 @@ class TubeListAdapter(
                 if (tubeDetailsList.isNotEmpty()) {
                     holder.bindView(
                         tubeLine = tubeDetailsList[position],
-                        listener = listener
+                        listener = listener,
+                        context = context
                     )
                 }
             }

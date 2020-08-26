@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.status_detail_row.view.*
 import uk.co.nelsonwright.londonundergroundstatus.R
 import uk.co.nelsonwright.londonundergroundstatus.api.TubeLineStatus
+import uk.co.nelsonwright.londonundergroundstatus.shared.GOOD_SERVICE
 
 class TubeListDetailsAdapter(
     private val context: Context,
@@ -20,9 +21,13 @@ class TubeListDetailsAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val status = dataSource[position]
-        holder.statusHeader.text = status.severityDescription
-        holder.statusDetail.text = status.reason
+        val tubeLineStatus = dataSource[position]
+        holder.statusHeader.text = tubeLineStatus.severityDescription
+        holder.statusDetail.text = tubeLineStatus.reason
+
+        if (tubeLineStatus.statusSeverity != GOOD_SERVICE) {
+            holder.statusHeader.setTextColor(context.getColor(R.color.darkRed))
+        }
     }
 
     override fun getItemCount(): Int {

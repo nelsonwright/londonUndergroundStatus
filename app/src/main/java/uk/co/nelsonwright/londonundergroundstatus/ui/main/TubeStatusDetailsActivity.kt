@@ -3,6 +3,7 @@ package uk.co.nelsonwright.londonundergroundstatus.ui.main
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.tube_status_details_activity.*
@@ -28,7 +29,6 @@ class TubeStatusDetailsActivity : AppCompatActivity() {
         }
 
         val context = this
-
         val compactedList: MutableList<TubeLineStatus> = mutableListOf()
 
         tubeLine.lineStatuses?.let { tubeLineStatusList ->
@@ -42,6 +42,12 @@ class TubeStatusDetailsActivity : AppCompatActivity() {
 
         val colorDrawable = ColorDrawable(Color.parseColor(lineColour))
         supportActionBar?.setBackgroundDrawable(colorDrawable)
+
+        tube_train_image.visibility = if (tubeLine.notGoodService()) {
+            View.GONE
+        } else {
+            View.VISIBLE
+        }
     }
 
     private fun compactSameReasonsUnderOneAmalgamatedStatus(
@@ -60,7 +66,11 @@ class TubeStatusDetailsActivity : AppCompatActivity() {
                 }
             } else {
                 compactedList.add(
-                    TubeLineStatus(severityDescription = tls.severityDescription, reason = tls.reason)
+                    TubeLineStatus(
+                        statusSeverity = tls.statusSeverity,
+                        severityDescription = tls.severityDescription,
+                        reason = tls.reason
+                    )
                 )
                 severityDescriptionCompacted = tls.severityDescription ?: ""
             }
