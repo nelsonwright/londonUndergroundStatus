@@ -101,7 +101,7 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
 
     private fun setupRecyclerView() {
         viewManager = LinearLayoutManager(this)
-        viewAdapter = TubeListAdapter(arrayListOf(), this)
+        viewAdapter = TubeListAdapter(arrayListOf(), this, this)
 
         lines_recycler_view.apply {
             layoutManager = viewManager
