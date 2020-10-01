@@ -47,7 +47,7 @@ class TflRepositoryTest {
     fun setup() {
         every { mockApi.getLinesStatusNow(APP_ID, APP_KEY) } returns getTubeLinesObservable()
         every { mockApi.getLinesStatusForWeekend(APP_ID, APP_KEY, any(), any()) } returns getTubeLinesObservable()
-        every { calendarUtils.getFormattedNowDate() } returns FORMATTED_NOW_DATE
+        every { calendarUtils.getFormattedLocateDateTime() } returns FORMATTED_NOW_DATE
         every { calendarUtils.getWeekendDates() } returns weekendPair
         every { mockContext.getString(R.string.applicationId) } returns APP_ID
         every { mockContext.getString(R.string.applicationKey) } returns APP_KEY

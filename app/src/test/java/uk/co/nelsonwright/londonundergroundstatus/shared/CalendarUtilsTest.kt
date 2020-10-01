@@ -5,11 +5,14 @@ import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
-import java.util.*
+import java.time.LocalDateTime
+import java.time.ZoneId
+
+private const val LONDON_TIME_ZONE = "Europe/London"
 
 class CalendarUtilsTest {
     private val mockTimeHelper = mockk<TimeHelper>()
-    private val currentTime = Calendar.getInstance()
+    private val currentTime = LocalDateTime.of(2020, 9, 1, 17, 32, 58)
     private lateinit var calendarUtils: CalendarUtils
 
     @Before
@@ -21,7 +24,7 @@ class CalendarUtilsTest {
     @Test
     fun shouldGetFormattedNowDate() {
         val expectedDateString = "Tue, Sep 1 17:32:58"
-        val formattedNowDate = calendarUtils.getFormattedNowDate()
+        val formattedNowDate = calendarUtils.getFormattedLocateDateTime()
         assertThat(formattedNowDate).isEqualTo(expectedDateString)
     }
 
@@ -44,12 +47,11 @@ class CalendarUtilsTest {
     }
 
     private fun setupMockTimeHelper() {
-        currentTime.set(Calendar.YEAR, 2020)
-        currentTime.set(Calendar.MONTH, 8)
-        currentTime.set(Calendar.DAY_OF_MONTH, 1)
-        currentTime.set(Calendar.HOUR_OF_DAY, 17)
-        currentTime.set(Calendar.MINUTE, 32)
-        currentTime.set(Calendar.SECOND, 58)
-        every { mockTimeHelper.getCurrentDateTime() } returns currentTime
+        every { mockTimeHelper.getCurrentLocalDateTime() } returns currentTime
+        every { mockTimeHelper.getCurrentDateTime(LONDON_TIME_ZONE) } returns currentTime.atZone(
+            ZoneId.of(
+                LONDON_TIME_ZONE
+            )
+        )
     }
 }

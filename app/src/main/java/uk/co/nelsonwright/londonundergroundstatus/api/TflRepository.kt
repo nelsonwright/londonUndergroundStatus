@@ -48,7 +48,7 @@ class TflRepository(val api: TflApiInterface, private val calendarUtils: Calenda
         return { lines ->
             tubeLinesStatusResult.value = TubeLinesStatusResult(
                 tubeLines = lines,
-                timestamp = calendarUtils.getFormattedNowDate()
+                timestamp = calendarUtils.getFormattedLocateDateTime()
             )
         }
     }
@@ -57,7 +57,7 @@ class TflRepository(val api: TflApiInterface, private val calendarUtils: Calenda
         return { _ ->
             tubeLinesStatusResult.value = TubeLinesStatusResult(
                 loadingError = true,
-                timestamp = calendarUtils.getFormattedNowDate()
+                timestamp = calendarUtils.getFormattedLocateDateTime()
             )
         }
     }

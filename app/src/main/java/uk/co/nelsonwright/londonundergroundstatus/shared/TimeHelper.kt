@@ -1,12 +1,18 @@
 package uk.co.nelsonwright.londonundergroundstatus.shared
 
-import java.util.*
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import javax.inject.Singleton
 
 @Singleton
 class TimeHelper {
 
-    fun getCurrentDateTime(locale: Locale = Locale.getDefault()): Calendar {
-        return Calendar.getInstance(locale)
+    fun getCurrentDateTime(zoneId: String = "Z"): ZonedDateTime {
+        return ZonedDateTime.now(ZoneId.of(zoneId))
+    }
+
+    fun getCurrentLocalDateTime(): LocalDateTime {
+        return LocalDateTime.now()
     }
 }
