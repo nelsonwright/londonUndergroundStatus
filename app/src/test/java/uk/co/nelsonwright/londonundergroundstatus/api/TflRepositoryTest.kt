@@ -1,5 +1,6 @@
 package uk.co.nelsonwright.londonundergroundstatus.api
 
+import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import io.mockk.every
 import io.mockk.mockk
@@ -9,9 +10,10 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import uk.co.nelsonwright.londonundergroundstatus.R
 import uk.co.nelsonwright.londonundergroundstatus.shared.CalendarUtils
-import uk.co.nelsonwright.londonundergroundstatus.shared.RxImmediateSchedulerRule
-import uk.co.nelsonwright.londonundergroundstatus.shared.observeOnce
+import uk.co.nelsonwright.londonundergroundstatus.testutils.RxImmediateSchedulerRule
+import uk.co.nelsonwright.londonundergroundstatus.testutils.observeOnce
 
 
 private const val APP_ID = "APP_ID"
@@ -38,6 +40,7 @@ class TflRepositoryTest {
     private lateinit var repo: TflRepository
     private val calendarUtils = mockk<CalendarUtils>()
     private val weekendPair = Pair<String, String>("Saturday", "Sunday")
+    private val mockContext = mockk<Context>()
 
 
     @Before
@@ -46,24 +49,26 @@ class TflRepositoryTest {
         every { mockApi.getLinesStatusForWeekend(APP_ID, APP_KEY, any(), any()) } returns getTubeLinesObservable()
         every { calendarUtils.getFormattedNowDate() } returns FORMATTED_NOW_DATE
         every { calendarUtils.getWeekendDates() } returns weekendPair
-        repo = TflRepository(mockApi, calendarUtils)
+        every { mockContext.getString(R.string.applicationId) } returns APP_ID
+        every { mockContext.getString(R.string.applicationKey) } returns APP_KEY
+        repo = TflRepository(mockApi, calendarUtils, mockContext)
     }
 
     @Test
     fun shouldRequestTubeLinesForNow() {
-        repo.loadTubeLinesForNow(APP_ID, APP_KEY)
+        repo.loadTubeLinesForNow()
         verify { mockApi.getLinesStatusNow(APP_ID, APP_KEY) }
     }
 
     @Test
     fun shouldRequestTubeLinesForWeekend() {
-        repo.loadTubeLinesForWeekend(APP_ID, APP_KEY)
+        repo.loadTubeLinesForWeekend()
         verify { mockApi.getLinesStatusForWeekend(APP_ID, APP_KEY, weekendPair.first, weekendPair.second) }
     }
 
     @Test
     fun shouldReturnTubeLines() {
-        repo.loadTubeLinesForNow(APP_ID, APP_KEY)
+        repo.loadTubeLinesForNow()
 
         repo.getTubeLines().observeOnce {
             assertThat(it.tubeLines).isEqualTo(expectedTubeLinesList)

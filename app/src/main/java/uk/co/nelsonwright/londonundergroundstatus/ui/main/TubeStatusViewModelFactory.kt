@@ -1,18 +1,14 @@
 package uk.co.nelsonwright.londonundergroundstatus.ui.main
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import uk.co.nelsonwright.londonundergroundstatus.api.TflRepository
+import uk.co.nelsonwright.londonundergroundstatus.api.ServiceLocator
 
-class TubeStatusViewModelFactory(
-    private val context: Context,
-    private val repo: TflRepository
-) :
+class TubeStatusViewModelFactory(private val serviceLocator: ServiceLocator) :
     ViewModelProvider.Factory {
 
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        return modelClass.getConstructor(Context::class.java, TflRepository::class.java)
-            .newInstance(context, repo)
+        return modelClass.getConstructor(ServiceLocator::class.java)
+            .newInstance(serviceLocator)
     }
 }

@@ -1,4 +1,4 @@
-package uk.co.nelsonwright.londonundergroundstatus.shared
+package uk.co.nelsonwright.londonundergroundstatus.testutils
 
 import androidx.lifecycle.LiveData
 

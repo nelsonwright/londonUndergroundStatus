@@ -1,4 +1,4 @@
-package uk.co.nelsonwright.londonundergroundstatus.shared
+package uk.co.nelsonwright.londonundergroundstatus.testutils
 
 /*
 Copyright 2019 Alessandro Diaferia

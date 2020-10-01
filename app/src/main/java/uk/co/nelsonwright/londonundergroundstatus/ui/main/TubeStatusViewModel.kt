@@ -1,31 +1,26 @@
 package uk.co.nelsonwright.londonundergroundstatus.ui.main
 
-import android.content.Context
 import androidx.annotation.Keep
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.reactivex.disposables.Disposable
-import uk.co.nelsonwright.londonundergroundstatus.R
-import uk.co.nelsonwright.londonundergroundstatus.api.TflRepository
+import uk.co.nelsonwright.londonundergroundstatus.api.ServiceLocator
 import uk.co.nelsonwright.londonundergroundstatus.api.TubeLinesStatusResult
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeStatusViewState
 
 
 @Keep
-class TubeStatusViewModel(
-    private val context: Context,
-    private val repo: TflRepository
-) : ViewModel() {
-
-    private var tubeLinesResult = repo.getTubeLines()
+class TubeStatusViewModel(serviceLocator: ServiceLocator) : ViewModel() {
+    private val repo = serviceLocator.getTflRepository()
 
     val viewState: LiveData<TubeStatusViewState>
         get() = mediatorLiveData
 
     var mediatorLiveData = MediatorLiveData<TubeStatusViewState>()
 
+    private var tubeLinesResult = repo.getTubeLines()
     private var loading = MutableLiveData(false)
     private var disposable: Disposable? = null
 
@@ -51,12 +46,11 @@ class TubeStatusViewModel(
 
     fun loadTubeLines(weekend: Boolean = false) {
         showLoading()
-        val (appId, appKey) = getAppKeyAndId()
 
         disposable = if (weekend) {
-            repo.loadTubeLinesForWeekend(appId, appKey)
+            repo.loadTubeLinesForWeekend()
         } else {
-            repo.loadTubeLinesForNow(appId, appKey)
+            repo.loadTubeLinesForNow()
         }
     }
 
@@ -77,12 +71,6 @@ class TubeStatusViewModel(
             refreshDate = tubeLinesStatusResult.timestamp,
             loading = loading
         )
-    }
-
-    private fun getAppKeyAndId(): Pair<String, String> {
-        val appId = context.getString(R.string.applicationId)
-        val appKey = context.getString(R.string.applicationKey)
-        return Pair(appId, appKey)
     }
 
     private fun showLoading() {

@@ -1,22 +1,26 @@
 package uk.co.nelsonwright.londonundergroundstatus.api
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import uk.co.nelsonwright.londonundergroundstatus.R
 import uk.co.nelsonwright.londonundergroundstatus.shared.CalendarUtils
 import javax.inject.Singleton
 
 @Singleton
-class TflRepository(val api: TflApiInterface, private val calendarUtils: CalendarUtils) {
+class TflRepository(val api: TflApiInterface, private val calendarUtils: CalendarUtils, private val context: Context) {
     private var tubeLinesStatusResult: MutableLiveData<TubeLinesStatusResult> = MutableLiveData(TubeLinesStatusResult())
 
     fun getTubeLines(): LiveData<TubeLinesStatusResult> {
         return tubeLinesStatusResult
     }
 
-    fun loadTubeLinesForNow(appId: String, appKey: String): Disposable? {
+    fun loadTubeLinesForNow(): Disposable? {
+        val (appId, appKey) = getAppKeyAndId()
+
         return api.getLinesStatusNow(appId, appKey)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -26,7 +30,9 @@ class TflRepository(val api: TflApiInterface, private val calendarUtils: Calenda
             )
     }
 
-    fun loadTubeLinesForWeekend(appId: String, appKey: String): Disposable? {
+    fun loadTubeLinesForWeekend(): Disposable? {
+        val (appId, appKey) = getAppKeyAndId()
+
         val (saturdayDateString, sundayDateString) = calendarUtils.getWeekendDates()
 
         return api.getLinesStatusForWeekend(appId, appKey, saturdayDateString, sundayDateString)
@@ -54,5 +60,11 @@ class TflRepository(val api: TflApiInterface, private val calendarUtils: Calenda
                 timestamp = calendarUtils.getFormattedNowDate()
             )
         }
+    }
+
+    private fun getAppKeyAndId(): Pair<String, String> {
+        val appId = context.getString(R.string.applicationId)
+        val appKey = context.getString(R.string.applicationKey)
+        return Pair(appId, appKey)
     }
 }
