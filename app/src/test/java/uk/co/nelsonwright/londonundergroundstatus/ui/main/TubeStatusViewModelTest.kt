@@ -1,6 +1,6 @@
 package uk.co.nelsonwright.londonundergroundstatus.ui.main
 
-import android.content.Context
+import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -12,11 +12,8 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import uk.co.nelsonwright.londonundergroundstatus.R
-import uk.co.nelsonwright.londonundergroundstatus.api.TflRepository
-import uk.co.nelsonwright.londonundergroundstatus.api.TubeLine
-import uk.co.nelsonwright.londonundergroundstatus.api.TubeLineStatus
-import uk.co.nelsonwright.londonundergroundstatus.api.TubeLinesStatusResult
-import uk.co.nelsonwright.londonundergroundstatus.shared.observeOnce
+import uk.co.nelsonwright.londonundergroundstatus.api.*
+import uk.co.nelsonwright.londonundergroundstatus.testutils.observeOnce
 
 private const val APP_ID = "APP_ID"
 private const val APP_KEY = "APP_KEY"
@@ -28,8 +25,9 @@ class TubeStatusViewModelTest {
     @JvmField
     val rule = InstantTaskExecutorRule()
 
-    private val mockContext = mockk<Context>()
+    private val mockContext = mockk<Application>()
     private val mockRepo = mockk<TflRepository>()
+    private val mockServiceLocator = mockk<ServiceLocator>()
     private lateinit var viewModel: TubeStatusViewModel
 
     private val statusSuspended = TubeLineStatus(3, "Part Suspended", "A 6 minute service is operating")
@@ -44,10 +42,11 @@ class TubeStatusViewModelTest {
         every { mockContext.getString(R.string.applicationId) } returns APP_ID
         every { mockContext.getString(R.string.applicationKey) } returns APP_KEY
         every { mockRepo.getTubeLines() } returns getStubbedTubeLinesResult()
-        every { mockRepo.loadTubeLinesForNow(APP_ID, APP_KEY) } returns null
-        every { mockRepo.loadTubeLinesForWeekend(APP_ID, APP_KEY) } returns null
+        every { mockRepo.loadTubeLinesForNow() } returns null
+        every { mockRepo.loadTubeLinesForWeekend() } returns null
+        every { mockServiceLocator.getTflRepository() } returns mockRepo
 
-        viewModel = TubeStatusViewModel(mockContext, mockRepo)
+        viewModel = TubeStatusViewModel(mockServiceLocator)
     }
 
     @Test
@@ -61,7 +60,7 @@ class TubeStatusViewModelTest {
     fun shouldInitiallyShowLines() {
         viewModel.mediatorLiveData.observeOnce {
             assertThat(it.tubeLines).isEqualTo(tubeLinesList)
-            assertThat(it.loadingError).isEqualTo(false)
+            assertThat(it.loadingError).isFalse()
         }
     }
 
@@ -69,7 +68,7 @@ class TubeStatusViewModelTest {
     fun shouldInitiallyShowError() {
         every { mockRepo.getTubeLines() } returns getStubbedTubeLinesError()
 
-        viewModel = TubeStatusViewModel(mockContext, mockRepo)
+        viewModel = TubeStatusViewModel(mockServiceLocator)
 
         viewModel.mediatorLiveData.observeOnce {
             assertThat(it.loadingError).isEqualTo(true)
@@ -79,14 +78,14 @@ class TubeStatusViewModelTest {
 
     @Test
     fun shouldInitiallyRequestLineStatusesForNow() {
-        verify { mockRepo.loadTubeLinesForNow(APP_ID, APP_KEY) }
+        verify { mockRepo.loadTubeLinesForNow() }
     }
 
     @Test
     fun shouldRequestLineStatusesForNow() {
         viewModel.loadTubeLines(weekend = false)
 
-        verify { mockRepo.loadTubeLinesForNow(APP_ID, APP_KEY) }
+        verify { mockRepo.loadTubeLinesForNow() }
         viewModel.mediatorLiveData.observeOnce {
             assertThat(it.tubeLines).isEqualTo(tubeLinesList)
         }
@@ -96,7 +95,7 @@ class TubeStatusViewModelTest {
     fun shouldRequestLineStatusesForWeekend() {
         viewModel.loadTubeLines(weekend = true)
 
-        verify { mockRepo.loadTubeLinesForWeekend(APP_ID, APP_KEY) }
+        verify { mockRepo.loadTubeLinesForWeekend() }
         viewModel.mediatorLiveData.observeOnce {
             assertThat(it.tubeLines).isEqualTo(tubeLinesList)
         }
@@ -105,13 +104,13 @@ class TubeStatusViewModelTest {
     @Test
     fun shouldRefreshLineStatusesForWeekend() {
         viewModel.onRefreshClicked(isWeekendSelected = true)
-        verify { mockRepo.loadTubeLinesForWeekend(APP_ID, APP_KEY) }
+        verify { mockRepo.loadTubeLinesForWeekend() }
     }
 
     @Test
     fun shouldRefreshLineStatusesForNow() {
         viewModel.onRefreshClicked(isWeekendSelected = false)
-        verify { mockRepo.loadTubeLinesForNow(APP_ID, APP_KEY) }
+        verify { mockRepo.loadTubeLinesForNow() }
     }
 
     private fun getStubbedTubeLinesResult(): LiveData<TubeLinesStatusResult> {

@@ -1,5 +1,6 @@
 package uk.co.nelsonwright.londonundergroundstatus.di
 
+import android.content.Context
 import dagger.Module
 import dagger.Provides
 import uk.co.nelsonwright.londonundergroundstatus.api.TflRepository
@@ -18,5 +19,5 @@ class TflRepositoryModule {
 
     @Provides
     @Singleton
-    fun provideTflRepository(): TflRepository = TflRepository(api, calendarUtils)
+    fun provideTflRepository(context: Context): TflRepository = TflRepository(api, calendarUtils, context)
 }
