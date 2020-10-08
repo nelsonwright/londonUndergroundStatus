@@ -9,7 +9,6 @@ import io.reactivex.plugins.RxJavaPlugins
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
-import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
 
 /**
@@ -25,8 +24,8 @@ class RxImmediateSchedulerRule : TestRule {
         }
 
         @NonNull
-        override fun createWorker(): Scheduler.Worker {
-            return ExecutorScheduler.ExecutorWorker(Executor { it.run() })
+        override fun createWorker(): Worker {
+            return ExecutorScheduler.ExecutorWorker { it.run() }
         }
     }
 

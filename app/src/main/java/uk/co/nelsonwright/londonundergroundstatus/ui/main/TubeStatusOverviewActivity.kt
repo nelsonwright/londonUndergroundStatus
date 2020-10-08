@@ -11,7 +11,6 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.tube_status_overview_activity.*
@@ -37,7 +36,7 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
     private lateinit var viewModelFactory: TubeStatusViewModelFactory
     private val viewModel: TubeStatusViewModel by viewModels { viewModelFactory }
 
-    private lateinit var viewAdapter: RecyclerView.Adapter<*>
+    private lateinit var viewAdapter: TubeListAdapter
     private lateinit var viewManager: RecyclerView.LayoutManager
 
     private val isWeekendSelected: Boolean
@@ -111,7 +110,7 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
     }
 
     private fun observeViewModel() {
-        viewModel.viewState.observe(this, Observer { state ->
+        viewModel.viewState.observe(this, { state ->
             updateView(state)
         })
     }
@@ -120,7 +119,7 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
         with(state) {
             updateViewVisibilities(error = loadingError)
             refresh_date.text = getString(R.string.refresh_date, refreshDate)
-            (viewAdapter as TubeListAdapter).update(tubeLines)
+            viewAdapter.update(tubeLines)
             updateLoadingIndicator(loading)
         }
     }
