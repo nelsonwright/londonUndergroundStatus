@@ -31,7 +31,7 @@ class TflRepositoryTest {
 
     private val statusSuspended = TubeLineStatus(4, "Part Suspended", "A 6 minute service is operating")
     private val statusClosure = TubeLineStatus(4, "Planned Closure", "No service due to  operational restrictions")
-    private val expectedTubeLinesList = listOf<TubeLine>(
+    private val expectedTubeLinesList = listOf(
         TubeLine("bakerloo", "Bakerloo", listOf(statusSuspended)),
         TubeLine("bakerloo", "Circle", listOf(statusSuspended, statusClosure))
     )
@@ -39,7 +39,7 @@ class TflRepositoryTest {
     private val mockApi = mockk<TflApiInterface>()
     private lateinit var repo: TflRepository
     private val calendarUtils = mockk<CalendarUtils>()
-    private val weekendPair = Pair<String, String>("Saturday", "Sunday")
+    private val weekendPair = Pair("Saturday", "Sunday")
     private val mockContext = mockk<Context>()
 
 

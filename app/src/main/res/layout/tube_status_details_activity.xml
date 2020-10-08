@@ -17,7 +17,7 @@
         android:id="@+id/tube_train_image"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:contentDescription="@string/tube_train_image_descr"
+        android:contentDescription="@string/tube_train_image_description"
         android:src="@drawable/tube_train"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/details_recycler_view" />

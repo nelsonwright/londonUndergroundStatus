@@ -10,5 +10,5 @@
     <!-- for the spinner-->
     <string name="now">now</string>
     <string name="weekend_of">weekend of %1$s</string>
-    <string name="tube_train_image_descr">an image of a tube train</string>
+    <string name="tube_train_image_description">an image of a tube train</string>
 </resources>
