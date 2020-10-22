@@ -140,10 +140,10 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
     }
 
     private fun setupDateDropdown() {
-        val dropdownList: MutableList<String> = ArrayList()
-
-        dropdownList.add(getString(R.string.now))
-        dropdownList.add(getString(R.string.weekend_of, calendarUtils.getFormattedSaturdayDate()))
+        val dropdownList = listOf(
+            getString(R.string.now),
+            getString(R.string.weekend_of, calendarUtils.getFormattedSaturdayDate())
+        )
 
         ArrayAdapter(applicationContext, R.layout.status_spinner_item, dropdownList)
             .also { adapter ->
