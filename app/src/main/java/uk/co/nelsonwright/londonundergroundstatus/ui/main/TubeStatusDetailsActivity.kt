@@ -11,7 +11,7 @@ import uk.co.nelsonwright.londonundergroundstatus.R
 import uk.co.nelsonwright.londonundergroundstatus.api.TubeLine
 import uk.co.nelsonwright.londonundergroundstatus.api.TubeLineStatus
 
-const val EXTRA_LINES = "EXTRA_LINES"
+const val EXTRA_TUBE_LINE = "EXTRA_LINES"
 const val EXTRA_LINE_COLOUR = "EXTRA_LINE_COLOUR"
 
 class TubeStatusDetailsActivity : AppCompatActivity() {
@@ -23,7 +23,7 @@ class TubeStatusDetailsActivity : AppCompatActivity() {
         setContentView(R.layout.tube_status_details_activity)
 
         intent.extras?.let { bundle ->
-            tubeLine = bundle.getSerializable(EXTRA_LINES) as TubeLine
+            tubeLine = bundle.getSerializable(EXTRA_TUBE_LINE) as TubeLine
             lineColour = bundle.getSerializable(EXTRA_LINE_COLOUR) as String
             title = tubeLine.name
         }
