@@ -66,7 +66,7 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
 
         val intent = Intent(this, TubeStatusDetailsActivity::class.java)
             .apply {
-                putExtra(EXTRA_LINES, tubeLine)
+                putExtra(EXTRA_TUBE_LINE, tubeLine)
                 tube?.let {
                     putExtra(EXTRA_LINE_COLOUR, it.backgroundColour)
                 }

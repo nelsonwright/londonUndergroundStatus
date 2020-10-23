@@ -5,17 +5,26 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.*
 import androidx.test.espresso.PerformException
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.assertion.PositionAssertions.isCompletelyBelow
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
+import androidx.test.espresso.intent.Intents
+import androidx.test.espresso.intent.Intents.intended
+import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
+import androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import org.hamcrest.CoreMatchers.*
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import uk.co.nelsonwright.londonundergroundstatus.R
+import uk.co.nelsonwright.londonundergroundstatus.api.TubeLine
+import uk.co.nelsonwright.londonundergroundstatus.api.TubeLineStatus
 
 const val ITEM_BELOW_THE_FOLD = 14
 
@@ -43,6 +52,15 @@ class TubeStatusOverviewActivityTest {
         "Waterloo & City"
     )
 
+    @Before
+    fun setup() {
+        Intents.init()
+    }
+
+    @After
+    fun cleanup() {
+        Intents.release()
+    }
 
     @Test
     fun showsRefreshDateLabel() {
@@ -97,7 +115,7 @@ class TubeStatusOverviewActivityTest {
 
     @Test(expected = PerformException::class)
     fun shouldNotDisplayUnknownLine() {
-        // Attempt to scroll to an item that contains the special text.
+        // Attempt to scroll to an item that contains the non-existent text.
         onView(withId(R.id.lines_recycler_view))
             .perform(
                 // scrollTo will fail the test if no item matches.
@@ -122,7 +140,7 @@ class TubeStatusOverviewActivityTest {
     }
 
     @Test
-    fun shouldFindWaterlooAndCity() {
+    fun shouldStartWaterlooAndCityActivity() {
         // First, scroll to the position that needs to be matched and click on it.
         onView(withId(R.id.lines_recycler_view))
             .perform(
@@ -132,6 +150,43 @@ class TubeStatusOverviewActivityTest {
                 )
             )
 
-        onView(withText("Waterloo & City")).check(matches(isDisplayed()))
+        intended(
+            allOf(
+                hasComponent(TubeStatusDetailsActivity::class.java.name),
+                hasExtra(EXTRA_TUBE_LINE, expectedWaterlooTubeLine()),
+                hasExtra(EXTRA_LINE_COLOUR, "#70c3ce")
+            )
+        )
+    }
+
+    @Test
+    fun shouldShowFooterCorrectly() {
+        // First, scroll to the bottom . . .
+        onView(withId(R.id.lines_recycler_view))
+            .perform(
+                RecyclerViewActions.scrollTo<ViewHolder>(
+                    hasDescendant(withSubstring("Contains OS data"))
+                )
+            )
+
+        onView(withText("Powered by TfL Open Data"))
+            .check(isCompletelyBelow(withText("Waterloo & City")))
+
+        onView(withSubstring("Contains OS data"))
+            .check(isCompletelyBelow(withText("Powered by TfL Open Data")))
+    }
+
+    private fun expectedWaterlooTubeLine(): TubeLine {
+        return TubeLine(
+            id = "waterloo-city",
+            name = "Waterloo & City",
+            lineStatuses = listOf(
+                TubeLineStatus(
+                    statusSeverity = 4,
+                    severityDescription = "Planned Closure",
+                    reason = "WATERLOO & CITY LINE: No service until further notice."
+                )
+            )
+        )
     }
 }
