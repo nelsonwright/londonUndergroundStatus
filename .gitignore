@@ -48,4 +48,7 @@ captures/
 # ignore this swap file
 .gitignore.swp
 
-app/src/main/res/values/keys.xml
+# firebase config
+google-services.json
+
+**/api/ApiConstants.kt
