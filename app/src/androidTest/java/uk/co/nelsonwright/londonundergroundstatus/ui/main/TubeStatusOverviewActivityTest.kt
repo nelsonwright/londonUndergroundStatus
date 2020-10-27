@@ -16,6 +16,7 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry
 import org.hamcrest.CoreMatchers.*
 import org.junit.After
 import org.junit.Before
@@ -23,10 +24,12 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import uk.co.nelsonwright.londonundergroundstatus.R
+import uk.co.nelsonwright.londonundergroundstatus.TubeStatusApplication
 import uk.co.nelsonwright.londonundergroundstatus.api.TubeLine
-import uk.co.nelsonwright.londonundergroundstatus.api.TubeLineStatus
+import uk.co.nelsonwright.londonundergroundstatus.di.DaggerAppComponent
+import uk.co.nelsonwright.londonundergroundstatus.ui.main.shared.getPlannedClosureStatus
+import uk.co.nelsonwright.londonundergroundstatus.ui.main.testmocks.AppModuleMock
 
-const val ITEM_BELOW_THE_FOLD = 14
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -36,25 +39,27 @@ class TubeStatusOverviewActivityTest {
 
     private val expectedTubeLines = listOf(
         "Bakerloo",
-        "Central",
-        "Circle",
-        "District",
-        "DLR",
-        "Hammersmith & City",
-        "Jubilee",
-        "London Overground",
-        "Metropolitan",
-        "Northern",
-        "Piccadilly",
-        "TfL Rail",
-        "Tram",
         "Victoria",
         "Waterloo & City"
     )
 
+    private val bottomTubeLine = expectedTubeLines.size - 1
+
     @Before
     fun setup() {
         Intents.init()
+
+        val tubeApp = InstrumentationRegistry
+            .getInstrumentation()
+            .targetContext
+            .applicationContext as TubeStatusApplication
+
+        val mockedComponent = DaggerAppComponent
+            .builder()
+            .appModule(AppModuleMock(tubeApp))
+            .build()
+
+        tubeApp.setAppComponent(mockedComponent)
     }
 
     @After
@@ -126,7 +131,7 @@ class TubeStatusOverviewActivityTest {
     }
 
     @Test
-    fun shouldFindBakerloo() {
+    fun shouldShowExpectedTubeLines() {
         expectedTubeLines.forEach { tubeName ->
             // Attempt to scroll to an item that contains the specified text.
             onView(withId(R.id.lines_recycler_view))
@@ -140,12 +145,12 @@ class TubeStatusOverviewActivityTest {
     }
 
     @Test
-    fun shouldStartWaterlooAndCityActivity() {
+    fun shouldStartDetailActivity() {
         // First, scroll to the position that needs to be matched and click on it.
         onView(withId(R.id.lines_recycler_view))
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<ViewHolder>(
-                    ITEM_BELOW_THE_FOLD,
+                    bottomTubeLine,
                     click()
                 )
             )
@@ -153,7 +158,7 @@ class TubeStatusOverviewActivityTest {
         intended(
             allOf(
                 hasComponent(TubeStatusDetailsActivity::class.java.name),
-                hasExtra(EXTRA_TUBE_LINE, expectedWaterlooTubeLine()),
+                hasExtra(EXTRA_TUBE_LINE, waterlooAndCityTubeLine()),
                 hasExtra(EXTRA_LINE_COLOUR, "#70c3ce")
             )
         )
@@ -170,23 +175,17 @@ class TubeStatusOverviewActivityTest {
             )
 
         onView(withText("Powered by TfL Open Data"))
-            .check(isCompletelyBelow(withText("Waterloo & City")))
+            .check(isCompletelyBelow(withText("Victoria")))
 
         onView(withSubstring("Contains OS data"))
             .check(isCompletelyBelow(withText("Powered by TfL Open Data")))
     }
 
-    private fun expectedWaterlooTubeLine(): TubeLine {
+    private fun waterlooAndCityTubeLine(): TubeLine {
         return TubeLine(
             id = "waterloo-city",
             name = "Waterloo & City",
-            lineStatuses = listOf(
-                TubeLineStatus(
-                    statusSeverity = 4,
-                    severityDescription = "Planned Closure",
-                    reason = "WATERLOO & CITY LINE: No service until further notice."
-                )
-            )
+            lineStatuses = listOf(getPlannedClosureStatus())
         )
     }
 }

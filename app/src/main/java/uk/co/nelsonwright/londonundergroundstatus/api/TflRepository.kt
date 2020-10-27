@@ -1,27 +1,29 @@
 package uk.co.nelsonwright.londonundergroundstatus.api
 
-import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import uk.co.nelsonwright.londonundergroundstatus.R
 import uk.co.nelsonwright.londonundergroundstatus.shared.CalendarUtils
 import javax.inject.Singleton
 
+interface TflRepository {
+    fun getTubeLines(): LiveData<TubeLinesStatusResult>
+    fun loadTubeLinesForNow(): Disposable?
+    fun loadTubeLinesForWeekend(): Disposable?
+}
+
 @Singleton
-class TflRepository(val api: TflApiInterface, private val calendarUtils: CalendarUtils, private val context: Context) {
+class TflRepositoryImpl(val api: TflApiInterface, private val calendarUtils: CalendarUtils) : TflRepository {
     private var tubeLinesStatusResult: MutableLiveData<TubeLinesStatusResult> = MutableLiveData(TubeLinesStatusResult())
 
-    fun getTubeLines(): LiveData<TubeLinesStatusResult> {
+    override fun getTubeLines(): LiveData<TubeLinesStatusResult> {
         return tubeLinesStatusResult
     }
 
-    fun loadTubeLinesForNow(): Disposable? {
-        val (appId, appKey) = getAppKeyAndId()
-
-        return api.getLinesStatusNow(appId, appKey)
+    override fun loadTubeLinesForNow(): Disposable? {
+        return api.getLinesStatusNow(APPLICATION_ID, APPLICATION_KEY)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
@@ -30,12 +32,10 @@ class TflRepository(val api: TflApiInterface, private val calendarUtils: Calenda
             )
     }
 
-    fun loadTubeLinesForWeekend(): Disposable? {
-        val (appId, appKey) = getAppKeyAndId()
-
+    override fun loadTubeLinesForWeekend(): Disposable? {
         val (saturdayDateString, sundayDateString) = calendarUtils.getWeekendDates()
 
-        return api.getLinesStatusForWeekend(appId, appKey, saturdayDateString, sundayDateString)
+        return api.getLinesStatusForWeekend(APPLICATION_ID, APPLICATION_KEY, saturdayDateString, sundayDateString)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
@@ -60,11 +60,5 @@ class TflRepository(val api: TflApiInterface, private val calendarUtils: Calenda
                 timestamp = calendarUtils.getFormattedLocateDateTime()
             )
         }
-    }
-
-    private fun getAppKeyAndId(): Pair<String, String> {
-        val appId = context.getString(R.string.applicationId)
-        val appKey = context.getString(R.string.applicationKey)
-        return Pair(appId, appKey)
     }
 }

@@ -1,6 +1,5 @@
 package uk.co.nelsonwright.londonundergroundstatus.ui.main
 
-import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -11,12 +10,9 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import uk.co.nelsonwright.londonundergroundstatus.R
 import uk.co.nelsonwright.londonundergroundstatus.api.*
 import uk.co.nelsonwright.londonundergroundstatus.testutils.observeOnce
 
-private const val APP_ID = "APP_ID"
-private const val APP_KEY = "APP_KEY"
 
 class TubeStatusViewModelTest {
     // swaps the background executor used by the Architecture Components with a
@@ -25,7 +21,6 @@ class TubeStatusViewModelTest {
     @JvmField
     val rule = InstantTaskExecutorRule()
 
-    private val mockContext = mockk<Application>()
     private val mockRepo = mockk<TflRepository>()
     private val mockServiceLocator = mockk<ServiceLocator>()
     private lateinit var viewModel: TubeStatusViewModel
@@ -39,8 +34,6 @@ class TubeStatusViewModelTest {
 
     @Before
     fun setup() {
-        every { mockContext.getString(R.string.applicationId) } returns APP_ID
-        every { mockContext.getString(R.string.applicationKey) } returns APP_KEY
         every { mockRepo.getTubeLines() } returns getStubbedTubeLinesResult()
         every { mockRepo.loadTubeLinesForNow() } returns null
         every { mockRepo.loadTubeLinesForWeekend() } returns null
