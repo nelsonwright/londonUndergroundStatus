@@ -34,12 +34,11 @@ class TubeStatusViewModelTest {
 
     @Before
     fun setup() {
-        every { mockRepo.getTubeLines() } returns getStubbedTubeLinesResult()
-        every { mockRepo.loadTubeLinesForNow() } returns null
-        every { mockRepo.loadTubeLinesForWeekend() } returns null
-        every { mockServiceLocator.getTflRepository() } returns mockRepo
+        setStubsBehaviour()
 
-        viewModel = TubeStatusViewModel(mockServiceLocator)
+        viewModel = TubeStatusViewModel()
+        viewModel.serviceLocator = mockServiceLocator
+        viewModel.initialise()
     }
 
     @Test
@@ -61,7 +60,7 @@ class TubeStatusViewModelTest {
     fun shouldInitiallyShowError() {
         every { mockRepo.getTubeLines() } returns getStubbedTubeLinesError()
 
-        viewModel = TubeStatusViewModel(mockServiceLocator)
+        viewModel = TubeStatusViewModel()
 
         viewModel.mediatorLiveData.observeOnce {
             assertThat(it.loadingError).isEqualTo(true)
@@ -104,6 +103,13 @@ class TubeStatusViewModelTest {
     fun shouldRefreshLineStatusesForNow() {
         viewModel.onRefreshClicked(isWeekendSelected = false)
         verify { mockRepo.loadTubeLinesForNow() }
+    }
+
+    private fun setStubsBehaviour() {
+        every { mockRepo.getTubeLines() } returns getStubbedTubeLinesResult()
+        every { mockRepo.loadTubeLinesForNow() } returns null
+        every { mockRepo.loadTubeLinesForWeekend() } returns null
+        every { mockServiceLocator.getTflRepository() } returns mockRepo
     }
 
     private fun getStubbedTubeLinesResult(): LiveData<TubeLinesStatusResult> {

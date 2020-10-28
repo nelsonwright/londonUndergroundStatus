@@ -7,24 +7,32 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.reactivex.disposables.Disposable
 import uk.co.nelsonwright.londonundergroundstatus.api.ServiceLocator
+import uk.co.nelsonwright.londonundergroundstatus.api.TflRepository
 import uk.co.nelsonwright.londonundergroundstatus.api.TubeLinesStatusResult
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeStatusViewState
+import javax.inject.Inject
 
 
 @Keep
-class TubeStatusViewModel(serviceLocator: ServiceLocator) : ViewModel() {
-    private val repo = serviceLocator.getTflRepository()
+class TubeStatusViewModel : ViewModel() {
+
+    @Inject
+    lateinit var serviceLocator: ServiceLocator
 
     val viewState: LiveData<TubeStatusViewState>
         get() = mediatorLiveData
 
     var mediatorLiveData = MediatorLiveData<TubeStatusViewState>()
 
-    private var tubeLinesResult = repo.getTubeLines()
+    lateinit var repo: TflRepository
+    lateinit var tubeLinesResult: LiveData<TubeLinesStatusResult>
     private var loading = MutableLiveData(false)
     private var disposable: Disposable? = null
 
-    init {
+    fun initialise() {
+        repo = serviceLocator.getTflRepository()
+        tubeLinesResult = repo.getTubeLines()
+
         mediatorLiveData.addSource(tubeLinesResult) {
             mediatorLiveData.value = combineLatestData(tubeLinesResult, loading)
             hideLoading()
