@@ -24,8 +24,8 @@ class TubeStatusViewModel : ViewModel() {
 
     var mediatorLiveData = MediatorLiveData<TubeStatusViewState>()
 
-    lateinit var repo: TflRepository
-    lateinit var tubeLinesResult: LiveData<TubeLinesStatusResult>
+    private lateinit var repo: TflRepository
+    private lateinit var tubeLinesResult: LiveData<TubeLinesStatusResult>
     private var loading = MutableLiveData(false)
     private var disposable: Disposable? = null
 
