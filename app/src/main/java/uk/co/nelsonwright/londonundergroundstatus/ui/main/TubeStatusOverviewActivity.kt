@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.tube_status_overview_activity.*
 import uk.co.nelsonwright.londonundergroundstatus.R
 import uk.co.nelsonwright.londonundergroundstatus.TubeStatusApplication
+import uk.co.nelsonwright.londonundergroundstatus.api.ServiceLocator
 import uk.co.nelsonwright.londonundergroundstatus.api.TubeLine
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeLineColours
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeStatusViewState
@@ -29,7 +30,12 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
     @Inject
     lateinit var calendarUtils: CalendarUtils
 
-    private val viewModel: TubeStatusViewModel by viewModels()
+    @Inject
+    lateinit var serviceLocator: ServiceLocator
+
+    private lateinit var viewModelFactory: TubeStatusViewModelFactory
+    private val viewModel: TubeStatusViewModel by viewModels { viewModelFactory }
+
     private lateinit var viewAdapter: TubeListAdapter
     private lateinit var viewManager: RecyclerView.LayoutManager
 
@@ -42,12 +48,11 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
         super.onCreate(savedInstanceState)
         setContentView(R.layout.tube_status_overview_activity)
         (application as TubeStatusApplication).tubeStatusComponent.inject(this)
-        (application as TubeStatusApplication).tubeStatusComponent.inject(viewModel)
 
+        viewModelFactory = TubeStatusViewModelFactory(serviceLocator = serviceLocator)
         setupRecyclerView()
         observeViewModel()
         setListeners()
-        viewModel.initialise()
     }
 
     override fun onPause() {

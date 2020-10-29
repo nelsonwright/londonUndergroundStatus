@@ -34,11 +34,8 @@ class TubeStatusViewModelTest {
 
     @Before
     fun setup() {
-        setStubsBehaviour()
-
-        viewModel = TubeStatusViewModel()
-        viewModel.serviceLocator = mockServiceLocator
-        viewModel.initialise()
+        stubRepoResponses()
+        viewModel = TubeStatusViewModel(mockServiceLocator)
     }
 
     @Test
@@ -60,7 +57,7 @@ class TubeStatusViewModelTest {
     fun shouldInitiallyShowError() {
         every { mockRepo.getTubeLines() } returns getStubbedTubeLinesError()
 
-        viewModel = TubeStatusViewModel()
+        viewModel = TubeStatusViewModel(mockServiceLocator)
 
         viewModel.mediatorLiveData.observeOnce {
             assertThat(it.loadingError).isEqualTo(true)
@@ -105,7 +102,7 @@ class TubeStatusViewModelTest {
         verify { mockRepo.loadTubeLinesForNow() }
     }
 
-    private fun setStubsBehaviour() {
+    private fun stubRepoResponses() {
         every { mockRepo.getTubeLines() } returns getStubbedTubeLinesResult()
         every { mockRepo.loadTubeLinesForNow() } returns null
         every { mockRepo.loadTubeLinesForWeekend() } returns null
