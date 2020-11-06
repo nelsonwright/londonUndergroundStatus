@@ -55,11 +55,6 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
         setListeners()
     }
 
-    override fun onPause() {
-        super.onPause()
-        viewModel.onPause()
-    }
-
     override fun onTubeLineClicked(tubeLine: TubeLine) {
         val tube = TubeLineColours.values()
             .firstOrNull { it.id == tubeLine.id }
@@ -117,15 +112,11 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
 
     private fun updateView(state: TubeStatusViewState) {
         with(state) {
+            updateLoadingIndicator(loading)
             updateViewVisibilities(error = loadingError)
             refresh_date.text = getString(R.string.refresh_date, refreshDate)
             viewAdapter.update(tubeLines)
-            updateLoadingIndicator(loading)
         }
-    }
-
-    private fun updateLoadingIndicator(loading: Boolean) {
-        swipe_refresh.isRefreshing = loading
     }
 
     private fun setListeners() {
@@ -156,8 +147,6 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
     }
 
     private fun updateViewVisibilities(error: Boolean) {
-        updateLoadingIndicator(false)
-
         if (error) {
             refresh_date.visibility = GONE
             lines_recycler_view.visibility = GONE
@@ -167,5 +156,9 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
             lines_recycler_view.visibility = VISIBLE
             loading_error_group.visibility = GONE
         }
+    }
+
+    private fun updateLoadingIndicator(loading: Boolean) {
+        swipe_refresh.isRefreshing = loading
     }
 }

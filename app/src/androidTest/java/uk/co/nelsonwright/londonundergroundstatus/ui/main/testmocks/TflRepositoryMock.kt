@@ -23,11 +23,11 @@ class TflRepositoryMock : TflRepository {
         TubeLine("waterloo-city", "Waterloo & City", listOf(getPlannedClosureStatus()))
     )
 
-    override fun getTubeLines(): LiveData<TubeLinesStatusResult> {
+    override suspend fun getTubeLines(): LiveData<TubeLinesStatusResult> {
         return getStubbedTubeLinesResult()
     }
 
-    override fun loadTubeLinesForNow(): Disposable? {
+    override suspend fun loadTubeLinesForNow(): Disposable? {
         return Disposables.empty()
     }
 
