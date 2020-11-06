@@ -5,7 +5,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import uk.co.nelsonwright.londonundergroundstatus.api.ServiceLocator
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeStatusViewState
 import uk.co.nelsonwright.londonundergroundstatus.shared.CalendarUtils
@@ -35,9 +37,13 @@ class TubeStatusViewModel(serviceLocator: ServiceLocator) : ViewModel() {
 
             try {
                 val tubeLineList = if (isWeekend) {
-                    repo.loadTubeLinesForWeekend()
+                    withContext(Dispatchers.IO) {
+                        repo.loadTubeLinesForWeekend()
+                    }
                 } else {
-                    repo.loadTubeLinesForNow()
+                    withContext(Dispatchers.IO) {
+                        repo.loadTubeLinesForNow()
+                    }
                 }
 
                 mutableLiveData.value = TubeStatusViewState(
