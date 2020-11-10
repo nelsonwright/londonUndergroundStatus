@@ -1,16 +1,22 @@
 package uk.co.nelsonwright.londonundergroundstatus.ui.main
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import io.mockk.MockKAnnotations
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
+import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import uk.co.nelsonwright.londonundergroundstatus.api.*
+import uk.co.nelsonwright.londonundergroundstatus.api.ServiceLocator
+import uk.co.nelsonwright.londonundergroundstatus.api.TflRepository
+import uk.co.nelsonwright.londonundergroundstatus.api.TubeLine
+import uk.co.nelsonwright.londonundergroundstatus.api.TubeLineStatus
+import uk.co.nelsonwright.londonundergroundstatus.shared.GOOD_SERVICE
 import uk.co.nelsonwright.londonundergroundstatus.testutils.observeOnce
 
 
@@ -21,25 +27,35 @@ class TubeStatusViewModelTest {
     @JvmField
     val rule = InstantTaskExecutorRule()
 
-    private val mockRepo = mockk<TflRepository>()
-    private val mockServiceLocator = mockk<ServiceLocator>()
+    // Set the main coroutines dispatcher for unit testing.
+    @ExperimentalCoroutinesApi
+    @get:Rule
+    var mainCoroutineRule = MainCoroutineRule()
+
+    @MockK
+    lateinit var mockRepo: TflRepository
+    @MockK
+    lateinit var mockServiceLocator: ServiceLocator
+
     private lateinit var viewModel: TubeStatusViewModel
 
-    private val statusSuspended = TubeLineStatus(3, "Part Suspended", "A 6 minute service is operating")
-    private val statusClosure = TubeLineStatus(4, "Planned Closure", "No service due to  operational restrictions")
-    private val tubeLinesList = listOf(
-        TubeLine("bakerloo", "Bakerloo", listOf(statusSuspended)),
-        TubeLine("bakerloo", "Circle", listOf(statusSuspended, statusClosure))
-    )
+    private val tubeLinesNow = stubbedTubeLinesNow()
+    private val tubeLinesWeekend = stubbedTubeLinesWeekend()
+    private val dispatcher = Dispatchers.Unconfined
 
     @Before
     fun setup() {
+        MockKAnnotations.init(this)
         stubRepoResponses()
-        viewModel = TubeStatusViewModel(mockServiceLocator)
+        viewModel = TubeStatusViewModel(mockServiceLocator, dispatcher, dispatcher)
     }
 
+    @ExperimentalCoroutinesApi
     @Test
-    fun shouldInitiallyShowLoading() {
+    fun shouldInitiallyShowLoading() = mainCoroutineRule.runBlockingTest {
+        mainCoroutineRule.testDispatcher.pauseDispatcher()
+        viewModel =
+            TubeStatusViewModel(mockServiceLocator, mainCoroutineRule.testDispatcher, mainCoroutineRule.testDispatcher)
         viewModel.viewState.observeOnce {
             assertThat(it.loading).isTrue()
         }
@@ -47,19 +63,19 @@ class TubeStatusViewModelTest {
 
     @Test
     fun shouldInitiallyShowLines() {
-        viewModel.mediatorLiveData.observeOnce {
-            assertThat(it.tubeLines).isEqualTo(tubeLinesList)
+        viewModel.viewState.observeOnce {
+            assertThat(it.tubeLines).isEqualTo(tubeLinesNow)
             assertThat(it.loadingError).isFalse()
         }
     }
 
     @Test
     fun shouldInitiallyShowError() {
-        every { mockRepo.getTubeLines() } returns getStubbedTubeLinesError()
+        coEvery { mockRepo.loadTubeLinesForNow() } throws Exception("error")
 
-        viewModel = TubeStatusViewModel(mockServiceLocator)
+        viewModel = TubeStatusViewModel(mockServiceLocator, dispatcher, dispatcher)
 
-        viewModel.mediatorLiveData.observeOnce {
+        viewModel.viewState.observeOnce {
             assertThat(it.loadingError).isEqualTo(true)
             assertThat(it.tubeLines).isEqualTo(emptyList<TubeLine>())
         }
@@ -67,61 +83,76 @@ class TubeStatusViewModelTest {
 
     @Test
     fun shouldInitiallyRequestLineStatusesForNow() {
-        verify { mockRepo.loadTubeLinesForNow() }
+        coVerify { mockRepo.loadTubeLinesForNow() }
     }
 
     @Test
     fun shouldRequestLineStatusesForNow() {
-        viewModel.loadTubeLines(weekend = false)
+        viewModel.loadTubeLines(isWeekend = false)
 
-        verify { mockRepo.loadTubeLinesForNow() }
-        viewModel.mediatorLiveData.observeOnce {
-            assertThat(it.tubeLines).isEqualTo(tubeLinesList)
+        coVerify { mockRepo.loadTubeLinesForNow() }
+        viewModel.viewState.observeOnce {
+            assertThat(it.tubeLines).isEqualTo(tubeLinesNow)
         }
     }
 
     @Test
     fun shouldRequestLineStatusesForWeekend() {
-        viewModel.loadTubeLines(weekend = true)
+        viewModel.loadTubeLines(isWeekend = true)
 
-        verify { mockRepo.loadTubeLinesForWeekend() }
-        viewModel.mediatorLiveData.observeOnce {
-            assertThat(it.tubeLines).isEqualTo(tubeLinesList)
+        coVerify { mockRepo.loadTubeLinesForWeekend() }
+        viewModel.viewState.observeOnce {
+            assertThat(it.tubeLines).isEqualTo(tubeLinesWeekend)
         }
     }
 
-    @Test
-    fun shouldRefreshLineStatusesForWeekend() {
-        viewModel.onRefreshClicked(isWeekendSelected = true)
-        verify { mockRepo.loadTubeLinesForWeekend() }
-    }
-
-    @Test
-    fun shouldRefreshLineStatusesForNow() {
-        viewModel.onRefreshClicked(isWeekendSelected = false)
-        verify { mockRepo.loadTubeLinesForNow() }
-    }
-
     private fun stubRepoResponses() {
-        every { mockRepo.getTubeLines() } returns getStubbedTubeLinesResult()
-        every { mockRepo.loadTubeLinesForNow() } returns null
-        every { mockRepo.loadTubeLinesForWeekend() } returns null
+        coEvery { mockRepo.loadTubeLinesForNow() } returns stubbedTubeLinesNow()
+        coEvery { mockRepo.loadTubeLinesForWeekend() } returns stubbedTubeLinesWeekend()
         every { mockServiceLocator.getTflRepository() } returns mockRepo
     }
 
-    private fun getStubbedTubeLinesResult(): LiveData<TubeLinesStatusResult> {
-        return MutableLiveData(getStubbedTubeLineStatusResult())
+    private fun stubbedTubeLinesNow(): List<TubeLine> {
+        return listOf(
+            TubeLine("bakerloo", "Bakerloo", listOf(statusPartSuspended())),
+            TubeLine("london-overground", "London Overground", listOf(statusGoodService())),
+            TubeLine("wycombe", "Wycombe", listOf(statusPlannedClosure())),
+            TubeLine("victoria", "Victoria", listOf(statusPartSuspended(), statusPlannedClosure()))
+        )
     }
 
-    private fun getStubbedTubeLinesError(): LiveData<TubeLinesStatusResult> {
-        return MutableLiveData(getStubbedTubeLineStatusError())
+    private fun stubbedTubeLinesWeekend(): List<TubeLine> {
+        return listOf(
+            TubeLine("bakerloo", "Bakerloo", listOf(statusPartSuspended())),
+            TubeLine("central", "Central", listOf(statusGoodService())),
+            TubeLine("victoria", "Victoria", listOf(statusPartSuspended(), statusPlannedClosure())),
+            TubeLine("wycombe", "Wycombe", listOf(statusPlannedClosure())),
+            TubeLine("zanzibar", "Zanzibar", listOf(statusPlannedClosure()))
+        )
     }
 
-    private fun getStubbedTubeLineStatusResult(): TubeLinesStatusResult {
-        return TubeLinesStatusResult(tubeLines = tubeLinesList, loadingError = false)
+    private fun statusPlannedClosure(): TubeLineStatus {
+        return TubeLineStatus(
+            statusSeverity = 4,
+            severityDescription = "Planned Closure",
+            reason = "No service until further notice."
+        )
     }
 
-    private fun getStubbedTubeLineStatusError(): TubeLinesStatusResult {
-        return TubeLinesStatusResult(loadingError = true)
+    private fun statusPartSuspended(): TubeLineStatus {
+        return TubeLineStatus(
+            statusSeverity = 4,
+            severityDescription = "Part Suspended",
+            reason = "A 6 minute service is operating"
+        )
     }
+
+    private fun statusGoodService(): TubeLineStatus {
+        return TubeLineStatus(
+            statusSeverity = GOOD_SERVICE,
+            severityDescription = "Good Service",
+            reason = "A good service is operating"
+        )
+    }
+
 }

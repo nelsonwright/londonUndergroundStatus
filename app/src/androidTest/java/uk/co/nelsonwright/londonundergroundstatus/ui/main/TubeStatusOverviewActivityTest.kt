@@ -53,6 +53,7 @@ class TubeStatusOverviewActivityTest {
             .targetContext
             .applicationContext as TubeStatusApplication
 
+        // hmm, need to rework this, now we no longer inject the serviceLocator in the activity
         val mockedComponent = DaggerAppComponent
             .builder()
             .appModule(AppModuleMock(tubeApp))

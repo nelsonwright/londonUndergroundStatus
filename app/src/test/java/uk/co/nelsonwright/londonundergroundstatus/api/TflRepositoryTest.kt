@@ -1,16 +1,15 @@
 package uk.co.nelsonwright.londonundergroundstatus.api
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
 import kotlinx.coroutines.runBlocking
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import uk.co.nelsonwright.londonundergroundstatus.shared.CalendarUtils
-import uk.co.nelsonwright.londonundergroundstatus.testutils.RxImmediateSchedulerRule
 
 
 private const val FORMATTED_NOW_DATE = "formatted now date"
@@ -21,62 +20,44 @@ class TflRepositoryTest {
     @JvmField
     val rule = InstantTaskExecutorRule()
 
-    @get:Rule
-    val schedulers = RxImmediateSchedulerRule()
-
-    private val statusSuspended = TubeLineStatus(4, "Part Suspended", "A 6 minute service is operating")
-    private val statusClosure = TubeLineStatus(4, "Planned Closure", "No service due to  operational restrictions")
-    private val expectedTubeLinesList = listOf(
-        TubeLine("bakerloo", "Bakerloo", listOf(statusSuspended)),
-        TubeLine("circle", "Circle", listOf(statusSuspended, statusClosure))
-    )
-
     private val mockApi = mockk<TflApiInterface>()
     private lateinit var repo: TflRepository
     private val calendarUtils = mockk<CalendarUtils>()
     private val weekendPair = Pair("Saturday", "Sunday")
 
-
     @Before
     fun setup() {
-        every { mockApi.getLinesStatusNow(any(), any()) } returns runBlocking { getStubbedTubeLines() }
-        every { mockApi.getLinesStatusForWeekend(any(), any(), any(), any()) } returns getTubeLinesObservable()
+        coEvery { mockApi.getLinesStatusNow(any(), any()) } returns stubbedTubeLines()
+        coEvery { mockApi.getLinesStatusForWeekend(any(), any(), any(), any()) } returns stubbedTubeLines()
         every { calendarUtils.getFormattedLocateDateTime() } returns FORMATTED_NOW_DATE
         every { calendarUtils.getWeekendDates() } returns weekendPair
         repo = TflRepositoryImpl(mockApi, calendarUtils)
     }
 
     @Test
-    fun shouldRequestTubeLinesForNow() = runBlocking {
-        repo.loadTubeLinesForNow()
-        verify { mockApi.getLinesStatusNow(APPLICATION_ID, APPLICATION_KEY) }
-    }
-
-    @Test
-    fun shouldRequestTubeLinesForWeekend() = runBlocking {
-        repo.loadTubeLinesForWeekend()
-
-        verify {
-            mockApi.getLinesStatusForWeekend(
-                APPLICATION_ID,
-                APPLICATION_KEY,
-                weekendPair.first,
-                weekendPair.second
-            )
+    fun shouldRequestTubeLinesForNow() {
+        runBlocking {
+            repo.loadTubeLinesForNow()
+            coVerify { mockApi.getLinesStatusNow(APPLICATION_ID, APPLICATION_KEY) }
         }
     }
 
     @Test
-    fun shouldReturnTubeLines() = runBlocking {
-        repo.loadTubeLinesForNow()
-
-        repo.getTubeLines().observeOnce {
-            assertThat(it.tubeLines).isEqualTo(expectedTubeLinesList)
-            assertThat(it.timestamp).isEqualTo(FORMATTED_NOW_DATE)
+    fun shouldRequestTubeLinesForWeekend() {
+        runBlocking {
+            repo.loadTubeLinesForWeekend()
+            coVerify {
+                mockApi.getLinesStatusForWeekend(
+                    APPLICATION_ID,
+                    APPLICATION_KEY,
+                    weekendPair.first,
+                    weekendPair.second
+                )
+            }
         }
     }
 
-    private fun getStubbedTubeLines(): List<TubeLine> {
-        return expectedTubeLinesList
+    private fun stubbedTubeLines(): List<TubeLine> {
+        return listOf(TubeLine())
     }
 }

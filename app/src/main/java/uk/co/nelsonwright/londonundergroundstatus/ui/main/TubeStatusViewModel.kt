@@ -5,7 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import uk.co.nelsonwright.londonundergroundstatus.api.ServiceLocator
@@ -15,7 +15,11 @@ import uk.co.nelsonwright.londonundergroundstatus.shared.TimeHelper
 
 
 @Keep
-class TubeStatusViewModel(serviceLocator: ServiceLocator) : ViewModel() {
+class TubeStatusViewModel(
+    serviceLocator: ServiceLocator,
+    private val mainDispatcher: CoroutineDispatcher,
+    private val ioDispatcher: CoroutineDispatcher
+) : ViewModel() {
     val viewState: LiveData<TubeStatusViewState>
         get() = mutableLiveData
 
@@ -23,8 +27,8 @@ class TubeStatusViewModel(serviceLocator: ServiceLocator) : ViewModel() {
     private val calendarUtils = CalendarUtils(TimeHelper())
     private var mutableLiveData = MutableLiveData<TubeStatusViewState>()
 
-    fun onRefreshClicked(isWeekendSelected: Boolean) {
-        getTubeLines(isWeekendSelected)
+    init {
+        getTubeLines(isWeekend = false)
     }
 
     fun loadTubeLines(isWeekend: Boolean = false) {
@@ -32,16 +36,16 @@ class TubeStatusViewModel(serviceLocator: ServiceLocator) : ViewModel() {
     }
 
     private fun getTubeLines(isWeekend: Boolean = false) {
-        viewModelScope.launch {
+        viewModelScope.launch(mainDispatcher) {
             mutableLiveData.value = TubeStatusViewState(loading = true)
 
             try {
                 val tubeLineList = if (isWeekend) {
-                    withContext(Dispatchers.IO) {
+                    withContext(ioDispatcher) {
                         repo.loadTubeLinesForWeekend()
                     }
                 } else {
-                    withContext(Dispatchers.IO) {
+                    withContext(ioDispatcher) {
                         repo.loadTubeLinesForNow()
                     }
                 }

@@ -14,6 +14,11 @@ import java.util.concurrent.TimeUnit
 /**
  * Replaces the default RxJava schedulers with a synchronous one.
  * See https://gist.github.com/starkej2/c446012d540b8e25409fa525c6d17cb1
+ *
+ * Use like:
+ *
+ * @get:Rule
+ * val schedulers = RxImmediateSchedulerRule()
  */
 class RxImmediateSchedulerRule : TestRule {
     private val immediateScheduler = object : Scheduler() {
