@@ -27,7 +27,10 @@ import uk.co.nelsonwright.londonundergroundstatus.R
 import uk.co.nelsonwright.londonundergroundstatus.TubeStatusApplication
 import uk.co.nelsonwright.londonundergroundstatus.api.TubeLine
 import uk.co.nelsonwright.londonundergroundstatus.di.DaggerAppComponent
-import uk.co.nelsonwright.londonundergroundstatus.ui.main.shared.getPlannedClosureStatus
+import uk.co.nelsonwright.londonundergroundstatus.ui.main.shared.statusPartSuspended
+import uk.co.nelsonwright.londonundergroundstatus.ui.main.shared.statusPlannedClosure
+import uk.co.nelsonwright.londonundergroundstatus.ui.main.shared.stubbedTubeLinesNow
+import uk.co.nelsonwright.londonundergroundstatus.ui.main.shared.stubbedTubeLinesWeekend
 import uk.co.nelsonwright.londonundergroundstatus.ui.main.testmocks.AppModuleMock
 
 
@@ -37,13 +40,9 @@ class TubeStatusOverviewActivityTest {
     @get:Rule
     val activityRule = ActivityScenarioRule(TubeStatusOverviewActivity::class.java)
 
-    private val expectedTubeLines = listOf(
-        "Bakerloo",
-        "Victoria",
-        "Waterloo & City"
-    )
-
-    private val bottomTubeLine = expectedTubeLines.size - 1
+    private val expectedTubeLinesNow = stubbedTubeLinesNow()
+    private val expectedTubeLinesWeekend = stubbedTubeLinesWeekend()
+    private val bottomTubeLine = expectedTubeLinesNow.size - 1
 
     @Before
     fun setup() {
@@ -131,18 +130,44 @@ class TubeStatusOverviewActivityTest {
     }
 
     @Test
-    fun shouldShowExpectedTubeLines() {
-        expectedTubeLines.forEach { tubeName ->
+    fun shouldShowExpectedTubeLinesForNow() {
+        expectedTubeLinesNow.forEach {
             // Attempt to scroll to an item that contains the specified text.
             onView(withId(R.id.lines_recycler_view))
                 .perform(
                     // scrollTo will fail the test if no item matches.
                     RecyclerViewActions.scrollTo<ViewHolder>(
-                        hasDescendant(withText(tubeName))
+                        hasDescendant(withText(it.name))
                     )
                 )
         }
     }
+
+
+    // hmm, sometimes this and shouldShowFooterCorrectly are flaky
+    @Test
+    fun shouldShowExpectedTubeLinesForWeekend() {
+        onView(withId(R.id.status_date_spinner)).perform(click())
+
+        // select "weekend" . . .
+        onData(instanceOf(String::class.java))
+            .atPosition(1)
+            .perform(click())
+
+        Thread.sleep(2000)
+
+        expectedTubeLinesWeekend.forEach {
+            // Attempt to scroll to an item that contains the specified text.
+            onView(withId(R.id.lines_recycler_view))
+                .perform(
+                    // scrollTo will fail the test if no item matches.
+                    RecyclerViewActions.scrollTo<ViewHolder>(
+                        hasDescendant(withText(it.name))
+                    )
+                )
+        }
+    }
+
 
     @Test
     fun shouldStartDetailActivity() {
@@ -158,8 +183,8 @@ class TubeStatusOverviewActivityTest {
         intended(
             allOf(
                 hasComponent(TubeStatusDetailsActivity::class.java.name),
-                hasExtra(EXTRA_TUBE_LINE, waterlooAndCityTubeLine()),
-                hasExtra(EXTRA_LINE_COLOUR, "#70c3ce")
+                hasExtra(EXTRA_TUBE_LINE, victoriaTubeLine()),
+                hasExtra(EXTRA_LINE_COLOUR, "#009fe0")
             )
         )
     }
@@ -181,11 +206,11 @@ class TubeStatusOverviewActivityTest {
             .check(isCompletelyBelow(withText("Powered by TfL Open Data")))
     }
 
-    private fun waterlooAndCityTubeLine(): TubeLine {
+    private fun victoriaTubeLine(): TubeLine {
         return TubeLine(
-            id = "waterloo-city",
-            name = "Waterloo & City",
-            lineStatuses = listOf(getPlannedClosureStatus())
+            id = "victoria",
+            name = "Victoria",
+            lineStatuses = listOf(statusPartSuspended(), statusPlannedClosure())
         )
     }
 }

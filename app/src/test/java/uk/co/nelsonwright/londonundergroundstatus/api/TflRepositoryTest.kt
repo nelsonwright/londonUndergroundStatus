@@ -4,14 +4,13 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import io.reactivex.Observable
+import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import uk.co.nelsonwright.londonundergroundstatus.shared.CalendarUtils
 import uk.co.nelsonwright.londonundergroundstatus.testutils.RxImmediateSchedulerRule
-import uk.co.nelsonwright.londonundergroundstatus.testutils.observeOnce
 
 
 private const val FORMATTED_NOW_DATE = "formatted now date"
@@ -40,7 +39,7 @@ class TflRepositoryTest {
 
     @Before
     fun setup() {
-        every { mockApi.getLinesStatusNow(any(), any()) } returns getTubeLinesObservable()
+        every { mockApi.getLinesStatusNow(any(), any()) } returns runBlocking { getStubbedTubeLines() }
         every { mockApi.getLinesStatusForWeekend(any(), any(), any(), any()) } returns getTubeLinesObservable()
         every { calendarUtils.getFormattedLocateDateTime() } returns FORMATTED_NOW_DATE
         every { calendarUtils.getWeekendDates() } returns weekendPair
@@ -48,14 +47,15 @@ class TflRepositoryTest {
     }
 
     @Test
-    fun shouldRequestTubeLinesForNow() {
+    fun shouldRequestTubeLinesForNow() = runBlocking {
         repo.loadTubeLinesForNow()
         verify { mockApi.getLinesStatusNow(APPLICATION_ID, APPLICATION_KEY) }
     }
 
     @Test
-    fun shouldRequestTubeLinesForWeekend() {
+    fun shouldRequestTubeLinesForWeekend() = runBlocking {
         repo.loadTubeLinesForWeekend()
+
         verify {
             mockApi.getLinesStatusForWeekend(
                 APPLICATION_ID,
@@ -67,7 +67,7 @@ class TflRepositoryTest {
     }
 
     @Test
-    fun shouldReturnTubeLines() {
+    fun shouldReturnTubeLines() = runBlocking {
         repo.loadTubeLinesForNow()
 
         repo.getTubeLines().observeOnce {
@@ -76,7 +76,7 @@ class TflRepositoryTest {
         }
     }
 
-    private fun getTubeLinesObservable(): Observable<List<TubeLine>> {
-        return Observable.just(expectedTubeLinesList)
+    private fun getStubbedTubeLines(): List<TubeLine> {
+        return expectedTubeLinesList
     }
 }
