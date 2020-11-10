@@ -14,30 +14,31 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.tube_status_overview_activity.*
+import kotlinx.coroutines.Dispatchers
 import uk.co.nelsonwright.londonundergroundstatus.R
 import uk.co.nelsonwright.londonundergroundstatus.TubeStatusApplication
-import uk.co.nelsonwright.londonundergroundstatus.api.ServiceLocator
 import uk.co.nelsonwright.londonundergroundstatus.api.TubeLine
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeLineColours
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeStatusViewState
 import uk.co.nelsonwright.londonundergroundstatus.shared.CalendarUtils
 import javax.inject.Inject
 
+private const val NOW_SELECTED = 0
 private const val WEEKEND_SELECTED = 1
+private const val BUNDLE_SPINNER_POSITION = "BUNDLE_SPINNER_POSITION"
 
-class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, AdapterView.OnItemSelectedListener {
+class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener {
 
     @Inject
     lateinit var calendarUtils: CalendarUtils
 
-    @Inject
-    lateinit var serviceLocator: ServiceLocator
-
-    private lateinit var viewModelFactory: TubeStatusViewModelFactory
+    private val viewModelFactory =
+        TubeStatusViewModelFactory(mainDispatcher = Dispatchers.Main, ioDispatcher = Dispatchers.IO)
     private val viewModel: TubeStatusViewModel by viewModels { viewModelFactory }
 
     private lateinit var viewAdapter: TubeListAdapter
     private lateinit var viewManager: RecyclerView.LayoutManager
+    private var lastSelectedSpinnerPosition = NOW_SELECTED
 
     private val isWeekendSelected: Boolean
         get() {
@@ -48,16 +49,19 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
         super.onCreate(savedInstanceState)
         setContentView(R.layout.tube_status_overview_activity)
         (application as TubeStatusApplication).tubeStatusComponent.inject(this)
-
-        viewModelFactory = TubeStatusViewModelFactory(serviceLocator = serviceLocator)
         setupRecyclerView()
         observeViewModel()
         setListeners()
     }
 
-    override fun onPause() {
-        super.onPause()
-        viewModel.onPause()
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt(BUNDLE_SPINNER_POSITION, lastSelectedSpinnerPosition)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        lastSelectedSpinnerPosition = savedInstanceState.getInt(BUNDLE_SPINNER_POSITION)
     }
 
     override fun onTubeLineClicked(tubeLine: TubeLine) {
@@ -91,14 +95,6 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
         }
     }
 
-    override fun onNothingSelected(parent: AdapterView<*>?) {
-        // do nothing
-    }
-
-    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-        viewModel.loadTubeLines(isWeekendSelected)
-    }
-
     private fun setupRecyclerView() {
         viewManager = LinearLayoutManager(this)
         viewAdapter = TubeListAdapter(arrayListOf(), this, this)
@@ -117,20 +113,16 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
 
     private fun updateView(state: TubeStatusViewState) {
         with(state) {
+            updateLoadingIndicator(loading)
             updateViewVisibilities(error = loadingError)
             refresh_date.text = getString(R.string.refresh_date, refreshDate)
             viewAdapter.update(tubeLines)
-            updateLoadingIndicator(loading)
         }
-    }
-
-    private fun updateLoadingIndicator(loading: Boolean) {
-        swipe_refresh.isRefreshing = loading
     }
 
     private fun setListeners() {
         refresh_button.setOnClickListener {
-            viewModel.onRefreshClicked(isWeekendSelected)
+            viewModel.loadTubeLines(isWeekendSelected)
         }
         swipe_refresh.setOnRefreshListener {
             viewModel.loadTubeLines(isWeekendSelected)
@@ -152,12 +144,20 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
                 // assign the adapter to the spinner
                 status_date_spinner.adapter = adapter
             }
-        status_date_spinner.onItemSelectedListener = this
+
+        status_date_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                if (position != lastSelectedSpinnerPosition) {
+                    viewModel.loadTubeLines(isWeekendSelected)
+                    lastSelectedSpinnerPosition = position
+                }
+            }
+        }
     }
 
     private fun updateViewVisibilities(error: Boolean) {
-        updateLoadingIndicator(false)
-
         if (error) {
             refresh_date.visibility = GONE
             lines_recycler_view.visibility = GONE
@@ -167,5 +167,9 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener, A
             lines_recycler_view.visibility = VISIBLE
             loading_error_group.visibility = GONE
         }
+    }
+
+    private fun updateLoadingIndicator(loading: Boolean) {
+        swipe_refresh.isRefreshing = loading
     }
 }

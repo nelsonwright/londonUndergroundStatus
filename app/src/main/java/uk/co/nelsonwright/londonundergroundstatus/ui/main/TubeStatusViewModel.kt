@@ -2,83 +2,62 @@ package uk.co.nelsonwright.londonundergroundstatus.ui.main
 
 import androidx.annotation.Keep
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import io.reactivex.disposables.Disposable
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import uk.co.nelsonwright.londonundergroundstatus.api.ServiceLocator
-import uk.co.nelsonwright.londonundergroundstatus.api.TubeLinesStatusResult
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeStatusViewState
+import uk.co.nelsonwright.londonundergroundstatus.shared.CalendarUtils
+import uk.co.nelsonwright.londonundergroundstatus.shared.TimeHelper
 
 
 @Keep
-class TubeStatusViewModel(serviceLocator: ServiceLocator) : ViewModel() {
-    private val repo = serviceLocator.getTflRepository()
-
+class TubeStatusViewModel(
+    serviceLocator: ServiceLocator,
+    private val mainDispatcher: CoroutineDispatcher,
+    private val ioDispatcher: CoroutineDispatcher
+) : ViewModel() {
     val viewState: LiveData<TubeStatusViewState>
-        get() = mediatorLiveData
+        get() = mutableLiveData
 
-    var mediatorLiveData = MediatorLiveData<TubeStatusViewState>()
-
-    private var tubeLinesResult = repo.getTubeLines()
-    private var loading = MutableLiveData(false)
-    private var disposable: Disposable? = null
+    private val repo = serviceLocator.getTflRepository()
+    private val calendarUtils = CalendarUtils(TimeHelper())
+    private var mutableLiveData = MutableLiveData<TubeStatusViewState>()
 
     init {
-        mediatorLiveData.addSource(tubeLinesResult) {
-            mediatorLiveData.value = combineLatestData(tubeLinesResult, loading)
-            hideLoading()
+        getTubeLines(isWeekend = false)
+    }
+
+    fun loadTubeLines(isWeekend: Boolean = false) {
+        getTubeLines(isWeekend)
+    }
+
+    private fun getTubeLines(isWeekend: Boolean = false) {
+        viewModelScope.launch(mainDispatcher) {
+            mutableLiveData.value = TubeStatusViewState(loading = true)
+
+            try {
+                val tubeLineList = if (isWeekend) {
+                    withContext(ioDispatcher) {
+                        repo.loadTubeLinesForWeekend()
+                    }
+                } else {
+                    withContext(ioDispatcher) {
+                        repo.loadTubeLinesForNow()
+                    }
+                }
+
+                mutableLiveData.value = TubeStatusViewState(
+                    tubeLines = tubeLineList,
+                    refreshDate = calendarUtils.getFormattedLocateDateTime()
+                )
+            } catch (exception: Exception) {
+                mutableLiveData.value = TubeStatusViewState(loadingError = true)
+            }
         }
-        mediatorLiveData.addSource(loading) {
-            mediatorLiveData.value = combineLatestData(tubeLinesResult, loading)
-        }
-
-        loadTubeLines()
-    }
-
-    fun onPause() {
-        disposable?.dispose()
-    }
-
-    fun onRefreshClicked(isWeekendSelected: Boolean) {
-        loadTubeLines(isWeekendSelected)
-    }
-
-    fun loadTubeLines(weekend: Boolean = false) {
-        showLoading()
-
-        disposable = if (weekend) {
-            repo.loadTubeLinesForWeekend()
-        } else {
-            repo.loadTubeLinesForNow()
-        }
-    }
-
-    private fun combineLatestData(
-        tubeLinesResult: LiveData<TubeLinesStatusResult>,
-        loadingResult: MutableLiveData<Boolean>
-    ): TubeStatusViewState? {
-        val tubeLinesStatusResult = tubeLinesResult.value
-        val loading = loadingResult.value
-
-        if (tubeLinesStatusResult == null || loading == null) {
-            return TubeStatusViewState(loading = true)
-        }
-
-        return TubeStatusViewState(
-            loadingError = tubeLinesStatusResult.loadingError,
-            tubeLines = tubeLinesStatusResult.tubeLines,
-            refreshDate = tubeLinesStatusResult.timestamp,
-            loading = loading
-        )
-    }
-
-    private fun showLoading() {
-        loading.value = true
-    }
-
-    private fun hideLoading() {
-        loading.value = false
     }
 }
 
