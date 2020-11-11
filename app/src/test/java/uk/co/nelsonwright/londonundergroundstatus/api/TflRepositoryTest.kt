@@ -5,7 +5,8 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -14,6 +15,7 @@ import uk.co.nelsonwright.londonundergroundstatus.shared.CalendarUtils
 
 private const val FORMATTED_NOW_DATE = "formatted now date"
 
+@ExperimentalCoroutinesApi
 class TflRepositoryTest {
 
     @Rule
@@ -35,25 +37,21 @@ class TflRepositoryTest {
     }
 
     @Test
-    fun shouldRequestTubeLinesForNow() {
-        runBlocking {
-            repo.loadTubeLinesForNow()
-            coVerify { mockApi.getLinesStatusNow(APPLICATION_ID, APPLICATION_KEY) }
-        }
+    fun shouldRequestTubeLinesForNow() = runBlockingTest {
+        repo.loadTubeLinesForNow()
+        coVerify { mockApi.getLinesStatusNow(APPLICATION_ID, APPLICATION_KEY) }
     }
 
     @Test
-    fun shouldRequestTubeLinesForWeekend() {
-        runBlocking {
-            repo.loadTubeLinesForWeekend()
-            coVerify {
-                mockApi.getLinesStatusForWeekend(
-                    APPLICATION_ID,
-                    APPLICATION_KEY,
-                    weekendPair.first,
-                    weekendPair.second
-                )
-            }
+    fun shouldRequestTubeLinesForWeekend() = runBlockingTest {
+        repo.loadTubeLinesForWeekend()
+        coVerify {
+            mockApi.getLinesStatusForWeekend(
+                APPLICATION_ID,
+                APPLICATION_KEY,
+                weekendPair.first,
+                weekendPair.second
+            )
         }
     }
 
