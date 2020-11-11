@@ -20,6 +20,7 @@ import uk.co.nelsonwright.londonundergroundstatus.shared.GOOD_SERVICE
 import uk.co.nelsonwright.londonundergroundstatus.testutils.observeOnce
 
 
+@ExperimentalCoroutinesApi
 class TubeStatusViewModelTest {
     // swaps the background executor used by the Architecture Components with a
     // different one which executes each task synchronously
@@ -27,13 +28,14 @@ class TubeStatusViewModelTest {
     @JvmField
     val rule = InstantTaskExecutorRule()
 
-    // Set the main coroutines dispatcher for unit testing.
+    // Set the main coroutines dispatcher for unit testing, i.e. uses the TestCoroutineDispatcher
     @ExperimentalCoroutinesApi
     @get:Rule
     var mainCoroutineRule = MainCoroutineRule()
 
     @MockK
     lateinit var mockRepo: TflRepository
+
     @MockK
     lateinit var mockServiceLocator: ServiceLocator
 
@@ -41,23 +43,28 @@ class TubeStatusViewModelTest {
 
     private val tubeLinesNow = stubbedTubeLinesNow()
     private val tubeLinesWeekend = stubbedTubeLinesWeekend()
-    private val dispatcher = Dispatchers.Unconfined
 
     @Before
     fun setup() {
         MockKAnnotations.init(this)
         stubRepoResponses()
-        viewModel = TubeStatusViewModel(mockServiceLocator, dispatcher, dispatcher)
+        viewModel =
+            TubeStatusViewModel(mockServiceLocator, mainCoroutineRule.testDispatcher, mainCoroutineRule.testDispatcher)
     }
 
-    @ExperimentalCoroutinesApi
     @Test
     fun shouldInitiallyShowLoading() = mainCoroutineRule.runBlockingTest {
         mainCoroutineRule.testDispatcher.pauseDispatcher()
-        viewModel =
-            TubeStatusViewModel(mockServiceLocator, mainCoroutineRule.testDispatcher, mainCoroutineRule.testDispatcher)
-        viewModel.viewState.observeOnce {
-            assertThat(it.loading).isTrue()
+
+        val viewModel =
+            TubeStatusViewModel(
+                serviceLocator = mockServiceLocator,
+                mainDispatcher = Dispatchers.Unconfined,
+                ioDispatcher = mainCoroutineRule.testDispatcher
+            )
+
+        viewModel.viewState.value?.let {
+            assertThat(it.loading).isTrue
         }
     }
 
@@ -73,7 +80,8 @@ class TubeStatusViewModelTest {
     fun shouldInitiallyShowError() {
         coEvery { mockRepo.loadTubeLinesForNow() } throws Exception("error")
 
-        viewModel = TubeStatusViewModel(mockServiceLocator, dispatcher, dispatcher)
+        viewModel =
+            TubeStatusViewModel(mockServiceLocator, mainCoroutineRule.testDispatcher, mainCoroutineRule.testDispatcher)
 
         viewModel.viewState.observeOnce {
             assertThat(it.loadingError).isEqualTo(true)
