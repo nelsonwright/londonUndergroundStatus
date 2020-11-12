@@ -36,9 +36,9 @@ import uk.co.nelsonwright.londonundergroundstatus.ui.main.testmocks.AppModuleMoc
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-class TubeStatusOverviewActivityTest {
+class TubeStatusActivityTest {
     @get:Rule
-    val activityRule = ActivityScenarioRule(TubeStatusOverviewActivity::class.java)
+    val activityRule = ActivityScenarioRule(TubeStatusActivity::class.java)
 
     private val expectedTubeLinesNow = stubbedTubeLinesNow()
     private val expectedTubeLinesWeekend = stubbedTubeLinesWeekend()

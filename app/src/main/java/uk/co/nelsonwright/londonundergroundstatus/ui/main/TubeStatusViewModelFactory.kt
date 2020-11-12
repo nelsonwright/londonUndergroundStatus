@@ -13,8 +13,8 @@ class TubeStatusViewModelFactory(
 
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         val serviceLocator = ServiceLocatorImpl()
-        return if (modelClass.isAssignableFrom(TubeStatusViewModel::class.java)) {
-            TubeStatusViewModel(serviceLocator, mainDispatcher, ioDispatcher) as T
+        return if (modelClass.isAssignableFrom(TubeOverviewViewModel::class.java)) {
+            TubeOverviewViewModel(serviceLocator, mainDispatcher, ioDispatcher) as T
         } else {
             throw IllegalArgumentException("ViewModel Not Found")
         }

@@ -21,7 +21,7 @@ import uk.co.nelsonwright.londonundergroundstatus.testutils.observeOnce
 
 
 @ExperimentalCoroutinesApi
-class TubeStatusViewModelTest {
+class TubeOverviewViewModelTest {
     // swaps the background executor used by the Architecture Components with a
     // different one which executes each task synchronously
     @Rule
@@ -39,7 +39,7 @@ class TubeStatusViewModelTest {
     @MockK
     lateinit var mockServiceLocator: ServiceLocator
 
-    private lateinit var viewModel: TubeStatusViewModel
+    private lateinit var viewModel: TubeOverviewViewModel
 
     private val tubeLinesNow = stubbedTubeLinesNow()
     private val tubeLinesWeekend = stubbedTubeLinesWeekend()
@@ -49,7 +49,11 @@ class TubeStatusViewModelTest {
         MockKAnnotations.init(this)
         stubRepoResponses()
         viewModel =
-            TubeStatusViewModel(mockServiceLocator, mainCoroutineRule.testDispatcher, mainCoroutineRule.testDispatcher)
+            TubeOverviewViewModel(
+                mockServiceLocator,
+                mainCoroutineRule.testDispatcher,
+                mainCoroutineRule.testDispatcher
+            )
     }
 
     @Test
@@ -57,7 +61,7 @@ class TubeStatusViewModelTest {
         mainCoroutineRule.testDispatcher.pauseDispatcher()
 
         val viewModel =
-            TubeStatusViewModel(
+            TubeOverviewViewModel(
                 serviceLocator = mockServiceLocator,
                 mainDispatcher = Dispatchers.Unconfined,
                 ioDispatcher = mainCoroutineRule.testDispatcher
@@ -81,7 +85,11 @@ class TubeStatusViewModelTest {
         coEvery { mockRepo.loadTubeLinesForNow() } throws Exception("error")
 
         viewModel =
-            TubeStatusViewModel(mockServiceLocator, mainCoroutineRule.testDispatcher, mainCoroutineRule.testDispatcher)
+            TubeOverviewViewModel(
+                mockServiceLocator,
+                mainCoroutineRule.testDispatcher,
+                mainCoroutineRule.testDispatcher
+            )
 
         viewModel.viewState.observeOnce {
             assertThat(it.loadingError).isEqualTo(true)

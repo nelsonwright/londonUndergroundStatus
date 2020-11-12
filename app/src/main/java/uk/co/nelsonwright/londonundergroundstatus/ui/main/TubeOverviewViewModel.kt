@@ -15,11 +15,12 @@ import uk.co.nelsonwright.londonundergroundstatus.shared.TimeHelper
 
 
 @Keep
-class TubeStatusViewModel(
+class TubeOverviewViewModel(
     serviceLocator: ServiceLocator,
     private val mainDispatcher: CoroutineDispatcher,
     private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
+    var spinnerPosition: Int = 0
     val viewState: LiveData<TubeStatusViewState>
         get() = mutableLiveData
 

@@ -1,19 +1,19 @@
 package uk.co.nelsonwright.londonundergroundstatus.ui.main
 
-import android.content.Intent
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.tube_status_overview_activity.*
+import kotlinx.android.synthetic.main.fragment_tube_status_overview.*
 import kotlinx.coroutines.Dispatchers
 import uk.co.nelsonwright.londonundergroundstatus.R
 import uk.co.nelsonwright.londonundergroundstatus.TubeStatusApplication
@@ -23,18 +23,17 @@ import uk.co.nelsonwright.londonundergroundstatus.models.TubeStatusViewState
 import uk.co.nelsonwright.londonundergroundstatus.shared.CalendarUtils
 import javax.inject.Inject
 
+
 private const val NOW_SELECTED = 0
 private const val WEEKEND_SELECTED = 1
-private const val BUNDLE_SPINNER_POSITION = "BUNDLE_SPINNER_POSITION"
 
-class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener {
-
+class TubeOverviewFragment : Fragment(), TubeListClickListener {
     @Inject
     lateinit var calendarUtils: CalendarUtils
 
     private val viewModelFactory =
         TubeStatusViewModelFactory(mainDispatcher = Dispatchers.Main, ioDispatcher = Dispatchers.IO)
-    private val viewModel: TubeStatusViewModel by viewModels { viewModelFactory }
+    private val viewModel: TubeOverviewViewModel by viewModels { viewModelFactory }
 
     private lateinit var viewAdapter: TubeListAdapter
     private lateinit var viewManager: RecyclerView.LayoutManager
@@ -47,41 +46,46 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.tube_status_overview_activity)
-        (application as TubeStatusApplication).tubeStatusComponent.inject(this)
+        (requireActivity().application as TubeStatusApplication).tubeStatusComponent.inject(this)
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_tube_status_overview, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val colorDrawable = ColorDrawable(requireContext().getColor(R.color.colorPrimary))
+        (requireActivity() as AppCompatActivity).supportActionBar?.setBackgroundDrawable(colorDrawable)
+        setHasOptionsMenu(true)
         setupRecyclerView()
         observeViewModel()
         setListeners()
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putInt(BUNDLE_SPINNER_POSITION, lastSelectedSpinnerPosition)
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        lastSelectedSpinnerPosition = savedInstanceState.getInt(BUNDLE_SPINNER_POSITION)
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        lastSelectedSpinnerPosition = viewModel.spinnerPosition
     }
 
     override fun onTubeLineClicked(tubeLine: TubeLine) {
         val tube = TubeLineColours.values()
             .firstOrNull { it.id == tubeLine.id }
 
-        val intent = Intent(this, TubeStatusDetailsActivity::class.java)
-            .apply {
-                putExtra(EXTRA_TUBE_LINE, tubeLine)
-                tube?.let {
-                    putExtra(EXTRA_LINE_COLOUR, it.backgroundColour)
-                }
-            }
+        viewModel.spinnerPosition = lastSelectedSpinnerPosition
 
-        startActivity(intent)
+        val action =
+            TubeOverviewFragmentDirections.actionOverviewFragmentToDetailsFragment(tubeLine, tube?.backgroundColour)
+
+        findNavController().navigate(action)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.tube_status_menu, menu)
-        return true
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.tube_status_menu, menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -96,8 +100,8 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener {
     }
 
     private fun setupRecyclerView() {
-        viewManager = LinearLayoutManager(this)
-        viewAdapter = TubeListAdapter(arrayListOf(), this, this)
+        viewManager = LinearLayoutManager(requireContext())
+        viewAdapter = TubeListAdapter(arrayListOf(), this, requireContext())
 
         lines_recycler_view.apply {
             layoutManager = viewManager
@@ -106,7 +110,7 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener {
     }
 
     private fun observeViewModel() {
-        viewModel.viewState.observe(this, { state ->
+        viewModel.viewState.observe(viewLifecycleOwner, { state ->
             updateView(state)
         })
     }
@@ -137,7 +141,7 @@ class TubeStatusOverviewActivity : AppCompatActivity(), TubeListClickListener {
             getString(R.string.weekend_of, calendarUtils.getFormattedSaturdayDate())
         )
 
-        ArrayAdapter(applicationContext, R.layout.status_spinner_item, dropdownList)
+        ArrayAdapter(requireContext(), R.layout.status_spinner_item, dropdownList)
             .also { adapter ->
                 // the layout for when the list of choices appears, i.e when the down arrow is tapped
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)

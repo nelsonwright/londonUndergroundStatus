@@ -3,50 +3,60 @@ package uk.co.nelsonwright.londonundergroundstatus.ui.main
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.android.synthetic.main.tube_status_details_activity.*
+import kotlinx.android.synthetic.main.fragment_tube_details.*
 import uk.co.nelsonwright.londonundergroundstatus.R
-import uk.co.nelsonwright.londonundergroundstatus.api.TubeLine
 import uk.co.nelsonwright.londonundergroundstatus.api.TubeLineStatus
 
-const val EXTRA_TUBE_LINE = "EXTRA_LINES"
-const val EXTRA_LINE_COLOUR = "EXTRA_LINE_COLOUR"
 
-class TubeStatusDetailsActivity : AppCompatActivity() {
-    private lateinit var tubeLine: TubeLine
-    private lateinit var lineColour: String
+class TubeDetailsFragment : Fragment() {
+    private val args: TubeDetailsFragmentArgs by navArgs()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.tube_status_details_activity)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_tube_details, container, false)
+    }
 
-        intent.extras?.let { bundle ->
-            tubeLine = bundle.getSerializable(EXTRA_TUBE_LINE) as TubeLine
-            lineColour = bundle.getSerializable(EXTRA_LINE_COLOUR) as String
-            title = tubeLine.name
-        }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        val context = this
-        val compactedList: MutableList<TubeLineStatus> = mutableListOf()
+        setupActionBar()
+        setupDetailsList()
 
-        tubeLine.lineStatuses?.let { tubeLineStatusList ->
-            compactSameReasonsUnderOneAmalgamatedStatus(tubeLineStatusList, compactedList)
-
-            details_recycler_view.apply {
-                layoutManager = LinearLayoutManager(context)
-                adapter = TubeListDetailsAdapter(context, compactedList)
-            }
-        }
-
-        val colorDrawable = ColorDrawable(Color.parseColor(lineColour))
-        supportActionBar?.setBackgroundDrawable(colorDrawable)
-
-        tube_train_image.visibility = if (tubeLine.notGoodService()) {
+        tube_train_image.visibility = if (args.tubeLine.notGoodService()) {
             View.GONE
         } else {
             View.VISIBLE
+        }
+    }
+
+    private fun setupActionBar() {
+        val supportActionBar = (requireActivity() as AppCompatActivity).supportActionBar
+        supportActionBar?.title = args.tubeLine.name
+
+        val colorDrawable = ColorDrawable(Color.parseColor(args.lineColour))
+        supportActionBar?.setBackgroundDrawable(colorDrawable)
+    }
+
+    private fun setupDetailsList() {
+        val compactedList: MutableList<TubeLineStatus> = mutableListOf()
+
+        args.tubeLine.lineStatuses?.let { tubeLineStatusList ->
+            compactSameReasonsUnderOneAmalgamatedStatus(tubeLineStatusList, compactedList)
+
+            details_recycler_view.apply {
+                layoutManager = LinearLayoutManager(requireContext())
+                adapter = TubeListDetailsAdapter(requireContext(), compactedList)
+            }
         }
     }
 
