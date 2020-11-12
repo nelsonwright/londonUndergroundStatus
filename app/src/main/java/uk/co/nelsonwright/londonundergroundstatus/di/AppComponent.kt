@@ -1,7 +1,8 @@
 package uk.co.nelsonwright.londonundergroundstatus.di
 
 import dagger.Component
-import uk.co.nelsonwright.londonundergroundstatus.ui.main.TubeStatusOverviewActivity
+import uk.co.nelsonwright.londonundergroundstatus.ui.main.TubeOverviewFragment
+import uk.co.nelsonwright.londonundergroundstatus.ui.main.TubeStatusActivity
 import javax.inject.Singleton
 
 @Singleton
@@ -11,5 +12,6 @@ import javax.inject.Singleton
 )
 
 interface AppComponent {
-    fun inject(target: TubeStatusOverviewActivity)
+    fun inject(target: TubeStatusActivity)
+    fun inject(target: TubeOverviewFragment)
 }

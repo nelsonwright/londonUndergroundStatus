@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/tubeStatusOverviewFragment">
+
+    <fragment
+        android:id="@+id/tubeStatusOverviewFragment"
+        android:name="uk.co.nelsonwright.londonundergroundstatus.ui.main.TubeOverviewFragment"
+        android:label="@string/app_name"
+        tools:layout="@layout/fragment_tube_status_overview">
+        <action
+            android:id="@+id/action_OverviewFragment_to_DetailsFragment"
+            app:destination="@id/tubeDetailsFragment"
+            app:enterAnim="@anim/fragment_fade_enter"
+            app:exitAnim="@anim/fragment_fade_exit" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/tubeDetailsFragment"
+        android:name="uk.co.nelsonwright.londonundergroundstatus.ui.main.TubeDetailsFragment"
+        android:label="Line Details"
+        tools:layout="@layout/fragment_tube_details">
+        <argument
+            android:name="tubeLine"
+            app:argType="uk.co.nelsonwright.londonundergroundstatus.api.TubeLine" />
+        <argument
+            android:name="lineColour"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
+</navigation>
