@@ -4,17 +4,19 @@ import android.app.Application
 import android.content.Context
 import dagger.Module
 import dagger.Provides
+import uk.co.nelsonwright.londonundergroundstatus.OpenForTesting
 import uk.co.nelsonwright.londonundergroundstatus.api.ServiceLocator
 import uk.co.nelsonwright.londonundergroundstatus.api.ServiceLocatorImpl
 import javax.inject.Singleton
 
 @Module
-open class AppModule(private val app: Application) {
+@OpenForTesting
+class AppModule(private val app: Application) {
     @Provides
     @Singleton
     fun provideContext(): Context = app
 
     @Provides
     @Singleton
-    open fun provideServiceLocator(): ServiceLocator = ServiceLocatorImpl()
+    fun provideServiceLocator(): ServiceLocator = ServiceLocatorImpl()
 }

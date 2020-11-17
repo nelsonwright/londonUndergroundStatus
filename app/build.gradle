@@ -5,6 +5,12 @@ apply plugin: "androidx.navigation.safeargs.kotlin"
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
+apply plugin: 'kotlin-allopen'
+
+allOpen {
+    // allows mocking (i.e. extension) of classes without opening them for release builds
+    annotation 'uk.co.nelsonwright.londonundergroundstatus.OpenClass'
+}
 
 android {
     compileSdkVersion 30

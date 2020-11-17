@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.android.synthetic.main.fragment_tube_details.*
+import kotlinx.android.synthetic.main.fragment_details.*
 import uk.co.nelsonwright.londonundergroundstatus.R
 import uk.co.nelsonwright.londonundergroundstatus.api.TubeLineStatus
 
@@ -23,7 +23,7 @@ class TubeDetailsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_tube_details, container, false)
+        return inflater.inflate(R.layout.fragment_details, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

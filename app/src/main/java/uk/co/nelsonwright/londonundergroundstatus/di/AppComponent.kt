@@ -2,16 +2,13 @@ package uk.co.nelsonwright.londonundergroundstatus.di
 
 import dagger.Component
 import uk.co.nelsonwright.londonundergroundstatus.ui.main.TubeOverviewFragment
-import uk.co.nelsonwright.londonundergroundstatus.ui.main.TubeStatusActivity
 import javax.inject.Singleton
 
 @Singleton
 @Component(
-    modules = [AppModule::class, TimeHelperModule::class, CalendarUtilsModule::class,
-        TflRepositoryModule::class]
+    modules = [AppModule::class, TimeHelperModule::class, CalendarUtilsModule::class, TflRepositoryModule::class]
 )
 
 interface AppComponent {
-    fun inject(target: TubeStatusActivity)
     fun inject(target: TubeOverviewFragment)
 }
