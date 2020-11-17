@@ -6,7 +6,7 @@ import uk.co.nelsonwright.londonundergroundstatus.di.AppModule
 import uk.co.nelsonwright.londonundergroundstatus.di.DaggerAppComponent
 
 class TubeStatusApplication : Application() {
-    lateinit var tubeStatusComponent: AppComponent
+    lateinit var component: AppComponent
 
     private fun initDagger(app: TubeStatusApplication): AppComponent =
         DaggerAppComponent.builder()
@@ -15,10 +15,6 @@ class TubeStatusApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        tubeStatusComponent = initDagger(this)
-    }
-
-    fun setAppComponent(appComponent: AppComponent) {
-        tubeStatusComponent = appComponent
+        component = initDagger(this)
     }
 }

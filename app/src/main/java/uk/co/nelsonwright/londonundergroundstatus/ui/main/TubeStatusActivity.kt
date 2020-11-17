@@ -7,7 +7,6 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import uk.co.nelsonwright.londonundergroundstatus.R
-import uk.co.nelsonwright.londonundergroundstatus.TubeStatusApplication
 
 
 class TubeStatusActivity : AppCompatActivity() {
@@ -15,11 +14,9 @@ class TubeStatusActivity : AppCompatActivity() {
     private val navController get() = navHostFragment.navController
     private lateinit var appBarConfiguration: AppBarConfiguration
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.tube_status_activity)
-        (application as TubeStatusApplication).tubeStatusComponent.inject(this)
 
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)

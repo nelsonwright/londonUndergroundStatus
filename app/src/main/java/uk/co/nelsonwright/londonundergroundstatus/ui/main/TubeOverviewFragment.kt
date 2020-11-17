@@ -13,8 +13,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.fragment_tube_status_overview.*
-import kotlinx.coroutines.Dispatchers
+import kotlinx.android.synthetic.main.fragment_overview.*
 import uk.co.nelsonwright.londonundergroundstatus.R
 import uk.co.nelsonwright.londonundergroundstatus.TubeStatusApplication
 import uk.co.nelsonwright.londonundergroundstatus.api.TubeLine
@@ -31,8 +30,8 @@ class TubeOverviewFragment : Fragment(), TubeListClickListener {
     @Inject
     lateinit var calendarUtils: CalendarUtils
 
-    private val viewModelFactory =
-        TubeStatusViewModelFactory(mainDispatcher = Dispatchers.Main, ioDispatcher = Dispatchers.IO)
+    @Inject
+    lateinit var viewModelFactory: TubeOverviewViewModelFactory
     private val viewModel: TubeOverviewViewModel by viewModels { viewModelFactory }
 
     private lateinit var viewAdapter: TubeListAdapter
@@ -46,7 +45,7 @@ class TubeOverviewFragment : Fragment(), TubeListClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        (requireActivity().application as TubeStatusApplication).tubeStatusComponent.inject(this)
+        (requireActivity().application as TubeStatusApplication).component.inject(this)
     }
 
     override fun onCreateView(
@@ -54,7 +53,7 @@ class TubeOverviewFragment : Fragment(), TubeListClickListener {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_tube_status_overview, container, false)
+        return inflater.inflate(R.layout.fragment_overview, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -156,6 +155,7 @@ class TubeOverviewFragment : Fragment(), TubeListClickListener {
                 if (position != lastSelectedSpinnerPosition) {
                     viewModel.loadTubeLines(isWeekendSelected)
                     lastSelectedSpinnerPosition = position
+                    viewModel.spinnerPosition = lastSelectedSpinnerPosition
                 }
             }
         }
