@@ -34,6 +34,10 @@ import uk.co.nelsonwright.londonundergroundstatus.ui.main.testmocks.AppModuleMoc
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class TubeStatusActivityTest {
+
+    // TODO: 17/11/20 Probably replace this with tests for individual fragments as per
+    // https://developer.android.com/training/basics/fragments/testing
+
     @get:Rule
     val activityRule = ActivityScenarioRule(TubeStatusActivity::class.java)
 
@@ -167,25 +171,26 @@ class TubeStatusActivityTest {
     }
 
 
-    @Test
-    fun shouldStartDetailActivity() {
-        // First, scroll to the position that needs to be matched and click on it.
-        onView(withId(R.id.lines_recycler_view))
-            .perform(
-                RecyclerViewActions.actionOnItemAtPosition<ViewHolder>(
-                    bottomTubeLine,
-                    click()
-                )
-            )
-
+    // retained for reference, but we'll need to check the args for the fragment . . .
+//    @Test
+//    fun shouldStartDetailFragment() {
+//        // First, scroll to the position that needs to be matched and click on it.
+//        onView(withId(R.id.lines_recycler_view))
+//            .perform(
+//                RecyclerViewActions.actionOnItemAtPosition<ViewHolder>(
+//                    bottomTubeLine,
+//                    click()
+//                )
+//            )
+//
 //        intended(
 //            allOf(
-//                hasComponent(TubeStatusDetailsActivity::class.java.name),
+//                hasComponent(TubeDetailsFragment::class.java.name),
 //                hasExtra(EXTRA_TUBE_LINE, victoriaTubeLine()),
 //                hasExtra(EXTRA_LINE_COLOUR, "#009fe0")
 //            )
 //        )
-    }
+//    }
 
     @Test
     fun shouldShowFooterCorrectly() {
