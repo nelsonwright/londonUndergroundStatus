@@ -17,4 +17,8 @@ class TubeStatusApplication : Application() {
         super.onCreate()
         component = initDagger(this)
     }
+
+    fun setAppComponent(appComponent: AppComponent) {
+        component = appComponent
+    }
 }
