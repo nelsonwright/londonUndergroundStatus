@@ -22,8 +22,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import uk.co.nelsonwright.londonundergroundstatus.R
 import uk.co.nelsonwright.londonundergroundstatus.TubeStatusApplication
-import uk.co.nelsonwright.londonundergroundstatus.api.TubeLine
 import uk.co.nelsonwright.londonundergroundstatus.di.DaggerAppComponent
+import uk.co.nelsonwright.londonundergroundstatus.models.TubeLine
 import uk.co.nelsonwright.londonundergroundstatus.ui.main.shared.statusPartSuspended
 import uk.co.nelsonwright.londonundergroundstatus.ui.main.shared.statusPlannedClosure
 import uk.co.nelsonwright.londonundergroundstatus.ui.main.shared.stubbedTubeLinesNow

@@ -1,7 +1,7 @@
 package uk.co.nelsonwright.londonundergroundstatus.ui.main.shared
 
-import uk.co.nelsonwright.londonundergroundstatus.api.TubeLine
-import uk.co.nelsonwright.londonundergroundstatus.api.TubeLineStatus
+import uk.co.nelsonwright.londonundergroundstatus.models.TubeLine
+import uk.co.nelsonwright.londonundergroundstatus.models.TubeLineStatus
 import uk.co.nelsonwright.londonundergroundstatus.shared.GOOD_SERVICE
 
 fun stubbedTubeLinesNow(): List<TubeLine> {
