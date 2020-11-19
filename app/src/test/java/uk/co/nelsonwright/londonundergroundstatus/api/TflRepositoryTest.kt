@@ -38,13 +38,14 @@ class TflRepositoryTest {
 
     @Test
     fun shouldRequestTubeLinesForNow() = runBlockingTest {
-        repo.loadTubeLinesForNow()
+        repo.loadTubeLines(isWeekendSelected = false)
         coVerify { mockApi.getLinesStatusNow(APPLICATION_ID, APPLICATION_KEY) }
     }
 
     @Test
     fun shouldRequestTubeLinesForWeekend() = runBlockingTest {
-        repo.loadTubeLinesForWeekend()
+        repo.loadTubeLines(isWeekendSelected = true)
+
         coVerify {
             mockApi.getLinesStatusForWeekend(
                 APPLICATION_ID,
