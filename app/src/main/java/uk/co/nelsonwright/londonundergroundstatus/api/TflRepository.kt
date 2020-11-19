@@ -4,17 +4,24 @@ import uk.co.nelsonwright.londonundergroundstatus.shared.CalendarUtils
 import javax.inject.Singleton
 
 interface TflRepository {
-    suspend fun loadTubeLinesForNow(): List<TubeLine>
-    suspend fun loadTubeLinesForWeekend(): List<TubeLine>
+    suspend fun loadTubeLines(isWeekendSelected: Boolean = false): List<TubeLine>
 }
 
 @Singleton
 class TflRepositoryImpl(val api: TflApiInterface, private val calendarUtils: CalendarUtils) : TflRepository {
-    override suspend fun loadTubeLinesForNow(): List<TubeLine> {
+    override suspend fun loadTubeLines(isWeekendSelected: Boolean): List<TubeLine> {
+        return if (isWeekendSelected) {
+            loadTubeLinesForWeekend()
+        } else {
+            loadTubeLinesForNow()
+        }
+    }
+
+    private suspend fun loadTubeLinesForNow(): List<TubeLine> {
         return api.getLinesStatusNow(APPLICATION_ID, APPLICATION_KEY)
     }
 
-    override suspend fun loadTubeLinesForWeekend(): List<TubeLine> {
+    private suspend fun loadTubeLinesForWeekend(): List<TubeLine> {
         val (saturdayDateString, sundayDateString) = calendarUtils.getWeekendDates()
         return api.getLinesStatusForWeekend(APPLICATION_ID, APPLICATION_KEY, saturdayDateString, sundayDateString)
     }

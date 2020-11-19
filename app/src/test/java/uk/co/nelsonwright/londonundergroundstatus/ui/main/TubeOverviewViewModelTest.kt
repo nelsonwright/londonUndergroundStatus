@@ -82,7 +82,7 @@ class TubeOverviewViewModelTest {
 
     @Test
     fun shouldInitiallyShowError() {
-        coEvery { mockRepo.loadTubeLinesForNow() } throws Exception("error")
+        coEvery { mockRepo.loadTubeLines(any()) } throws Exception("error")
 
         viewModel =
             TubeOverviewViewModel(
@@ -99,14 +99,14 @@ class TubeOverviewViewModelTest {
 
     @Test
     fun shouldInitiallyRequestLineStatusesForNow() {
-        coVerify { mockRepo.loadTubeLinesForNow() }
+        coVerify { mockRepo.loadTubeLines(isWeekendSelected = false) }
     }
 
     @Test
     fun shouldRequestLineStatusesForNow() {
         viewModel.loadTubeLines(isWeekend = false)
 
-        coVerify { mockRepo.loadTubeLinesForNow() }
+        coVerify { mockRepo.loadTubeLines(isWeekendSelected = false) }
         viewModel.viewState.observeOnce {
             assertThat(it.tubeLines).isEqualTo(tubeLinesNow)
         }
@@ -116,15 +116,15 @@ class TubeOverviewViewModelTest {
     fun shouldRequestLineStatusesForWeekend() {
         viewModel.loadTubeLines(isWeekend = true)
 
-        coVerify { mockRepo.loadTubeLinesForWeekend() }
+        coVerify { mockRepo.loadTubeLines(isWeekendSelected = true) }
         viewModel.viewState.observeOnce {
             assertThat(it.tubeLines).isEqualTo(tubeLinesWeekend)
         }
     }
 
     private fun stubRepoResponses() {
-        coEvery { mockRepo.loadTubeLinesForNow() } returns stubbedTubeLinesNow()
-        coEvery { mockRepo.loadTubeLinesForWeekend() } returns stubbedTubeLinesWeekend()
+        coEvery { mockRepo.loadTubeLines(isWeekendSelected = false) } returns stubbedTubeLinesNow()
+        coEvery { mockRepo.loadTubeLines(isWeekendSelected = true) } returns stubbedTubeLinesWeekend()
         every { mockServiceLocator.getTflRepository() } returns mockRepo
     }
 
