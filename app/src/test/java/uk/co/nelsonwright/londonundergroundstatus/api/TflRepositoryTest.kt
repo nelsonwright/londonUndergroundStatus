@@ -56,7 +56,7 @@ class TflRepositoryTest {
         }
     }
 
-    private fun stubbedTubeLines(): List<TubeLine> {
-        return listOf(TubeLine())
+    private fun stubbedTubeLines(): List<ApiTubeLine> {
+        return listOf(ApiTubeLine())
     }
 }

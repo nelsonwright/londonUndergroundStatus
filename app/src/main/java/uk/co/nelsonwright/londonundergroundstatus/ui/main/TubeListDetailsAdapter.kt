@@ -8,7 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.status_detail_row.view.*
 import uk.co.nelsonwright.londonundergroundstatus.R
-import uk.co.nelsonwright.londonundergroundstatus.api.TubeLineStatus
+import uk.co.nelsonwright.londonundergroundstatus.models.TubeLineStatus
 import uk.co.nelsonwright.londonundergroundstatus.shared.GOOD_SERVICE
 
 class TubeListDetailsAdapter(

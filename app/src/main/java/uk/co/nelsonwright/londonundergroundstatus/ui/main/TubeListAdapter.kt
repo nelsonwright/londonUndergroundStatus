@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import uk.co.nelsonwright.londonundergroundstatus.R
-import uk.co.nelsonwright.londonundergroundstatus.api.TubeLine
+import uk.co.nelsonwright.londonundergroundstatus.models.TubeLine
 import uk.co.nelsonwright.londonundergroundstatus.ui.main.RowType.BODY
 import uk.co.nelsonwright.londonundergroundstatus.ui.main.RowType.FOOTER
 

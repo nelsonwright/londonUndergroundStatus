@@ -24,7 +24,7 @@
         tools:layout="@layout/fragment_details">
         <argument
             android:name="tubeLine"
-            app:argType="uk.co.nelsonwright.londonundergroundstatus.api.TubeLine" />
+            app:argType="uk.co.nelsonwright.londonundergroundstatus.models.TubeLine" />
         <argument
             android:name="lineColour"
             app:argType="string"

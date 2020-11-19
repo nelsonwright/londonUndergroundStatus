@@ -11,7 +11,7 @@ interface TflApiInterface {
     suspend fun getLinesStatusNow(
         @Query("app_id") appID: String,
         @Query("app_key") appKey: String
-    ): List<TubeLine>
+    ): List<ApiTubeLine>
 
     @Headers("Cache-Control: max-age=600")
     @GET("line/mode/tube,dlr,tflrail,overground,tram/status")
@@ -21,5 +21,5 @@ interface TflApiInterface {
         @Query("startDate") startDate: String,
         @Query("endDate") endDate: String,
         @Query("detail") detail: Boolean = true
-    ): List<TubeLine>
+    ): List<ApiTubeLine>
 }
