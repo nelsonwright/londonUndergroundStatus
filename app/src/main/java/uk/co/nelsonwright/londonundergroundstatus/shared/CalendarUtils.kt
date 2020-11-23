@@ -8,9 +8,15 @@ import java.util.*
 
 private const val LONDON_TIME_ZONE = "Europe/London"
 
-class CalendarUtils(private val timeHelper: TimeHelper) {
+interface CalendarUtils {
+    fun getWeekendDates(): Pair<String, String>
+    fun getFormattedSaturdayDate(): String
+    fun getFormattedLocateDateTime(): String
+}
 
-    fun getWeekendDates(): Pair<String, String> {
+class CalendarUtilsImpl(private val timeHelper: TimeHelper) : CalendarUtils {
+
+    override fun getWeekendDates(): Pair<String, String> {
         val yearMonthDayFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.UK)
 
         val uTCDateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ", Locale.UK)
@@ -28,13 +34,13 @@ class CalendarUtils(private val timeHelper: TimeHelper) {
         return Pair(saturdayDateString, sundayDateString)
     }
 
-    fun getFormattedSaturdayDate(): String {
+    override fun getFormattedSaturdayDate(): String {
         // e.g. 2 May or 29 Apr . . .
         val dateMonthFormat = DateTimeFormatter.ofPattern("d MMM", Locale.getDefault())
         return dateMonthFormat.format(calculateThisSaturday())
     }
 
-    fun getFormattedLocateDateTime(): String {
+    override fun getFormattedLocateDateTime(): String {
         val date = timeHelper.getCurrentLocalDateTime()
         val formatter = DateTimeFormatter.ofPattern("EEE, MMM d HH:mm:ss", Locale.getDefault())
         return formatter.format(date)

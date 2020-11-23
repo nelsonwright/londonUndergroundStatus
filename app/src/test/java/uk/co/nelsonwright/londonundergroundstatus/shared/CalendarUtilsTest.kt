@@ -18,7 +18,7 @@ class CalendarUtilsTest {
     @Before
     fun setup() {
         setupMockTimeHelper()
-        calendarUtils = CalendarUtils(mockTimeHelper)
+        calendarUtils = CalendarUtilsImpl(mockTimeHelper)
     }
 
     @Test

@@ -20,7 +20,7 @@ import uk.co.nelsonwright.londonundergroundstatus.shared.CalendarUtils
 import uk.co.nelsonwright.londonundergroundstatus.shared.GOOD_SERVICE
 import uk.co.nelsonwright.londonundergroundstatus.testutils.observeOnce
 
-const val LOCAL_DATE_TIME = "a local date time"
+const val A_LOCAL_DATE_TIME = "a local date time"
 
 @ExperimentalCoroutinesApi
 class TubeOverviewViewModelTest {
@@ -114,7 +114,7 @@ class TubeOverviewViewModelTest {
         coVerify { mockRepo.loadTubeLines(isWeekendSelected = false) }
         viewModel.viewState.observeOnce {
             assertThat(it.tubeLines).isEqualTo(tubeLinesNow)
-            assertThat(it.refreshDate).isEqualTo(LOCAL_DATE_TIME)
+            assertThat(it.refreshDate).isEqualTo(A_LOCAL_DATE_TIME)
         }
     }
 
@@ -125,7 +125,7 @@ class TubeOverviewViewModelTest {
         coVerify { mockRepo.loadTubeLines(isWeekendSelected = true) }
         viewModel.viewState.observeOnce {
             assertThat(it.tubeLines).isEqualTo(tubeLinesWeekend)
-            assertThat(it.refreshDate).isEqualTo(LOCAL_DATE_TIME)
+            assertThat(it.refreshDate).isEqualTo(A_LOCAL_DATE_TIME)
         }
     }
 
@@ -134,7 +134,7 @@ class TubeOverviewViewModelTest {
         coEvery { mockRepo.loadTubeLines(isWeekendSelected = true) } returns stubbedTubeLinesWeekend()
         every { mockServiceLocator.getTflRepository() } returns mockRepo
         every { mockServiceLocator.getCalendarUtils() } returns mockCalendarUtils
-        every { mockCalendarUtils.getFormattedLocateDateTime() } returns LOCAL_DATE_TIME
+        every { mockCalendarUtils.getFormattedLocateDateTime() } returns A_LOCAL_DATE_TIME
     }
 
     private fun stubbedTubeLinesNow(): List<TubeLine> {
