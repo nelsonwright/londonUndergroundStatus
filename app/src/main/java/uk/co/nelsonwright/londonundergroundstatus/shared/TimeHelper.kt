@@ -5,14 +5,19 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import javax.inject.Singleton
 
-@Singleton
-class TimeHelper {
+interface TimeHelper {
+    fun getCurrentDateTime(zoneId: String = "Z"): ZonedDateTime
+    fun getCurrentLocalDateTime(): LocalDateTime
+}
 
-    fun getCurrentDateTime(zoneId: String = "Z"): ZonedDateTime {
+@Singleton
+class TimeHelperImpl : TimeHelper {
+
+    override fun getCurrentDateTime(zoneId: String): ZonedDateTime {
         return ZonedDateTime.now(ZoneId.of(zoneId))
     }
 
-    fun getCurrentLocalDateTime(): LocalDateTime {
+    override fun getCurrentLocalDateTime(): LocalDateTime {
         return LocalDateTime.now()
     }
 }

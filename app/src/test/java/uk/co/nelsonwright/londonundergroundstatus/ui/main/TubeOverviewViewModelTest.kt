@@ -16,9 +16,11 @@ import uk.co.nelsonwright.londonundergroundstatus.api.ServiceLocator
 import uk.co.nelsonwright.londonundergroundstatus.api.TflRepository
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeLine
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeLineStatus
+import uk.co.nelsonwright.londonundergroundstatus.shared.CalendarUtils
 import uk.co.nelsonwright.londonundergroundstatus.shared.GOOD_SERVICE
 import uk.co.nelsonwright.londonundergroundstatus.testutils.observeOnce
 
+const val A_LOCAL_DATE_TIME = "a local date time"
 
 @ExperimentalCoroutinesApi
 class TubeOverviewViewModelTest {
@@ -38,6 +40,9 @@ class TubeOverviewViewModelTest {
 
     @MockK
     lateinit var mockServiceLocator: ServiceLocator
+
+    @MockK
+    lateinit var mockCalendarUtils: CalendarUtils
 
     private lateinit var viewModel: TubeOverviewViewModel
 
@@ -109,6 +114,7 @@ class TubeOverviewViewModelTest {
         coVerify { mockRepo.loadTubeLines(isWeekendSelected = false) }
         viewModel.viewState.observeOnce {
             assertThat(it.tubeLines).isEqualTo(tubeLinesNow)
+            assertThat(it.refreshDate).isEqualTo(A_LOCAL_DATE_TIME)
         }
     }
 
@@ -119,6 +125,7 @@ class TubeOverviewViewModelTest {
         coVerify { mockRepo.loadTubeLines(isWeekendSelected = true) }
         viewModel.viewState.observeOnce {
             assertThat(it.tubeLines).isEqualTo(tubeLinesWeekend)
+            assertThat(it.refreshDate).isEqualTo(A_LOCAL_DATE_TIME)
         }
     }
 
@@ -126,6 +133,8 @@ class TubeOverviewViewModelTest {
         coEvery { mockRepo.loadTubeLines(isWeekendSelected = false) } returns stubbedTubeLinesNow()
         coEvery { mockRepo.loadTubeLines(isWeekendSelected = true) } returns stubbedTubeLinesWeekend()
         every { mockServiceLocator.getTflRepository() } returns mockRepo
+        every { mockServiceLocator.getCalendarUtils() } returns mockCalendarUtils
+        every { mockCalendarUtils.getFormattedLocateDateTime() } returns A_LOCAL_DATE_TIME
     }
 
     private fun stubbedTubeLinesNow(): List<TubeLine> {
