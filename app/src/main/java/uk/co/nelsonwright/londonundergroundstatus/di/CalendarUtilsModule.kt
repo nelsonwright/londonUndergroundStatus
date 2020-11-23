@@ -3,12 +3,12 @@ package uk.co.nelsonwright.londonundergroundstatus.di
 import dagger.Module
 import dagger.Provides
 import uk.co.nelsonwright.londonundergroundstatus.shared.CalendarUtils
-import uk.co.nelsonwright.londonundergroundstatus.shared.TimeHelper
+import uk.co.nelsonwright.londonundergroundstatus.shared.TimeHelperImpl
 import javax.inject.Singleton
 
 @Module
 class CalendarUtilsModule {
-    private val timeHelper = TimeHelper()
+    private val timeHelper = TimeHelperImpl()
 
     @Provides
     @Singleton

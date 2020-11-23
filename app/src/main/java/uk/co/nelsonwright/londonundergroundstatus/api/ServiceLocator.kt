@@ -1,10 +1,11 @@
 package uk.co.nelsonwright.londonundergroundstatus.api
 
 import uk.co.nelsonwright.londonundergroundstatus.shared.CalendarUtils
-import uk.co.nelsonwright.londonundergroundstatus.shared.TimeHelper
+import uk.co.nelsonwright.londonundergroundstatus.shared.TimeHelperImpl
 
 interface ServiceLocator {
     fun getTflRepository(): TflRepository
+    fun getCalendarUtils(): CalendarUtils
 }
 
 class ServiceLocatorImpl : ServiceLocator {
@@ -12,9 +13,15 @@ class ServiceLocatorImpl : ServiceLocator {
         TflService.create()
     }
 
-    private val calendarUtils = CalendarUtils(TimeHelper())
+    private val calUtils by lazy {
+        CalendarUtils(TimeHelperImpl())
+    }
 
     override fun getTflRepository(): TflRepository {
-        return TflRepositoryImpl(api, calendarUtils)
+        return TflRepositoryImpl(api, calUtils)
+    }
+
+    override fun getCalendarUtils(): CalendarUtils {
+        return calUtils
     }
 }

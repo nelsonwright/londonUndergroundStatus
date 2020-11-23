@@ -10,8 +10,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import uk.co.nelsonwright.londonundergroundstatus.api.ServiceLocator
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeStatusViewState
-import uk.co.nelsonwright.londonundergroundstatus.shared.CalendarUtils
-import uk.co.nelsonwright.londonundergroundstatus.shared.TimeHelper
 
 
 @Keep
@@ -25,7 +23,7 @@ class TubeOverviewViewModel(
         get() = mutableLiveData
 
     private val repo = serviceLocator.getTflRepository()
-    private val calendarUtils = CalendarUtils(TimeHelper())
+    private val calendarUtils = serviceLocator.getCalendarUtils()
     private var mutableLiveData = MutableLiveData<TubeStatusViewState>()
 
     init {

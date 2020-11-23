@@ -1,14 +1,15 @@
 package uk.co.nelsonwright.londonundergroundstatus.di
 
+import dagger.Binds
 import dagger.Module
-import dagger.Provides
 import uk.co.nelsonwright.londonundergroundstatus.shared.TimeHelper
+import uk.co.nelsonwright.londonundergroundstatus.shared.TimeHelperImpl
 import javax.inject.Singleton
 
 @Module
-class TimeHelperModule {
+abstract class TimeHelperModule {
 
-    @Provides
     @Singleton
-    fun provideTimeHelper(): TimeHelper = TimeHelper()
+    @Binds
+    abstract fun bindTimeHelper(timeHelper: TimeHelperImpl): TimeHelper
 }
