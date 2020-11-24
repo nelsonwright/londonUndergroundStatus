@@ -6,7 +6,8 @@ import javax.inject.Singleton
 
 @Singleton
 @Component(
-    modules = [AppModule::class, TimeHelperModule::class, CalendarUtilsModule::class, TflRepositoryModule::class]
+    modules = [AppModule::class, TimeHelperModule::class, CalendarUtilsModule::class, TflRepositoryModule::class,
+        NetworkModule::class]
 )
 
 interface AppComponent {
