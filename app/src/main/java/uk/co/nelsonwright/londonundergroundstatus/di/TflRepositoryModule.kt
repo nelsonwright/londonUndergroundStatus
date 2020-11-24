@@ -11,5 +11,5 @@ abstract class TflRepositoryModule {
 
     @Singleton
     @Binds
-    abstract fun bindTflRepository(repo: TflRepositoryImpl): TflRepository
+    abstract fun bindsTflRepository(tflRepository: TflRepositoryImpl): TflRepository
 }

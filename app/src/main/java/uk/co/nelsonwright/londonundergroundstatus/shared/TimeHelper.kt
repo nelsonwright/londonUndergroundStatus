@@ -3,6 +3,7 @@ package uk.co.nelsonwright.londonundergroundstatus.shared
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import javax.inject.Inject
 import javax.inject.Singleton
 
 interface TimeHelper {
@@ -11,7 +12,7 @@ interface TimeHelper {
 }
 
 @Singleton
-class TimeHelperImpl : TimeHelper {
+class TimeHelperImpl @Inject constructor() : TimeHelper {
 
     override fun getCurrentDateTime(zoneId: String): ZonedDateTime {
         return ZonedDateTime.now(ZoneId.of(zoneId))

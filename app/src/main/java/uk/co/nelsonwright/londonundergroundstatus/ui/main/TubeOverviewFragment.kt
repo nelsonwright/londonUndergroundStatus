@@ -1,5 +1,6 @@
 package uk.co.nelsonwright.londonundergroundstatus.ui.main
 
+import android.content.Context
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.*
@@ -43,9 +44,9 @@ class TubeOverviewFragment : Fragment(), TubeListClickListener {
             return status_date_spinner.selectedItemPosition == WEEKEND_SELECTED
         }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        (requireActivity().application as TubeStatusApplication).component.inject(this)
+    override fun onAttach(context: Context) {
+        (context.applicationContext as TubeStatusApplication).appComponent.inject(this)
+        super.onAttach(context)
     }
 
     override fun onCreateView(

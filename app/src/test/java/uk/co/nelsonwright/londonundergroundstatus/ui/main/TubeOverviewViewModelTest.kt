@@ -12,7 +12,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import uk.co.nelsonwright.londonundergroundstatus.api.ServiceLocator
 import uk.co.nelsonwright.londonundergroundstatus.api.TflRepository
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeLine
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeLineStatus
@@ -39,9 +38,6 @@ class TubeOverviewViewModelTest {
     lateinit var mockRepo: TflRepository
 
     @MockK
-    lateinit var mockServiceLocator: ServiceLocator
-
-    @MockK
     lateinit var mockCalendarUtils: CalendarUtils
 
     private lateinit var viewModel: TubeOverviewViewModel
@@ -53,12 +49,7 @@ class TubeOverviewViewModelTest {
     fun setup() {
         MockKAnnotations.init(this)
         stubRepoResponses()
-        viewModel =
-            TubeOverviewViewModel(
-                mockServiceLocator,
-                mainCoroutineRule.testDispatcher,
-                mainCoroutineRule.testDispatcher
-            )
+        viewModel = getViewModel()
     }
 
     @Test
@@ -67,7 +58,8 @@ class TubeOverviewViewModelTest {
 
         val viewModel =
             TubeOverviewViewModel(
-                serviceLocator = mockServiceLocator,
+                repo = mockRepo,
+                calendarUtils = mockCalendarUtils,
                 mainDispatcher = Dispatchers.Unconfined,
                 ioDispatcher = mainCoroutineRule.testDispatcher
             )
@@ -89,12 +81,7 @@ class TubeOverviewViewModelTest {
     fun shouldInitiallyShowError() {
         coEvery { mockRepo.loadTubeLines(any()) } throws Exception("error")
 
-        viewModel =
-            TubeOverviewViewModel(
-                mockServiceLocator,
-                mainCoroutineRule.testDispatcher,
-                mainCoroutineRule.testDispatcher
-            )
+        viewModel = getViewModel()
 
         viewModel.viewState.observeOnce {
             assertThat(it.loadingError).isEqualTo(true)
@@ -129,11 +116,16 @@ class TubeOverviewViewModelTest {
         }
     }
 
+    private fun getViewModel() = TubeOverviewViewModel(
+        repo = mockRepo,
+        calendarUtils = mockCalendarUtils,
+        mainCoroutineRule.testDispatcher,
+        mainCoroutineRule.testDispatcher
+    )
+
     private fun stubRepoResponses() {
         coEvery { mockRepo.loadTubeLines(isWeekendSelected = false) } returns stubbedTubeLinesNow()
         coEvery { mockRepo.loadTubeLines(isWeekendSelected = true) } returns stubbedTubeLinesWeekend()
-        every { mockServiceLocator.getTflRepository() } returns mockRepo
-        every { mockServiceLocator.getCalendarUtils() } returns mockCalendarUtils
         every { mockCalendarUtils.getFormattedLocateDateTime() } returns A_LOCAL_DATE_TIME
     }
 
