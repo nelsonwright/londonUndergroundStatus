@@ -1,15 +1,20 @@
 package uk.co.nelsonwright.londonundergroundstatus.di
 
-import dagger.Binds
 import dagger.Module
+import dagger.Provides
 import uk.co.nelsonwright.londonundergroundstatus.api.TflRepository
 import uk.co.nelsonwright.londonundergroundstatus.api.TflRepositoryImpl
+import uk.co.nelsonwright.londonundergroundstatus.api.TflService
+import uk.co.nelsonwright.londonundergroundstatus.shared.CalendarUtilsImpl
+import uk.co.nelsonwright.londonundergroundstatus.shared.TimeHelperImpl
 import javax.inject.Singleton
 
 @Module
-abstract class TflRepositoryModule {
+class TflRepositoryModule {
 
     @Singleton
-    @Binds
-    abstract fun bindTflRepository(repo: TflRepositoryImpl): TflRepository
+    @Provides
+    fun providesTflRepository(): TflRepository {
+        return TflRepositoryImpl(TflService.create(), CalendarUtilsImpl(TimeHelperImpl()))
+    }
 }

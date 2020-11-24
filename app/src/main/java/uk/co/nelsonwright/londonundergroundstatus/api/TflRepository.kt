@@ -2,6 +2,7 @@ package uk.co.nelsonwright.londonundergroundstatus.api
 
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeLine
 import uk.co.nelsonwright.londonundergroundstatus.shared.CalendarUtils
+import javax.inject.Inject
 import javax.inject.Singleton
 
 interface TflRepository {
@@ -9,7 +10,8 @@ interface TflRepository {
 }
 
 @Singleton
-class TflRepositoryImpl(val api: TflApiInterface, private val calendarUtils: CalendarUtils) : TflRepository {
+class TflRepositoryImpl @Inject constructor(val api: TflApiInterface, private val calendarUtils: CalendarUtils) :
+    TflRepository {
 
     override suspend fun loadTubeLines(isWeekendSelected: Boolean): List<TubeLine> {
         return if (isWeekendSelected) {

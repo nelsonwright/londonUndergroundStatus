@@ -13,7 +13,6 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.platform.app.InstrumentationRegistry
 import org.hamcrest.CoreMatchers.*
 import org.junit.After
 import org.junit.Before
@@ -21,14 +20,11 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import uk.co.nelsonwright.londonundergroundstatus.R
-import uk.co.nelsonwright.londonundergroundstatus.TubeStatusApplication
-import uk.co.nelsonwright.londonundergroundstatus.di.DaggerAppComponent
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeLine
 import uk.co.nelsonwright.londonundergroundstatus.ui.main.shared.statusPartSuspended
 import uk.co.nelsonwright.londonundergroundstatus.ui.main.shared.statusPlannedClosure
 import uk.co.nelsonwright.londonundergroundstatus.ui.main.shared.stubbedTubeLinesNow
 import uk.co.nelsonwright.londonundergroundstatus.ui.main.shared.stubbedTubeLinesWeekend
-import uk.co.nelsonwright.londonundergroundstatus.ui.main.testmocks.AppModuleMock
 
 
 @RunWith(AndroidJUnit4::class)
@@ -49,18 +45,18 @@ class TubeStatusActivityTest {
     fun setup() {
         Intents.init()
 
-        val tubeApp = InstrumentationRegistry
-            .getInstrumentation()
-            .targetContext
-            .applicationContext as TubeStatusApplication
-
-        // hmm, need to rework this, now we no longer inject the serviceLocator in the activity
-        val mockedComponent = DaggerAppComponent
-            .builder()
-            .appModule(AppModuleMock(tubeApp))
-            .build()
-
-        tubeApp.setAppComponent(mockedComponent)
+//        val tubeApp = InstrumentationRegistry
+//            .getInstrumentation()
+//            .targetContext
+//            .applicationContext as TubeStatusApplication
+//
+//        // hmm, need to rework this, now we no longer inject the serviceLocator in the activity
+//        val mockedComponent = DaggerAppComponent
+//            .builder()
+//            .appModule(AppModuleMock(tubeApp))
+//            .build()
+//
+//        tubeApp.setAppComponent(mockedComponent)
     }
 
     @After

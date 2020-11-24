@@ -8,13 +8,15 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import uk.co.nelsonwright.londonundergroundstatus.api.ServiceLocator
+import uk.co.nelsonwright.londonundergroundstatus.api.TflRepository
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeStatusViewState
+import uk.co.nelsonwright.londonundergroundstatus.shared.CalendarUtils
 
 
 @Keep
 class TubeOverviewViewModel(
-    serviceLocator: ServiceLocator,
+    private val repo: TflRepository,
+    private val calendarUtils: CalendarUtils,
     private val mainDispatcher: CoroutineDispatcher,
     private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
@@ -22,8 +24,6 @@ class TubeOverviewViewModel(
     val viewState: LiveData<TubeStatusViewState>
         get() = mutableLiveData
 
-    private val repo = serviceLocator.getTflRepository()
-    private val calendarUtils = serviceLocator.getCalendarUtils()
     private var mutableLiveData = MutableLiveData<TubeStatusViewState>()
 
     init {

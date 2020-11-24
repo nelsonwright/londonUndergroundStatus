@@ -1,17 +1,15 @@
 package uk.co.nelsonwright.londonundergroundstatus.di
 
+import dagger.Binds
 import dagger.Module
-import dagger.Provides
 import uk.co.nelsonwright.londonundergroundstatus.shared.CalendarUtils
 import uk.co.nelsonwright.londonundergroundstatus.shared.CalendarUtilsImpl
-import uk.co.nelsonwright.londonundergroundstatus.shared.TimeHelperImpl
 import javax.inject.Singleton
 
 @Module
-class CalendarUtilsModule {
-    private val timeHelper = TimeHelperImpl()
+abstract class CalendarUtilsModule {
 
-    @Provides
     @Singleton
-    fun provideCalendarUtils(): CalendarUtils = CalendarUtilsImpl(timeHelper)
+    @Binds
+    abstract fun bindCalendarUtils(calendarUtils: CalendarUtilsImpl): CalendarUtils
 }

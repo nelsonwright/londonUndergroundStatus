@@ -5,6 +5,7 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.TemporalAdjusters
 import java.util.*
+import javax.inject.Inject
 
 private const val LONDON_TIME_ZONE = "Europe/London"
 
@@ -14,7 +15,7 @@ interface CalendarUtils {
     fun getFormattedLocateDateTime(): String
 }
 
-class CalendarUtilsImpl(private val timeHelper: TimeHelper) : CalendarUtils {
+class CalendarUtilsImpl @Inject constructor(private val timeHelper: TimeHelper) : CalendarUtils {
 
     override fun getWeekendDates(): Pair<String, String> {
         val yearMonthDayFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.UK)
