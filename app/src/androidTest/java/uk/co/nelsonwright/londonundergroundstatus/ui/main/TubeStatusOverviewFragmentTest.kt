@@ -1,5 +1,8 @@
 package uk.co.nelsonwright.londonundergroundstatus.ui.main
 
+import androidx.fragment.app.testing.launchFragmentInContainer
+import androidx.navigation.Navigation
+import androidx.navigation.testing.TestNavHostController
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.*
@@ -10,13 +13,11 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.matcher.ViewMatchers.*
-import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import org.hamcrest.CoreMatchers.*
 import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import uk.co.nelsonwright.londonundergroundstatus.R
@@ -25,38 +26,21 @@ import uk.co.nelsonwright.londonundergroundstatus.ui.main.shared.statusPartSuspe
 import uk.co.nelsonwright.londonundergroundstatus.ui.main.shared.statusPlannedClosure
 import uk.co.nelsonwright.londonundergroundstatus.ui.main.shared.stubbedTubeLinesNow
 import uk.co.nelsonwright.londonundergroundstatus.ui.main.shared.stubbedTubeLinesWeekend
+import uk.co.nelsonwright.londonundergroundstatus.ui.main.testmocks.CalendarUtilsMock
+import uk.co.nelsonwright.londonundergroundstatus.ui.main.testmocks.TflRepositoryMock
 
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-class TubeStatusActivityTest {
-
-    // TODO: 17/11/20 Probably replace this with tests for individual fragments as per
-    // https://developer.android.com/training/basics/fragments/testing
-
-    @get:Rule
-    val activityRule = ActivityScenarioRule(TubeStatusActivity::class.java)
-
+class TubeStatusOverviewFragmentTest {
+    private val testFragmentFactory = getTestFragmentFactory()
     private val expectedTubeLinesNow = stubbedTubeLinesNow()
     private val expectedTubeLinesWeekend = stubbedTubeLinesWeekend()
-    private val bottomTubeLine = expectedTubeLinesNow.size - 1
 
     @Before
     fun setup() {
         Intents.init()
-
-//        val tubeApp = InstrumentationRegistry
-//            .getInstrumentation()
-//            .targetContext
-//            .applicationContext as TubeStatusApplication
-//
-//        // hmm, need to rework this, now we no longer inject the serviceLocator in the activity
-//        val mockedComponent = DaggerAppComponent
-//            .builder()
-//            .appModule(AppModuleMock(tubeApp))
-//            .build()
-//
-//        tubeApp.setAppComponent(mockedComponent)
+        launchFragmentInContainer<TubeOverviewFragment>(factory = testFragmentFactory)
     }
 
     @After
@@ -141,8 +125,6 @@ class TubeStatusActivityTest {
         }
     }
 
-
-    // hmm, sometimes this and shouldShowFooterCorrectly are flaky
     @Test
     fun shouldShowExpectedTubeLinesForWeekend() {
         onView(withId(R.id.status_date_spinner)).perform(click())
@@ -151,8 +133,6 @@ class TubeStatusActivityTest {
         onData(instanceOf(String::class.java))
             .atPosition(1)
             .perform(click())
-
-        Thread.sleep(2000)
 
         expectedTubeLinesWeekend.forEach {
             // Attempt to scroll to an item that contains the specified text.
@@ -166,27 +146,23 @@ class TubeStatusActivityTest {
         }
     }
 
+    @Test
+    fun shouldStartDetailFragment() {
+        // arrange
+        val navController = TestNavHostController(ApplicationProvider.getApplicationContext())
+        navController.setGraph(R.navigation.nav_graph)
 
-    // retained for reference, but we'll need to check the args for the fragment . . .
-//    @Test
-//    fun shouldStartDetailFragment() {
-//        // First, scroll to the position that needs to be matched and click on it.
-//        onView(withId(R.id.lines_recycler_view))
-//            .perform(
-//                RecyclerViewActions.actionOnItemAtPosition<ViewHolder>(
-//                    bottomTubeLine,
-//                    click()
-//                )
-//            )
-//
-//        intended(
-//            allOf(
-//                hasComponent(TubeDetailsFragment::class.java.name),
-//                hasExtra(EXTRA_TUBE_LINE, victoriaTubeLine()),
-//                hasExtra(EXTRA_LINE_COLOUR, "#009fe0")
-//            )
-//        )
-//    }
+        val fragmentScenario = launchFragmentInContainer<TubeOverviewFragment>(factory = testFragmentFactory)
+
+        // Set the NavController property on the fragment
+        fragmentScenario.onFragment { Navigation.setViewNavController(it.requireView(), navController) }
+
+        // act
+        onView(withText("Victoria")).perform(click())
+
+        // assert
+        assertThat(navController.currentDestination?.label, `is`("Line Details"))
+    }
 
     @Test
     fun shouldShowFooterCorrectly() {
@@ -205,6 +181,18 @@ class TubeStatusActivityTest {
             .check(isCompletelyBelow(withText("Powered by TfL Open Data")))
     }
 
+    private fun getTestFragmentFactory(): TubeOverviewFragmentFactory {
+        val calendarUtilsMock = CalendarUtilsMock()
+
+        return TubeOverviewFragmentFactory(
+            calendarUtilsMock,
+            TubeOverviewViewModelFactory(
+                TflRepositoryMock(),
+                calendarUtilsMock
+            )
+        )
+    }
+
     private fun victoriaTubeLine(): TubeLine {
         return TubeLine(
             id = "victoria",
@@ -213,3 +201,4 @@ class TubeStatusActivityTest {
         )
     }
 }
+

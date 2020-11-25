@@ -1,14 +1,12 @@
 package uk.co.nelsonwright.londonundergroundstatus.ui.main
 
 import android.content.Context
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.*
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -27,12 +25,11 @@ import javax.inject.Inject
 private const val NOW_SELECTED = 0
 private const val WEEKEND_SELECTED = 1
 
-class TubeOverviewFragment : Fragment(), TubeListClickListener {
-    @Inject
-    lateinit var calendarUtils: CalendarUtils
+class TubeOverviewFragment @Inject constructor(
+    private val calendarUtils: CalendarUtils,
+    private val viewModelFactory: TubeOverviewViewModelFactory
+) : Fragment(), TubeListClickListener {
 
-    @Inject
-    lateinit var viewModelFactory: TubeOverviewViewModelFactory
     private val viewModel: TubeOverviewViewModel by viewModels { viewModelFactory }
 
     private lateinit var viewAdapter: TubeListAdapter
@@ -59,8 +56,6 @@ class TubeOverviewFragment : Fragment(), TubeListClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val colorDrawable = ColorDrawable(requireContext().getColor(R.color.colorPrimary))
-        (requireActivity() as AppCompatActivity).supportActionBar?.setBackgroundDrawable(colorDrawable)
         setHasOptionsMenu(true)
         setupRecyclerView()
         observeViewModel()
