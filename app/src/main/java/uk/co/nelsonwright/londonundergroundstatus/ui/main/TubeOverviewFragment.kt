@@ -1,12 +1,14 @@
 package uk.co.nelsonwright.londonundergroundstatus.ui.main
 
 import android.content.Context
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.*
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -56,6 +58,7 @@ class TubeOverviewFragment @Inject constructor(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setActionBarColour()
         setHasOptionsMenu(true)
         setupRecyclerView()
         observeViewModel()
@@ -91,6 +94,14 @@ class TubeOverviewFragment @Inject constructor(
                 true
             }
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun setActionBarColour() {
+        val activity = requireActivity()
+        val colorDrawable = ColorDrawable(requireContext().getColor(R.color.colorPrimary))
+        if (activity is AppCompatActivity) {
+            activity.supportActionBar?.setBackgroundDrawable(colorDrawable)
         }
     }
 
