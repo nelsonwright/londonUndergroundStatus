@@ -22,14 +22,14 @@ class TflRepositoryImpl @Inject constructor(val api: TflApiInterface, private va
     }
 
     private suspend fun loadTubeLinesForNow(): List<TubeLine> {
-        return api.getLinesStatusNow(APPLICATION_ID, APPLICATION_KEY).map { api ->
+        return api.getLinesStatusNow(APPLICATION_KEY).map { api ->
             api.toModel()
         }
     }
 
     private suspend fun loadTubeLinesForWeekend(): List<TubeLine> {
         val (saturdayDateString, sundayDateString) = calendarUtils.getWeekendDates()
-        return api.getLinesStatusForWeekend(APPLICATION_ID, APPLICATION_KEY, saturdayDateString, sundayDateString)
+        return api.getLinesStatusForWeekend(APPLICATION_KEY, saturdayDateString, sundayDateString)
             .map {
                 it.toModel()
             }

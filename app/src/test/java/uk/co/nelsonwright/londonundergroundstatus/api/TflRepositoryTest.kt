@@ -29,8 +29,15 @@ class TflRepositoryTest {
 
     @Before
     fun setup() {
-        coEvery { mockApi.getLinesStatusNow(any(), any()) } returns stubbedTubeLines()
-        coEvery { mockApi.getLinesStatusForWeekend(any(), any(), any(), any()) } returns stubbedTubeLines()
+        coEvery { mockApi.getLinesStatusNow(any()) } returns stubbedTubeLines()
+        coEvery {
+            mockApi.getLinesStatusForWeekend(
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns stubbedTubeLines()
         every { calendarUtils.getFormattedLocateDateTime() } returns FORMATTED_NOW_DATE
         every { calendarUtils.getWeekendDates() } returns weekendPair
         repo = TflRepositoryImpl(mockApi, calendarUtils)
@@ -39,7 +46,7 @@ class TflRepositoryTest {
     @Test
     fun shouldRequestTubeLinesForNow() = runBlockingTest {
         repo.loadTubeLines(isWeekendSelected = false)
-        coVerify { mockApi.getLinesStatusNow(APPLICATION_ID, APPLICATION_KEY) }
+        coVerify { mockApi.getLinesStatusNow(APPLICATION_KEY) }
     }
 
     @Test
@@ -48,7 +55,6 @@ class TflRepositoryTest {
 
         coVerify {
             mockApi.getLinesStatusForWeekend(
-                APPLICATION_ID,
                 APPLICATION_KEY,
                 weekendPair.first,
                 weekendPair.second

@@ -19,7 +19,6 @@ class TubeOverviewFragmentFactory @Inject constructor(
         }
         return super.instantiate(classLoader, className)
     }
-
 }
 
 fun getFragmentFactory(): TubeOverviewFragmentFactory {
