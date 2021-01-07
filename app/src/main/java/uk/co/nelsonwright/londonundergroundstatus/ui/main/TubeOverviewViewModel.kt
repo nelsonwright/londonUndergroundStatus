@@ -27,20 +27,20 @@ class TubeOverviewViewModel(
     private var mutableLiveData = MutableLiveData<TubeStatusViewState>()
 
     init {
-        getTubeLines(isWeekendSelected = false)
+        getTubeLines()
     }
 
-    fun loadTubeLines(isWeekend: Boolean = false) {
-        getTubeLines(isWeekend)
+    fun loadTubeLines(isNowSelected: Boolean = true) {
+        getTubeLines(isNowSelected)
     }
 
-    private fun getTubeLines(isWeekendSelected: Boolean = false) {
+    private fun getTubeLines(isNowSelected: Boolean = true) {
         viewModelScope.launch(mainDispatcher) {
             mutableLiveData.value = TubeStatusViewState(loading = true)
 
             try {
                 val tubeLineList = withContext(ioDispatcher) {
-                    repo.loadTubeLines(isWeekendSelected)
+                    repo.loadTubeLines(isNowSelected)
                 }
                 mutableLiveData.value = TubeStatusViewState(
                     tubeLines = tubeLineList,

@@ -6,18 +6,18 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 interface TflRepository {
-    suspend fun loadTubeLines(isWeekendSelected: Boolean = false): List<TubeLine>
+    suspend fun loadTubeLines(isNowSelected: Boolean = true): List<TubeLine>
 }
 
 @Singleton
 class TflRepositoryImpl @Inject constructor(val api: TflApiInterface, private val calendarUtils: CalendarUtils) :
     TflRepository {
 
-    override suspend fun loadTubeLines(isWeekendSelected: Boolean): List<TubeLine> {
-        return if (isWeekendSelected) {
-            loadTubeLinesForWeekend()
-        } else {
+    override suspend fun loadTubeLines(isNowSelected: Boolean): List<TubeLine> {
+        return if (isNowSelected) {
             loadTubeLinesForNow()
+        } else {
+            loadTubeLinesForWeekend()
         }
     }
 

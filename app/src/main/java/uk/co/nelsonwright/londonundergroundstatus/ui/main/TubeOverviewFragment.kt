@@ -38,9 +38,9 @@ class TubeOverviewFragment @Inject constructor(
     private lateinit var viewManager: RecyclerView.LayoutManager
     private var lastSelectedSpinnerPosition = NOW_SELECTED
 
-    private val isWeekendSelected: Boolean
+    private val isNowSelected: Boolean
         get() {
-            return status_date_spinner.selectedItemPosition == WEEKEND_SELECTED
+            return status_date_spinner.selectedItemPosition == NOW_SELECTED
         }
 
     override fun onAttach(context: Context) {
@@ -90,7 +90,7 @@ class TubeOverviewFragment @Inject constructor(
         return when (item.itemId) {
             R.id.menu_refresh -> {
                 swipe_refresh.isRefreshing = true
-                viewModel.loadTubeLines(isWeekendSelected)
+                viewModel.loadTubeLines(isNowSelected)
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -132,10 +132,10 @@ class TubeOverviewFragment @Inject constructor(
 
     private fun setListeners() {
         refresh_button.setOnClickListener {
-            viewModel.loadTubeLines(isWeekendSelected)
+            viewModel.loadTubeLines(isNowSelected)
         }
         swipe_refresh.setOnRefreshListener {
-            viewModel.loadTubeLines(isWeekendSelected)
+            viewModel.loadTubeLines(isNowSelected)
         }
 
         setupDateDropdown()
@@ -160,7 +160,7 @@ class TubeOverviewFragment @Inject constructor(
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 if (position != lastSelectedSpinnerPosition) {
-                    viewModel.loadTubeLines(isWeekendSelected)
+                    viewModel.loadTubeLines(isNowSelected)
                     lastSelectedSpinnerPosition = position
                     viewModel.spinnerPosition = lastSelectedSpinnerPosition
                 }

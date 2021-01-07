@@ -91,14 +91,14 @@ class TubeOverviewViewModelTest {
 
     @Test
     fun shouldInitiallyRequestLineStatusesForNow() {
-        coVerify { mockRepo.loadTubeLines(isWeekendSelected = false) }
+        coVerify { mockRepo.loadTubeLines(isNowSelected = true) }
     }
 
     @Test
     fun shouldRequestLineStatusesForNow() {
-        viewModel.loadTubeLines(isWeekend = false)
+        viewModel.loadTubeLines(isNowSelected = true)
 
-        coVerify { mockRepo.loadTubeLines(isWeekendSelected = false) }
+        coVerify { mockRepo.loadTubeLines(isNowSelected = true) }
         viewModel.viewState.observeOnce {
             assertThat(it.tubeLines).isEqualTo(tubeLinesNow)
             assertThat(it.refreshDate).isEqualTo(A_LOCAL_DATE_TIME)
@@ -107,9 +107,9 @@ class TubeOverviewViewModelTest {
 
     @Test
     fun shouldRequestLineStatusesForWeekend() {
-        viewModel.loadTubeLines(isWeekend = true)
+        viewModel.loadTubeLines(isNowSelected = false)
 
-        coVerify { mockRepo.loadTubeLines(isWeekendSelected = true) }
+        coVerify { mockRepo.loadTubeLines(isNowSelected = false) }
         viewModel.viewState.observeOnce {
             assertThat(it.tubeLines).isEqualTo(tubeLinesWeekend)
             assertThat(it.refreshDate).isEqualTo(A_LOCAL_DATE_TIME)
@@ -124,8 +124,8 @@ class TubeOverviewViewModelTest {
     )
 
     private fun stubRepoResponses() {
-        coEvery { mockRepo.loadTubeLines(isWeekendSelected = false) } returns stubbedTubeLinesNow()
-        coEvery { mockRepo.loadTubeLines(isWeekendSelected = true) } returns stubbedTubeLinesWeekend()
+        coEvery { mockRepo.loadTubeLines(isNowSelected = true) } returns stubbedTubeLinesNow()
+        coEvery { mockRepo.loadTubeLines(isNowSelected = false) } returns stubbedTubeLinesWeekend()
         every { mockCalendarUtils.getFormattedLocateDateTime() } returns A_LOCAL_DATE_TIME
     }
 
