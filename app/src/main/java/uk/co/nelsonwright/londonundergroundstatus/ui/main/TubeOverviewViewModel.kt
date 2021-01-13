@@ -34,17 +34,21 @@ class TubeOverviewViewModel(
         getTubeLines(isNowSelected)
     }
 
-    private fun getTubeLines(isNowSelected: Boolean = true) {
+    fun refreshTubeLines(isNowSelected: Boolean) {
+        getTubeLines(isNowSelected = isNowSelected, useCacheRequest = false)
+    }
+
+    private fun getTubeLines(isNowSelected: Boolean = true, useCacheRequest: Boolean = true) {
         viewModelScope.launch(mainDispatcher) {
             mutableLiveData.value = TubeStatusViewState(loading = true)
 
             try {
                 val tubeLineList = withContext(ioDispatcher) {
-                    repo.loadTubeLines(isNowSelected)
+                    repo.loadTubeLines(isNowSelected, useCacheRequest)
                 }
                 mutableLiveData.value = TubeStatusViewState(
-                    tubeLines = tubeLineList,
-                    refreshDate = calendarUtils.getFormattedLocateDateTime()
+                        tubeLines = tubeLineList,
+                        refreshDate = calendarUtils.getFormattedLocateDateTime()
                 )
             } catch (exception: Exception) {
                 mutableLiveData.value = TubeStatusViewState(loadingError = true)

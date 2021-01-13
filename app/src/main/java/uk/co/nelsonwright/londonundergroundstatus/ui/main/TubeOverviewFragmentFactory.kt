@@ -22,13 +22,14 @@ class TubeOverviewFragmentFactory @Inject constructor(
 }
 
 fun getFragmentFactory(): TubeOverviewFragmentFactory {
-    val calendarUtils = CalendarUtilsImpl(TimeHelperImpl())
+    val timeHelperImpl = TimeHelperImpl()
+    val calendarUtils = CalendarUtilsImpl(timeHelperImpl)
 
     return TubeOverviewFragmentFactory(
-        calendarUtils,
-        TubeOverviewViewModelFactory(
-            TflRepositoryImpl(TflService.create(), calendarUtils),
-            calendarUtils
-        )
+            calendarUtils,
+            TubeOverviewViewModelFactory(
+                    TflRepositoryImpl(TflService.create(), calendarUtils, timeHelperImpl),
+                    calendarUtils
+            )
     )
 }

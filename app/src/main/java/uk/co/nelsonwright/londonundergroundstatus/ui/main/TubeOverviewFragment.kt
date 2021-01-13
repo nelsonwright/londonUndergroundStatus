@@ -90,7 +90,7 @@ class TubeOverviewFragment @Inject constructor(
         return when (item.itemId) {
             R.id.menu_refresh -> {
                 swipe_refresh.isRefreshing = true
-                viewModel.loadTubeLines(isNowSelected)
+                viewModel.refreshTubeLines(isNowSelected)
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -132,10 +132,10 @@ class TubeOverviewFragment @Inject constructor(
 
     private fun setListeners() {
         refresh_button.setOnClickListener {
-            viewModel.loadTubeLines(isNowSelected)
+            viewModel.refreshTubeLines(isNowSelected)
         }
         swipe_refresh.setOnRefreshListener {
-            viewModel.loadTubeLines(isNowSelected)
+            viewModel.refreshTubeLines(isNowSelected)
         }
 
         setupDateDropdown()

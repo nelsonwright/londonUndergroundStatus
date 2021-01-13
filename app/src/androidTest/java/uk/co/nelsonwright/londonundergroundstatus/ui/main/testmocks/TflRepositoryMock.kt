@@ -6,7 +6,7 @@ import uk.co.nelsonwright.londonundergroundstatus.ui.main.shared.stubbedTubeLine
 import uk.co.nelsonwright.londonundergroundstatus.ui.main.shared.stubbedTubeLinesWeekend
 
 class TflRepositoryMock : TflRepository {
-    override suspend fun loadTubeLines(isNowSelected: Boolean): List<TubeLine> {
+    override suspend fun loadTubeLines(isNowSelected: Boolean, useCacheRequest: Boolean): List<TubeLine> {
         if (isNowSelected) {
             return stubbedTubeLinesNow()
         } else {

@@ -79,7 +79,7 @@ class TubeOverviewViewModelTest {
 
     @Test
     fun shouldInitiallyShowError() {
-        coEvery { mockRepo.loadTubeLines(any()) } throws Exception("error")
+        coEvery { mockRepo.loadTubeLines(any(), any()) } throws Exception("error")
 
         viewModel = getViewModel()
 
@@ -91,14 +91,25 @@ class TubeOverviewViewModelTest {
 
     @Test
     fun shouldInitiallyRequestLineStatusesForNow() {
-        coVerify { mockRepo.loadTubeLines(isNowSelected = true) }
+        coVerify { mockRepo.loadTubeLines(isNowSelected = true, useCacheRequest = true) }
     }
 
     @Test
     fun shouldRequestLineStatusesForNow() {
         viewModel.loadTubeLines(isNowSelected = true)
 
-        coVerify { mockRepo.loadTubeLines(isNowSelected = true) }
+        coVerify { mockRepo.loadTubeLines(isNowSelected = true, useCacheRequest = true) }
+        viewModel.viewState.observeOnce {
+            assertThat(it.tubeLines).isEqualTo(tubeLinesNow)
+            assertThat(it.refreshDate).isEqualTo(A_LOCAL_DATE_TIME)
+        }
+    }
+
+    @Test
+    fun shouldNotUseCacheForNowOnRefresh() {
+        viewModel.refreshTubeLines(isNowSelected = true)
+
+        coVerify { mockRepo.loadTubeLines(isNowSelected = true, useCacheRequest = false) }
         viewModel.viewState.observeOnce {
             assertThat(it.tubeLines).isEqualTo(tubeLinesNow)
             assertThat(it.refreshDate).isEqualTo(A_LOCAL_DATE_TIME)
@@ -109,7 +120,18 @@ class TubeOverviewViewModelTest {
     fun shouldRequestLineStatusesForWeekend() {
         viewModel.loadTubeLines(isNowSelected = false)
 
-        coVerify { mockRepo.loadTubeLines(isNowSelected = false) }
+        coVerify { mockRepo.loadTubeLines(isNowSelected = false, useCacheRequest = true) }
+        viewModel.viewState.observeOnce {
+            assertThat(it.tubeLines).isEqualTo(tubeLinesWeekend)
+            assertThat(it.refreshDate).isEqualTo(A_LOCAL_DATE_TIME)
+        }
+    }
+
+    @Test
+    fun shouldNotUseCacheForWeekendOnRefresh() {
+        viewModel.refreshTubeLines(isNowSelected = false)
+
+        coVerify { mockRepo.loadTubeLines(isNowSelected = false, useCacheRequest = false) }
         viewModel.viewState.observeOnce {
             assertThat(it.tubeLines).isEqualTo(tubeLinesWeekend)
             assertThat(it.refreshDate).isEqualTo(A_LOCAL_DATE_TIME)
@@ -117,15 +139,15 @@ class TubeOverviewViewModelTest {
     }
 
     private fun getViewModel() = TubeOverviewViewModel(
-        repo = mockRepo,
-        calendarUtils = mockCalendarUtils,
-        mainCoroutineRule.testDispatcher,
-        mainCoroutineRule.testDispatcher
+            repo = mockRepo,
+            calendarUtils = mockCalendarUtils,
+            mainCoroutineRule.testDispatcher,
+            mainCoroutineRule.testDispatcher
     )
 
     private fun stubRepoResponses() {
-        coEvery { mockRepo.loadTubeLines(isNowSelected = true) } returns stubbedTubeLinesNow()
-        coEvery { mockRepo.loadTubeLines(isNowSelected = false) } returns stubbedTubeLinesWeekend()
+        coEvery { mockRepo.loadTubeLines(isNowSelected = true, any()) } returns stubbedTubeLinesNow()
+        coEvery { mockRepo.loadTubeLines(isNowSelected = false, any()) } returns stubbedTubeLinesWeekend()
         every { mockCalendarUtils.getFormattedLocateDateTime() } returns A_LOCAL_DATE_TIME
     }
 
