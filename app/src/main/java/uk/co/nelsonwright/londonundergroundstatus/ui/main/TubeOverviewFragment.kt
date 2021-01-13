@@ -21,6 +21,8 @@ import uk.co.nelsonwright.londonundergroundstatus.models.TubeLine
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeLineColours
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeStatusViewState
 import uk.co.nelsonwright.londonundergroundstatus.shared.CalendarUtils
+import uk.co.nelsonwright.londonundergroundstatus.ui.main.SelectionType.NOW
+import uk.co.nelsonwright.londonundergroundstatus.ui.main.SelectionType.WEEKEND
 import javax.inject.Inject
 
 
@@ -38,9 +40,13 @@ class TubeOverviewFragment @Inject constructor(
     private lateinit var viewManager: RecyclerView.LayoutManager
     private var lastSelectedSpinnerPosition = NOW_SELECTED
 
-    private val isNowSelected: Boolean
+    private val selectionType: SelectionType
         get() {
-            return status_date_spinner.selectedItemPosition == NOW_SELECTED
+            return if (status_date_spinner.selectedItemPosition == WEEKEND_SELECTED) {
+                WEEKEND
+            } else {
+                NOW
+            }
         }
 
     override fun onAttach(context: Context) {
@@ -90,7 +96,7 @@ class TubeOverviewFragment @Inject constructor(
         return when (item.itemId) {
             R.id.menu_refresh -> {
                 swipe_refresh.isRefreshing = true
-                viewModel.refreshTubeLines(isNowSelected)
+                viewModel.refreshTubeLines(selectionType)
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -132,10 +138,10 @@ class TubeOverviewFragment @Inject constructor(
 
     private fun setListeners() {
         refresh_button.setOnClickListener {
-            viewModel.refreshTubeLines(isNowSelected)
+            viewModel.refreshTubeLines(selectionType)
         }
         swipe_refresh.setOnRefreshListener {
-            viewModel.refreshTubeLines(isNowSelected)
+            viewModel.refreshTubeLines(selectionType)
         }
 
         setupDateDropdown()
@@ -160,7 +166,7 @@ class TubeOverviewFragment @Inject constructor(
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 if (position != lastSelectedSpinnerPosition) {
-                    viewModel.loadTubeLines(isNowSelected)
+                    viewModel.loadTubeLines(selectionType)
                     lastSelectedSpinnerPosition = position
                     viewModel.spinnerPosition = lastSelectedSpinnerPosition
                 }

@@ -3,6 +3,8 @@ package uk.co.nelsonwright.londonundergroundstatus.api
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeLine
 import uk.co.nelsonwright.londonundergroundstatus.shared.CalendarUtils
 import uk.co.nelsonwright.londonundergroundstatus.shared.TimeHelper
+import uk.co.nelsonwright.londonundergroundstatus.ui.main.SelectionType
+import uk.co.nelsonwright.londonundergroundstatus.ui.main.SelectionType.NOW
 import java.time.Duration.ofMinutes
 import java.time.ZonedDateTime
 import javax.inject.Inject
@@ -12,7 +14,7 @@ const val NOW_CACHE_TIME_MINUTES = 2L
 const val WEEKEND_CACHE_TIME_MINUTES = 5L
 
 interface TflRepository {
-    suspend fun loadTubeLines(isNowSelected: Boolean = true, useCacheRequest: Boolean = true): List<TubeLine>
+    suspend fun loadTubeLines(selectionType: SelectionType = NOW, useCacheRequest: Boolean = true): List<TubeLine>
 }
 
 @Singleton
@@ -25,8 +27,8 @@ CalendarUtils, private val timeHelper: TimeHelper) :
     private var lastCachedTimeLinesNow: ZonedDateTime? = null
     private var lastCachedTimeLinesWeekend: ZonedDateTime? = null
 
-    override suspend fun loadTubeLines(isNowSelected: Boolean, useCacheRequest: Boolean): List<TubeLine> {
-        return if (isNowSelected) {
+    override suspend fun loadTubeLines(selectionType: SelectionType, useCacheRequest: Boolean): List<TubeLine> {
+        return if (selectionType == NOW) {
             loadTubeLinesForNow(useCacheRequest)
         } else {
             loadTubeLinesForWeekend(useCacheRequest)

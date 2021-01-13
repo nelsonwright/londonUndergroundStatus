@@ -12,6 +12,8 @@ import org.junit.Rule
 import org.junit.Test
 import uk.co.nelsonwright.londonundergroundstatus.shared.CalendarUtils
 import uk.co.nelsonwright.londonundergroundstatus.shared.TimeHelper
+import uk.co.nelsonwright.londonundergroundstatus.ui.main.SelectionType.NOW
+import uk.co.nelsonwright.londonundergroundstatus.ui.main.SelectionType.WEEKEND
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import javax.xml.datatype.DatatypeConstants.JANUARY
@@ -52,30 +54,30 @@ class TflRepositoryTest {
 
     @Test
     fun shouldRequestTubeLinesForNow() = runBlockingTest {
-        repo.loadTubeLines(isNowSelected = true, useCacheRequest = false)
+        repo.loadTubeLines(selectionType = NOW, useCacheRequest = false)
         coVerify { mockApi.getLinesStatusNow(APPLICATION_KEY) }
     }
 
     @Test
     fun shouldUseCachedTubeLinesForNow() = runBlockingTest {
-        repo.loadTubeLines(isNowSelected = true, useCacheRequest = false)
-        repo.loadTubeLines(isNowSelected = true, useCacheRequest = true)
+        repo.loadTubeLines(selectionType = NOW, useCacheRequest = false)
+        repo.loadTubeLines(selectionType = NOW, useCacheRequest = true)
         coVerify(exactly = 1) { mockApi.getLinesStatusNow(APPLICATION_KEY) }
     }
 
     @Test
     fun shouldNotUseExpiredCacheForNow() = runBlockingTest {
-        repo.loadTubeLines(isNowSelected = true, useCacheRequest = false)
+        repo.loadTubeLines(selectionType = NOW, useCacheRequest = false)
         every { mockTimeHelper.getCurrentDateTime() } returns theCurrentTime.plusMinutes(NOW_CACHE_TIME_MINUTES + 1)
 
-        repo.loadTubeLines(isNowSelected = true, useCacheRequest = true)
+        repo.loadTubeLines(selectionType = NOW, useCacheRequest = true)
 
         coVerify(exactly = 2) { mockApi.getLinesStatusNow(APPLICATION_KEY) }
     }
 
     @Test
     fun shouldRequestTubeLinesForWeekend() = runBlockingTest {
-        repo.loadTubeLines(isNowSelected = false, useCacheRequest = false)
+        repo.loadTubeLines(selectionType = WEEKEND, useCacheRequest = false)
 
         coVerify {
             mockApi.getLinesStatusForWeekend(
@@ -88,8 +90,8 @@ class TflRepositoryTest {
 
     @Test
     fun shouldUseCachedTubeLinesForWeekend() = runBlockingTest {
-        repo.loadTubeLines(isNowSelected = false, useCacheRequest = false)
-        repo.loadTubeLines(isNowSelected = false, useCacheRequest = true)
+        repo.loadTubeLines(selectionType = WEEKEND, useCacheRequest = false)
+        repo.loadTubeLines(selectionType = WEEKEND, useCacheRequest = true)
 
         coVerify(exactly = 1) {
             mockApi.getLinesStatusForWeekend(
@@ -102,10 +104,10 @@ class TflRepositoryTest {
 
     @Test
     fun shouldNotUseExpiredCacheForWeekend() = runBlockingTest {
-        repo.loadTubeLines(isNowSelected = false, useCacheRequest = false)
+        repo.loadTubeLines(selectionType = WEEKEND, useCacheRequest = false)
         every { mockTimeHelper.getCurrentDateTime() } returns theCurrentTime.plusMinutes(WEEKEND_CACHE_TIME_MINUTES + 1)
 
-        repo.loadTubeLines(isNowSelected = false, useCacheRequest = true)
+        repo.loadTubeLines(selectionType = WEEKEND, useCacheRequest = true)
 
         coVerify(exactly = 2) {
             mockApi.getLinesStatusForWeekend(
