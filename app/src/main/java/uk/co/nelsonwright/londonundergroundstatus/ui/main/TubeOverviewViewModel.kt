@@ -48,8 +48,8 @@ class TubeOverviewViewModel(
                     repo.loadTubeLines(selectionType = selectionType, useCacheRequest = useCacheRequest)
                 }
                 mutableLiveData.value = TubeStatusViewState(
-                        tubeLines = tubeLineList,
-                        refreshDate = calendarUtils.getFormattedLocateDateTime()
+                    tubeLines = tubeLineList.tubeLines,
+                    refreshDate = calendarUtils.getFormattedLocateDateTime(tubeLineList.refreshTime)
                 )
             } catch (exception: Exception) {
                 mutableLiveData.value = TubeStatusViewState(loadingError = true)

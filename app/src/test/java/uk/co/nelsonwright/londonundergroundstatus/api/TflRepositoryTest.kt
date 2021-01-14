@@ -14,6 +14,7 @@ import uk.co.nelsonwright.londonundergroundstatus.shared.CalendarUtils
 import uk.co.nelsonwright.londonundergroundstatus.shared.TimeHelper
 import uk.co.nelsonwright.londonundergroundstatus.ui.main.SelectionType.NOW
 import uk.co.nelsonwright.londonundergroundstatus.ui.main.SelectionType.WEEKEND
+import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import javax.xml.datatype.DatatypeConstants.JANUARY
@@ -34,21 +35,23 @@ class TflRepositoryTest {
     private val calendarUtils = mockk<CalendarUtils>()
     private val weekendPair = Pair("Saturday", "Sunday")
     private val theCurrentTime = ZonedDateTime.of(2021, JANUARY, 13, 10, 2, 0, 0, ZoneId.of("Z"))
+    private val theCurrentLocalTime = LocalDateTime.of(2021, JANUARY, 13, 10, 2, 0)
 
     @Before
     fun setup() {
         coEvery { mockApi.getLinesStatusNow(any()) } returns stubbedTubeLines()
         coEvery {
             mockApi.getLinesStatusForWeekend(
-                    any(),
-                    any(),
-                    any(),
-                    any()
+                any(),
+                any(),
+                any(),
+                any()
             )
         } returns stubbedTubeLines()
-        every { calendarUtils.getFormattedLocateDateTime() } returns FORMATTED_NOW_DATE
+        every { calendarUtils.getFormattedLocateDateTime(any()) } returns FORMATTED_NOW_DATE
         every { calendarUtils.getWeekendDates() } returns weekendPair
         every { mockTimeHelper.getCurrentDateTime() } returns theCurrentTime
+        every { mockTimeHelper.getCurrentLocalDateTime() } returns theCurrentLocalTime
         repo = TflRepositoryImpl(mockApi, calendarUtils, mockTimeHelper)
     }
 

@@ -15,13 +15,14 @@ import org.junit.Test
 import uk.co.nelsonwright.londonundergroundstatus.api.TflRepository
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeLine
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeLineStatus
+import uk.co.nelsonwright.londonundergroundstatus.models.TubeLinesWithRefreshTime
 import uk.co.nelsonwright.londonundergroundstatus.shared.CalendarUtils
 import uk.co.nelsonwright.londonundergroundstatus.shared.GOOD_SERVICE
 import uk.co.nelsonwright.londonundergroundstatus.testutils.observeOnce
 import uk.co.nelsonwright.londonundergroundstatus.ui.main.SelectionType.NOW
 import uk.co.nelsonwright.londonundergroundstatus.ui.main.SelectionType.WEEKEND
 
-const val A_LOCAL_DATE_TIME = "a local date time"
+private const val FORMATTED_REFRESH_DATE = "Thu, Jan 14 10:55:16"
 
 @ExperimentalCoroutinesApi
 class TubeOverviewViewModelTest {
@@ -103,7 +104,7 @@ class TubeOverviewViewModelTest {
         coVerify { mockRepo.loadTubeLines(selectionType = NOW, useCacheRequest = true) }
         viewModel.viewState.observeOnce {
             assertThat(it.tubeLines).isEqualTo(tubeLinesNow)
-            assertThat(it.refreshDate).isEqualTo(A_LOCAL_DATE_TIME)
+            assertThat(it.refreshDate).isEqualTo(FORMATTED_REFRESH_DATE)
         }
     }
 
@@ -114,7 +115,7 @@ class TubeOverviewViewModelTest {
         coVerify { mockRepo.loadTubeLines(selectionType = NOW, useCacheRequest = false) }
         viewModel.viewState.observeOnce {
             assertThat(it.tubeLines).isEqualTo(tubeLinesNow)
-            assertThat(it.refreshDate).isEqualTo(A_LOCAL_DATE_TIME)
+            assertThat(it.refreshDate).isEqualTo(FORMATTED_REFRESH_DATE)
         }
     }
 
@@ -125,7 +126,7 @@ class TubeOverviewViewModelTest {
         coVerify { mockRepo.loadTubeLines(selectionType = WEEKEND, useCacheRequest = true) }
         viewModel.viewState.observeOnce {
             assertThat(it.tubeLines).isEqualTo(tubeLinesWeekend)
-            assertThat(it.refreshDate).isEqualTo(A_LOCAL_DATE_TIME)
+            assertThat(it.refreshDate).isEqualTo(FORMATTED_REFRESH_DATE)
         }
     }
 
@@ -136,7 +137,7 @@ class TubeOverviewViewModelTest {
         coVerify { mockRepo.loadTubeLines(selectionType = WEEKEND, useCacheRequest = false) }
         viewModel.viewState.observeOnce {
             assertThat(it.tubeLines).isEqualTo(tubeLinesWeekend)
-            assertThat(it.refreshDate).isEqualTo(A_LOCAL_DATE_TIME)
+            assertThat(it.refreshDate).isEqualTo(FORMATTED_REFRESH_DATE)
         }
     }
 
@@ -148,10 +149,11 @@ class TubeOverviewViewModelTest {
     )
 
     private fun stubRepoResponses() {
-        coEvery { mockRepo.loadTubeLines(selectionType = NOW, useCacheRequest = any()) } returns stubbedTubeLinesNow()
+        coEvery { mockRepo.loadTubeLines(selectionType = NOW, useCacheRequest = any()) } returns
+                TubeLinesWithRefreshTime(tubeLines = stubbedTubeLinesNow())
         coEvery { mockRepo.loadTubeLines(selectionType = WEEKEND, useCacheRequest = any()) } returns
-                stubbedTubeLinesWeekend()
-        every { mockCalendarUtils.getFormattedLocateDateTime() } returns A_LOCAL_DATE_TIME
+                TubeLinesWithRefreshTime(tubeLines = stubbedTubeLinesWeekend())
+        every { mockCalendarUtils.getFormattedLocateDateTime(any()) } returns FORMATTED_REFRESH_DATE
     }
 
     private fun stubbedTubeLinesNow(): List<TubeLine> {
