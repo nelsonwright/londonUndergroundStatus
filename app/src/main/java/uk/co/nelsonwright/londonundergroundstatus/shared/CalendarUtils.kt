@@ -1,6 +1,7 @@
 package uk.co.nelsonwright.londonundergroundstatus.shared
 
 import java.time.DayOfWeek.SATURDAY
+import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.TemporalAdjusters
@@ -12,7 +13,7 @@ private const val LONDON_TIME_ZONE = "Europe/London"
 interface CalendarUtils {
     fun getWeekendDates(): Pair<String, String>
     fun getFormattedSaturdayDate(): String
-    fun getFormattedLocateDateTime(): String
+    fun getFormattedLocateDateTime(dateToFormat: LocalDateTime): String
 }
 
 class CalendarUtilsImpl @Inject constructor(private val timeHelper: TimeHelper) : CalendarUtils {
@@ -41,10 +42,9 @@ class CalendarUtilsImpl @Inject constructor(private val timeHelper: TimeHelper) 
         return dateMonthFormat.format(calculateThisSaturday())
     }
 
-    override fun getFormattedLocateDateTime(): String {
-        val date = timeHelper.getCurrentLocalDateTime()
+    override fun getFormattedLocateDateTime(dateToFormat: LocalDateTime): String {
         val formatter = DateTimeFormatter.ofPattern("EEE, MMM d HH:mm:ss", Locale.getDefault())
-        return formatter.format(date)
+        return formatter.format(dateToFormat)
     }
 
     private fun calculateThisSaturday(): ZonedDateTime {

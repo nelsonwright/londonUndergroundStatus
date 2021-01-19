@@ -11,6 +11,7 @@ import kotlinx.coroutines.withContext
 import uk.co.nelsonwright.londonundergroundstatus.api.TflRepository
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeStatusViewState
 import uk.co.nelsonwright.londonundergroundstatus.shared.CalendarUtils
+import uk.co.nelsonwright.londonundergroundstatus.ui.main.SelectionType.NOW
 
 
 @Keep
@@ -27,24 +28,28 @@ class TubeOverviewViewModel(
     private var mutableLiveData = MutableLiveData<TubeStatusViewState>()
 
     init {
-        getTubeLines(isWeekendSelected = false)
+        getTubeLines()
     }
 
-    fun loadTubeLines(isWeekend: Boolean = false) {
-        getTubeLines(isWeekend)
+    fun loadTubeLines(selectionType: SelectionType) {
+        getTubeLines(selectionType = selectionType)
     }
 
-    private fun getTubeLines(isWeekendSelected: Boolean = false) {
+    fun refreshTubeLines(selectionType: SelectionType) {
+        getTubeLines(selectionType = selectionType, useCacheRequest = false)
+    }
+
+    private fun getTubeLines(selectionType: SelectionType = NOW, useCacheRequest: Boolean = true) {
         viewModelScope.launch(mainDispatcher) {
             mutableLiveData.value = TubeStatusViewState(loading = true)
 
             try {
                 val tubeLineList = withContext(ioDispatcher) {
-                    repo.loadTubeLines(isWeekendSelected)
+                    repo.loadTubeLines(selectionType = selectionType, useCacheRequest = useCacheRequest)
                 }
                 mutableLiveData.value = TubeStatusViewState(
-                    tubeLines = tubeLineList,
-                    refreshDate = calendarUtils.getFormattedLocateDateTime()
+                    tubeLines = tubeLineList.tubeLines,
+                    refreshDate = calendarUtils.getFormattedLocateDateTime(tubeLineList.refreshTime)
                 )
             } catch (exception: Exception) {
                 mutableLiveData.value = TubeStatusViewState(loadingError = true)

@@ -15,11 +15,14 @@ import org.junit.Test
 import uk.co.nelsonwright.londonundergroundstatus.api.TflRepository
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeLine
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeLineStatus
+import uk.co.nelsonwright.londonundergroundstatus.models.TubeLinesWithRefreshTime
 import uk.co.nelsonwright.londonundergroundstatus.shared.CalendarUtils
 import uk.co.nelsonwright.londonundergroundstatus.shared.GOOD_SERVICE
 import uk.co.nelsonwright.londonundergroundstatus.testutils.observeOnce
+import uk.co.nelsonwright.londonundergroundstatus.ui.main.SelectionType.NOW
+import uk.co.nelsonwright.londonundergroundstatus.ui.main.SelectionType.WEEKEND
 
-const val A_LOCAL_DATE_TIME = "a local date time"
+private const val FORMATTED_REFRESH_DATE = "Thu, Jan 14 10:55:16"
 
 @ExperimentalCoroutinesApi
 class TubeOverviewViewModelTest {
@@ -79,7 +82,7 @@ class TubeOverviewViewModelTest {
 
     @Test
     fun shouldInitiallyShowError() {
-        coEvery { mockRepo.loadTubeLines(any()) } throws Exception("error")
+        coEvery { mockRepo.loadTubeLines(any(), any()) } throws Exception("error")
 
         viewModel = getViewModel()
 
@@ -91,42 +94,66 @@ class TubeOverviewViewModelTest {
 
     @Test
     fun shouldInitiallyRequestLineStatusesForNow() {
-        coVerify { mockRepo.loadTubeLines(isWeekendSelected = false) }
+        coVerify { mockRepo.loadTubeLines(selectionType = NOW, useCacheRequest = true) }
     }
 
     @Test
     fun shouldRequestLineStatusesForNow() {
-        viewModel.loadTubeLines(isWeekend = false)
+        viewModel.loadTubeLines(selectionType = NOW)
 
-        coVerify { mockRepo.loadTubeLines(isWeekendSelected = false) }
+        coVerify { mockRepo.loadTubeLines(selectionType = NOW, useCacheRequest = true) }
         viewModel.viewState.observeOnce {
             assertThat(it.tubeLines).isEqualTo(tubeLinesNow)
-            assertThat(it.refreshDate).isEqualTo(A_LOCAL_DATE_TIME)
+            assertThat(it.refreshDate).isEqualTo(FORMATTED_REFRESH_DATE)
+        }
+    }
+
+    @Test
+    fun shouldNotUseCacheForNowOnRefresh() {
+        viewModel.refreshTubeLines(selectionType = NOW)
+
+        coVerify { mockRepo.loadTubeLines(selectionType = NOW, useCacheRequest = false) }
+        viewModel.viewState.observeOnce {
+            assertThat(it.tubeLines).isEqualTo(tubeLinesNow)
+            assertThat(it.refreshDate).isEqualTo(FORMATTED_REFRESH_DATE)
         }
     }
 
     @Test
     fun shouldRequestLineStatusesForWeekend() {
-        viewModel.loadTubeLines(isWeekend = true)
+        viewModel.loadTubeLines(selectionType = WEEKEND)
 
-        coVerify { mockRepo.loadTubeLines(isWeekendSelected = true) }
+        coVerify { mockRepo.loadTubeLines(selectionType = WEEKEND, useCacheRequest = true) }
         viewModel.viewState.observeOnce {
             assertThat(it.tubeLines).isEqualTo(tubeLinesWeekend)
-            assertThat(it.refreshDate).isEqualTo(A_LOCAL_DATE_TIME)
+            assertThat(it.refreshDate).isEqualTo(FORMATTED_REFRESH_DATE)
+        }
+    }
+
+    @Test
+    fun shouldNotUseCacheForWeekendOnRefresh() {
+        viewModel.refreshTubeLines(selectionType = WEEKEND)
+
+        coVerify { mockRepo.loadTubeLines(selectionType = WEEKEND, useCacheRequest = false) }
+        viewModel.viewState.observeOnce {
+            assertThat(it.tubeLines).isEqualTo(tubeLinesWeekend)
+            assertThat(it.refreshDate).isEqualTo(FORMATTED_REFRESH_DATE)
         }
     }
 
     private fun getViewModel() = TubeOverviewViewModel(
-        repo = mockRepo,
-        calendarUtils = mockCalendarUtils,
-        mainCoroutineRule.testDispatcher,
-        mainCoroutineRule.testDispatcher
+            repo = mockRepo,
+            calendarUtils = mockCalendarUtils,
+            mainCoroutineRule.testDispatcher,
+            mainCoroutineRule.testDispatcher
     )
 
     private fun stubRepoResponses() {
-        coEvery { mockRepo.loadTubeLines(isWeekendSelected = false) } returns stubbedTubeLinesNow()
-        coEvery { mockRepo.loadTubeLines(isWeekendSelected = true) } returns stubbedTubeLinesWeekend()
-        every { mockCalendarUtils.getFormattedLocateDateTime() } returns A_LOCAL_DATE_TIME
+        coEvery { mockRepo.loadTubeLines(selectionType = NOW, useCacheRequest = any()) } returns
+                TubeLinesWithRefreshTime(tubeLines = stubbedTubeLinesNow())
+        coEvery { mockRepo.loadTubeLines(selectionType = WEEKEND, useCacheRequest = any()) } returns
+                TubeLinesWithRefreshTime(tubeLines = stubbedTubeLinesWeekend())
+        every { mockCalendarUtils.getFormattedLocateDateTime(any()) } returns FORMATTED_REFRESH_DATE
     }
 
     private fun stubbedTubeLinesNow(): List<TubeLine> {

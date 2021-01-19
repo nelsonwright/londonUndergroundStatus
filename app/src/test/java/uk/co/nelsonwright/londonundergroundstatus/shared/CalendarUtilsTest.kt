@@ -22,9 +22,9 @@ class CalendarUtilsTest {
     }
 
     @Test
-    fun shouldGetFormattedNowDate() {
+    fun shouldGetFormattedDate() {
         val expectedDateString = "Tue, Sep 1 17:32:58"
-        val formattedNowDate = calendarUtils.getFormattedLocateDateTime()
+        val formattedNowDate = calendarUtils.getFormattedLocateDateTime(currentTime)
         assertThat(formattedNowDate).isEqualTo(expectedDateString)
     }
 

@@ -113,7 +113,7 @@ class TubeStatusOverviewFragmentTest {
 
     @Test
     fun shouldShowExpectedTubeLinesForNow() {
-        expectedTubeLinesNow.forEach {
+        expectedTubeLinesNow.tubeLines.forEach {
             // Attempt to scroll to an item that contains the specified text.
             onView(withId(R.id.lines_recycler_view))
                 .perform(
@@ -134,7 +134,7 @@ class TubeStatusOverviewFragmentTest {
             .atPosition(1)
             .perform(click())
 
-        expectedTubeLinesWeekend.forEach {
+        expectedTubeLinesWeekend.tubeLines.forEach {
             // Attempt to scroll to an item that contains the specified text.
             onView(withId(R.id.lines_recycler_view))
                 .perform(

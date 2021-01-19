@@ -10,20 +10,25 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.android.synthetic.main.fragment_details.*
-import uk.co.nelsonwright.londonundergroundstatus.R
+import uk.co.nelsonwright.londonundergroundstatus.databinding.FragmentDetailsBinding
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeLineStatus
 
 
 class TubeDetailsFragment : Fragment() {
     private val args: TubeDetailsFragmentArgs by navArgs()
+    private var _binding: FragmentDetailsBinding? = null
+
+    // This property is only valid between onCreateView and onDestroyView...
+    private val binding
+        get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_details, container, false)
+        _binding = FragmentDetailsBinding.inflate(inflater, container, false)
+        val view = binding.root
+        return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -32,11 +37,16 @@ class TubeDetailsFragment : Fragment() {
         setupActionBar()
         setupDetailsList()
 
-        tube_train_image.visibility = if (args.tubeLine.notGoodService()) {
+        binding.tubeTrainImage.visibility = if (args.tubeLine.notGoodService()) {
             View.GONE
         } else {
             View.VISIBLE
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private fun setupActionBar() {
@@ -53,9 +63,9 @@ class TubeDetailsFragment : Fragment() {
         args.tubeLine.lineStatuses?.let { tubeLineStatusList ->
             compactSameReasonsUnderOneAmalgamatedStatus(tubeLineStatusList, compactedList)
 
-            details_recycler_view.apply {
+            binding.detailsRecyclerView.apply {
                 layoutManager = LinearLayoutManager(requireContext())
-                adapter = TubeListDetailsAdapter(requireContext(), compactedList)
+                adapter = TubeListDetailsAdapter(compactedList)
             }
         }
     }

@@ -14,15 +14,16 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.fragment_overview.*
 import uk.co.nelsonwright.londonundergroundstatus.R
 import uk.co.nelsonwright.londonundergroundstatus.TubeStatusApplication
+import uk.co.nelsonwright.londonundergroundstatus.databinding.FragmentOverviewBinding
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeLine
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeLineColours
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeStatusViewState
 import uk.co.nelsonwright.londonundergroundstatus.shared.CalendarUtils
+import uk.co.nelsonwright.londonundergroundstatus.ui.main.SelectionType.NOW
+import uk.co.nelsonwright.londonundergroundstatus.ui.main.SelectionType.WEEKEND
 import javax.inject.Inject
-
 
 private const val NOW_SELECTED = 0
 private const val WEEKEND_SELECTED = 1
@@ -37,11 +38,20 @@ class TubeOverviewFragment @Inject constructor(
     private lateinit var viewAdapter: TubeListAdapter
     private lateinit var viewManager: RecyclerView.LayoutManager
     private var lastSelectedSpinnerPosition = NOW_SELECTED
+    private var _binding: FragmentOverviewBinding? = null
 
-    private val isWeekendSelected: Boolean
+    private val selectionType: SelectionType
         get() {
-            return status_date_spinner.selectedItemPosition == WEEKEND_SELECTED
+            return if (binding.statusDateSpinner.selectedItemPosition == WEEKEND_SELECTED) {
+                WEEKEND
+            } else {
+                NOW
+            }
         }
+
+    // This property is only valid between onCreateView and onDestroyView...
+    private val binding
+        get() = _binding!!
 
     override fun onAttach(context: Context) {
         (context.applicationContext as TubeStatusApplication).appComponent.inject(this)
@@ -52,8 +62,9 @@ class TubeOverviewFragment @Inject constructor(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_overview, container, false)
+        _binding = FragmentOverviewBinding.inflate(inflater, container, false)
+        val view = binding.root
+        return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -68,6 +79,11 @@ class TubeOverviewFragment @Inject constructor(
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         super.onViewStateRestored(savedInstanceState)
         lastSelectedSpinnerPosition = viewModel.spinnerPosition
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     override fun onTubeLineClicked(tubeLine: TubeLine) {
@@ -89,8 +105,8 @@ class TubeOverviewFragment @Inject constructor(
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_refresh -> {
-                swipe_refresh.isRefreshing = true
-                viewModel.loadTubeLines(isWeekendSelected)
+                binding.swipeRefresh.isRefreshing = true
+                viewModel.refreshTubeLines(selectionType)
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -107,9 +123,9 @@ class TubeOverviewFragment @Inject constructor(
 
     private fun setupRecyclerView() {
         viewManager = LinearLayoutManager(requireContext())
-        viewAdapter = TubeListAdapter(arrayListOf(), this, requireContext())
+        viewAdapter = TubeListAdapter(arrayListOf(), this)
 
-        lines_recycler_view.apply {
+        binding.linesRecyclerView.apply {
             layoutManager = viewManager
             adapter = viewAdapter
         }
@@ -125,17 +141,17 @@ class TubeOverviewFragment @Inject constructor(
         with(state) {
             updateLoadingIndicator(loading)
             updateViewVisibilities(error = loadingError)
-            refresh_date.text = getString(R.string.refresh_date, refreshDate)
+            binding.refreshDate.text = getString(R.string.refresh_date, refreshDate)
             viewAdapter.update(tubeLines)
         }
     }
 
     private fun setListeners() {
-        refresh_button.setOnClickListener {
-            viewModel.loadTubeLines(isWeekendSelected)
+        binding.refreshButton.setOnClickListener {
+            viewModel.refreshTubeLines(selectionType)
         }
-        swipe_refresh.setOnRefreshListener {
-            viewModel.loadTubeLines(isWeekendSelected)
+        binding.swipeRefresh.setOnRefreshListener {
+            viewModel.refreshTubeLines(selectionType)
         }
 
         setupDateDropdown()
@@ -152,15 +168,15 @@ class TubeOverviewFragment @Inject constructor(
                 // the layout for when the list of choices appears, i.e when the down arrow is tapped
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 // assign the adapter to the spinner
-                status_date_spinner.adapter = adapter
+                binding.statusDateSpinner.adapter = adapter
             }
 
-        status_date_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        binding.statusDateSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {}
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 if (position != lastSelectedSpinnerPosition) {
-                    viewModel.loadTubeLines(isWeekendSelected)
+                    viewModel.loadTubeLines(selectionType)
                     lastSelectedSpinnerPosition = position
                     viewModel.spinnerPosition = lastSelectedSpinnerPosition
                 }
@@ -170,17 +186,17 @@ class TubeOverviewFragment @Inject constructor(
 
     private fun updateViewVisibilities(error: Boolean) {
         if (error) {
-            refresh_date.visibility = GONE
-            lines_recycler_view.visibility = GONE
-            loading_error_group.visibility = VISIBLE
+            binding.refreshDate.visibility = GONE
+            binding.linesRecyclerView.visibility = GONE
+            binding.loadingErrorGroup.visibility = VISIBLE
         } else {
-            refresh_date.visibility = VISIBLE
-            lines_recycler_view.visibility = VISIBLE
-            loading_error_group.visibility = GONE
+            binding.refreshDate.visibility = VISIBLE
+            binding.linesRecyclerView.visibility = VISIBLE
+            binding.loadingErrorGroup.visibility = GONE
         }
     }
 
     private fun updateLoadingIndicator(loading: Boolean) {
-        swipe_refresh.isRefreshing = loading
+        binding.swipeRefresh.isRefreshing = loading
     }
 }
