@@ -21,12 +21,12 @@ import uk.co.nelsonwright.londonundergroundstatus.models.TubeLine
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeLineColours
 import uk.co.nelsonwright.londonundergroundstatus.models.TubeStatusViewState
 import uk.co.nelsonwright.londonundergroundstatus.shared.CalendarUtils
-import uk.co.nelsonwright.londonundergroundstatus.ui.main.SelectionType.NOW
-import uk.co.nelsonwright.londonundergroundstatus.ui.main.SelectionType.WEEKEND
+import uk.co.nelsonwright.londonundergroundstatus.ui.main.SelectionType.*
 import javax.inject.Inject
 
 private const val NOW_SELECTED = 0
-private const val WEEKEND_SELECTED = 1
+private const val TOMORROW_SELECTED = 1
+private const val WEEKEND_SELECTED = 2
 
 class TubeOverviewFragment @Inject constructor(
     private val calendarUtils: CalendarUtils,
@@ -42,10 +42,10 @@ class TubeOverviewFragment @Inject constructor(
 
     private val selectionType: SelectionType
         get() {
-            return if (binding.statusDateSpinner.selectedItemPosition == WEEKEND_SELECTED) {
-                WEEKEND
-            } else {
-                NOW
+            return when (binding.statusDateSpinner.selectedItemPosition) {
+                WEEKEND_SELECTED -> WEEKEND
+                TOMORROW_SELECTED -> TOMORROW
+                else -> NOW
             }
         }
 
@@ -160,6 +160,7 @@ class TubeOverviewFragment @Inject constructor(
     private fun setupDateDropdown() {
         val dropdownList = listOf(
             getString(R.string.now),
+            getString(R.string.tomorrow),
             getString(R.string.weekend_of, calendarUtils.getFormattedSaturdayDate())
         )
 

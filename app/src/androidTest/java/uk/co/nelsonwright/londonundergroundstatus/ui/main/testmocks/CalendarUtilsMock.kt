@@ -10,6 +10,10 @@ class CalendarUtilsMock : CalendarUtils {
         return Pair("Sat 11th", "Sun 12th")
     }
 
+    override fun getTomorrowDates(): Pair<String, String> {
+        return Pair("Wed 2nd", "Wed 2nd 23:59")
+    }
+
     override fun getFormattedSaturdayDate(): String {
         return "Sat 11th"
     }

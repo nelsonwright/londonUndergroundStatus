@@ -3,7 +3,7 @@
 buildscript {
     ext {
         kotlin_version = '1.5.20'
-        dagger_version = '2.28.3'
+        dagger_version = '2.37'
         espresso_version = "3.3.0"
         retrofit_version = '2.6.0'
         lifecyle_version = '2.2.0'
@@ -14,12 +14,12 @@ buildscript {
         google()
         mavenCentral()
         jcenter()
-
     }
+
     dependencies {
         classpath 'com.android.tools.build:gradle:4.2.1'
         classpath 'com.google.gms:google-services:4.3.8'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.32"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.7.1'
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version"
         classpath "org.jetbrains.kotlin:kotlin-allopen:$kotlin_version"

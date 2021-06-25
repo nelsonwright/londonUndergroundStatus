@@ -66,11 +66,23 @@ class TubeStatusOverviewFragmentTest {
     }
 
     @Test
-    fun canSelectStatusForWeekend() {
+    fun canSelectStatusForTomorrow() {
         onView(withId(R.id.status_date_spinner)).perform(click())
 
         onData(`is`(instanceOf(String::class.java)))
             .atPosition(1)
+            .perform(click())
+
+        onView(withId(R.id.now_or_weekend))
+            .check(matches(withSubstring("tomorrow")))
+    }
+
+    @Test
+    fun canSelectStatusForWeekend() {
+        onView(withId(R.id.status_date_spinner)).perform(click())
+
+        onData(`is`(instanceOf(String::class.java)))
+            .atPosition(2)
             .perform(click())
 
         onView(withId(R.id.now_or_weekend))

@@ -14,7 +14,7 @@ interface TflApiInterface {
 
     @Headers("Cache-Control: max-age=600")
     @GET("line/mode/tube,dlr,tflrail,overground,tram/status")
-    suspend fun getLinesStatusForWeekend(
+    suspend fun getLinesStatusForDateRange(
         @Query("app_key") appKey: String,
         @Query("startDate") startDate: String,
         @Query("endDate") endDate: String,
