@@ -135,6 +135,37 @@ class TflRepositoryTest {
         }
     }
 
+    @Test
+    fun shouldUseCachedTubeLinesForTomorrow() = runBlockingTest {
+        repo.loadTubeLines(selectionType = TOMORROW, useCacheRequest = false)
+        repo.loadTubeLines(selectionType = TOMORROW, useCacheRequest = true)
+
+        coVerify(exactly = 1) {
+            mockApi.getLinesStatusForDateRange(
+                APPLICATION_KEY,
+                tomorrowPair.first,
+                tomorrowPair.second
+            )
+        }
+    }
+
+    @Test
+    fun shouldNotUseExpiredCacheForTomorrow() = runBlockingTest {
+        repo.loadTubeLines(selectionType = TOMORROW, useCacheRequest = false)
+        every { mockTimeHelper.getCurrentLocalDateTime() } returns theCurrentLocalTime.plusMinutes(
+            TOMORROW_CACHE_TIME_MINUTES + 1)
+
+        repo.loadTubeLines(selectionType = TOMORROW, useCacheRequest = true)
+
+        coVerify(exactly = 2) {
+            mockApi.getLinesStatusForDateRange(
+                APPLICATION_KEY,
+                tomorrowPair.first,
+                tomorrowPair.second
+            )
+        }
+    }
+
     private fun stubbedTubeLines(): List<ApiTubeLine> {
         return listOf(ApiTubeLine())
     }

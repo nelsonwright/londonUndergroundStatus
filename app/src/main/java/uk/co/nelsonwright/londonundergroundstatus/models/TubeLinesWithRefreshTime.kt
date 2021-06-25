@@ -3,6 +3,6 @@ package uk.co.nelsonwright.londonundergroundstatus.models
 import java.time.LocalDateTime
 
 data class TubeLinesWithRefreshTime(
-        val tubeLines: List<TubeLine> = emptyList(),
-        val refreshTime: LocalDateTime = LocalDateTime.now()
+    var tubeLines: List<TubeLine> = emptyList(),
+    var refreshTime: LocalDateTime = LocalDateTime.now()
 )
