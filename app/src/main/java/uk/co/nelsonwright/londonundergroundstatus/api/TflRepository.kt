@@ -6,9 +6,6 @@ import uk.co.nelsonwright.londonundergroundstatus.shared.CalendarUtils
 import uk.co.nelsonwright.londonundergroundstatus.shared.TimeHelper
 import uk.co.nelsonwright.londonundergroundstatus.ui.main.SelectionType
 import uk.co.nelsonwright.londonundergroundstatus.ui.main.SelectionType.*
-import java.time.Duration.ofMinutes
-import java.time.LocalDateTime
-import java.time.ZonedDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -30,102 +27,75 @@ class TflRepositoryImpl @Inject constructor(
     private val timeHelper: TimeHelper
 ) : TflRepository {
 
-    private var cachedTubeLinesNow: List<TubeLine>? = null
-    private var cachedTubeLinesWeekend: List<TubeLine>? = null
-    private var cachedTubeLinesTomorrow: List<TubeLine>? = null
-    private var lastCachedTimeLinesNow: LocalDateTime? = null
-    private var lastCachedTimeLinesWeekend: LocalDateTime? = null
-    private var lastCachedTimeLinesTomorrow: LocalDateTime? = null
+    private var linesCache: Map<SelectionType, TubeLinesWithRefreshTime> = mapOf(
+        NOW to TubeLinesWithRefreshTime(),
+        TOMORROW to TubeLinesWithRefreshTime(),
+        WEEKEND to TubeLinesWithRefreshTime()
+    )
 
     override suspend fun loadTubeLines(
         selectionType: SelectionType,
         useCacheRequest: Boolean
     ): TubeLinesWithRefreshTime {
-        return when (selectionType) {
-            NOW -> loadTubeLinesForNow(useCacheRequest)
-            TOMORROW -> loadTubeLinesForTomorrow(useCacheRequest)
-            WEEKEND -> loadTubeLinesForWeekend(useCacheRequest)
-        }
-    }
+        var refreshedTubeLines = emptyList<TubeLine>()
 
-    private suspend fun loadTubeLinesForNow(useCacheRequest: Boolean): TubeLinesWithRefreshTime {
-        return if (canUseCacheForNowLines(useCacheRequest)) {
+        return if (canUseCache(useCacheRequest, selectionType)) {
             TubeLinesWithRefreshTime(
-                tubeLines = cachedTubeLinesNow as List<TubeLine>,
-                refreshTime = lastCachedTimeLinesNow ?: timeHelper.getCurrentLocalDateTime()
+                tubeLines = linesCache[selectionType]?.tubeLines ?: emptyList(),
+                refreshTime = linesCache[selectionType]?.refreshTime
+                    ?: timeHelper.getCurrentLocalDateTime()
             )
         } else {
-            cachedTubeLinesNow = api.getLinesStatusNow(APPLICATION_KEY).map { api ->
-                api.toModel()
+            when (selectionType) {
+                NOW -> refreshedTubeLines =
+                    api.getLinesStatusNow(APPLICATION_KEY).map { it.toModel() }
+
+                TOMORROW -> {
+                    val (startOfTomorrowDateString, endOfTomorrowDateString) = calendarUtils.getTomorrowDates()
+
+                    refreshedTubeLines = api.getLinesStatusForDateRange(
+                        APPLICATION_KEY,
+                        startOfTomorrowDateString,
+                        endOfTomorrowDateString
+                    )
+                        .map { api ->
+                            api.toModel()
+                        }
+                }
+                WEEKEND -> {
+                    val (saturdayDateString, sundayDateString) = calendarUtils.getWeekendDates()
+                    refreshedTubeLines = api.getLinesStatusForDateRange(
+                        APPLICATION_KEY,
+                        saturdayDateString,
+                        sundayDateString
+                    )
+                        .map { api ->
+                            api.toModel()
+                        }
+                }
             }
-            lastCachedTimeLinesNow = timeHelper.getCurrentLocalDateTime()
+
+            linesCache[selectionType]?.refreshTime = timeHelper.getCurrentLocalDateTime()
+            linesCache[selectionType]?.tubeLines = refreshedTubeLines
             TubeLinesWithRefreshTime(
-                tubeLines = cachedTubeLinesNow as List<TubeLine>,
+                tubeLines = refreshedTubeLines,
                 refreshTime = timeHelper.getCurrentLocalDateTime()
             )
         }
     }
 
-    private fun canUseCacheForNowLines(useCacheRequest: Boolean): Boolean {
-        if (cachedTubeLinesNow == null) return false
-
-        val expiryTime = lastCachedTimeLinesNow?.plusMinutes(NOW_CACHE_TIME_MINUTES)
-        val timeNow = timeHelper.getCurrentLocalDateTime()
-        return useCacheRequest && timeNow.isBefore(expiryTime)
-    }
-
-    private suspend fun loadTubeLinesForWeekend(useCacheRequest: Boolean): TubeLinesWithRefreshTime {
-        return if (canUseCacheForWeekendLines(useCacheRequest)) {
-            TubeLinesWithRefreshTime(
-                tubeLines = cachedTubeLinesWeekend as List<TubeLine>,
-                refreshTime = lastCachedTimeLinesWeekend ?: timeHelper.getCurrentLocalDateTime()
-            )
-        } else {
-            val (saturdayDateString, sundayDateString) = calendarUtils.getWeekendDates()
-            cachedTubeLinesWeekend = api.getLinesStatusForDateRange(APPLICATION_KEY, saturdayDateString, sundayDateString)
-                .map {
-                    it.toModel()
-                }
-            lastCachedTimeLinesWeekend = timeHelper.getCurrentLocalDateTime()
-            TubeLinesWithRefreshTime(
-                tubeLines = cachedTubeLinesWeekend as List<TubeLine>,
-                refreshTime = timeHelper.getCurrentLocalDateTime()
-            )
+    private fun canUseCache(useCacheRequest: Boolean, selectionType: SelectionType): Boolean {
+        linesCache[selectionType]?.let {
+            if (it.tubeLines.isEmpty()) return false
         }
-    }
 
-    private fun canUseCacheForWeekendLines(useCacheRequest: Boolean): Boolean {
-        if (cachedTubeLinesWeekend == null) return false
-
-        val expiryTime = lastCachedTimeLinesWeekend?.plusMinutes(WEEKEND_CACHE_TIME_MINUTES)
-        val timeNow = timeHelper.getCurrentLocalDateTime()
-        return useCacheRequest && timeNow.isBefore(expiryTime)
-    }
-
-    private suspend fun loadTubeLinesForTomorrow(useCacheRequest: Boolean): TubeLinesWithRefreshTime {
-        return if (canUseCacheForTomorrowLines(useCacheRequest)) {
-            TubeLinesWithRefreshTime(
-                tubeLines = cachedTubeLinesTomorrow as List<TubeLine>,
-                refreshTime = lastCachedTimeLinesTomorrow ?: timeHelper.getCurrentLocalDateTime()
-            )
-        } else {
-            val (startOfTomorrowDateString, endOfTomorrowDateString) = calendarUtils.getTomorrowDates()
-            cachedTubeLinesTomorrow = api.getLinesStatusForDateRange(APPLICATION_KEY, startOfTomorrowDateString, endOfTomorrowDateString)
-                .map {
-                    it.toModel()
-                }
-            lastCachedTimeLinesTomorrow = timeHelper.getCurrentLocalDateTime()
-            TubeLinesWithRefreshTime(
-                tubeLines = cachedTubeLinesTomorrow as List<TubeLine>,
-                refreshTime = timeHelper.getCurrentLocalDateTime()
-            )
-        }
-    }
-
-    private fun canUseCacheForTomorrowLines(useCacheRequest: Boolean): Boolean {
-        if (cachedTubeLinesTomorrow == null) return false
-
-        val expiryTime = lastCachedTimeLinesTomorrow?.plusMinutes(TOMORROW_CACHE_TIME_MINUTES)
+        val expiryTime = linesCache[selectionType]?.refreshTime?.plusMinutes(
+            when (selectionType) {
+                NOW -> NOW_CACHE_TIME_MINUTES
+                TOMORROW -> TOMORROW_CACHE_TIME_MINUTES
+                WEEKEND -> WEEKEND_CACHE_TIME_MINUTES
+            }
+        )
         val timeNow = timeHelper.getCurrentLocalDateTime()
         return useCacheRequest && timeNow.isBefore(expiryTime)
     }
