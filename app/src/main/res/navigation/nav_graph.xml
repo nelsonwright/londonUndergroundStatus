@@ -13,8 +13,9 @@
         <action
             android:id="@+id/action_OverviewFragment_to_DetailsFragment"
             app:destination="@id/tubeDetailsFragment"
-            app:enterAnim="@anim/fragment_fade_enter"
-            app:exitAnim="@anim/fragment_fade_exit" />
+            app:enterAnim="@animator/nav_default_pop_enter_anim"
+            app:exitAnim="@animator/nav_default_pop_exit_anim"
+        />
     </fragment>
 
     <fragment

@@ -12,6 +12,7 @@ private const val LONDON_TIME_ZONE = "Europe/London"
 
 interface CalendarUtils {
     fun getWeekendDates(): Pair<String, String>
+    fun getTomorrowDates(): Pair<String, String>
     fun getFormattedSaturdayDate(): String
     fun getFormattedLocateDateTime(dateToFormat: LocalDateTime): String
 }
@@ -31,9 +32,28 @@ class CalendarUtilsImpl @Inject constructor(private val timeHelper: TimeHelper) 
             .plusDays(1)
             .withHour(23)
             .withMinute(59)
+            .withSecond(0)
 
         val sundayDateString = uTCDateTimeFormat.format(sundayDate)
         return Pair(saturdayDateString, sundayDateString)
+    }
+
+    override fun getTomorrowDates(): Pair<String, String> {
+        val yearMonthDayFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.UK)
+
+        val uTCDateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ", Locale.UK)
+        val startOfTomorrow = calculateTomorrowStart()
+
+        val startDateString = yearMonthDayFormat.format(startOfTomorrow)
+
+        // treat the end of tomorrow as just before midnight . . .
+        val endOfTomorrow = startOfTomorrow
+            .withHour(23)
+            .withMinute(59)
+            .withSecond(0)
+
+        val endDateString = uTCDateTimeFormat.format(endOfTomorrow)
+        return Pair(startDateString, endDateString)
     }
 
     override fun getFormattedSaturdayDate(): String {
@@ -50,5 +70,12 @@ class CalendarUtilsImpl @Inject constructor(private val timeHelper: TimeHelper) 
     private fun calculateThisSaturday(): ZonedDateTime {
         return timeHelper.getCurrentDateTime(LONDON_TIME_ZONE)
             .with(TemporalAdjusters.next(SATURDAY))
+    }
+
+    private fun calculateTomorrowStart(): ZonedDateTime {
+        return timeHelper.getCurrentDateTime(LONDON_TIME_ZONE)
+            .plusDays(1)
+            .withHour(0)
+            .withMinute(0)
     }
 }

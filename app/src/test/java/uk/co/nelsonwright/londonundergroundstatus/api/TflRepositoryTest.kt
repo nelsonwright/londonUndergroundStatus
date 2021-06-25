@@ -12,8 +12,7 @@ import org.junit.Rule
 import org.junit.Test
 import uk.co.nelsonwright.londonundergroundstatus.shared.CalendarUtils
 import uk.co.nelsonwright.londonundergroundstatus.shared.TimeHelper
-import uk.co.nelsonwright.londonundergroundstatus.ui.main.SelectionType.NOW
-import uk.co.nelsonwright.londonundergroundstatus.ui.main.SelectionType.WEEKEND
+import uk.co.nelsonwright.londonundergroundstatus.ui.main.SelectionType.*
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -34,6 +33,7 @@ class TflRepositoryTest {
     private lateinit var repo: TflRepository
     private val calendarUtils = mockk<CalendarUtils>()
     private val weekendPair = Pair("Saturday", "Sunday")
+    private val tomorrowPair = Pair("tomorrow start", "tomorrow end")
     private val theCurrentTime = ZonedDateTime.of(2021, JANUARY, 13, 10, 2, 0, 0, ZoneId.of("Z"))
     private val theCurrentLocalTime = LocalDateTime.of(2021, JANUARY, 13, 10, 2, 0)
 
@@ -41,7 +41,7 @@ class TflRepositoryTest {
     fun setup() {
         coEvery { mockApi.getLinesStatusNow(any()) } returns stubbedTubeLines()
         coEvery {
-            mockApi.getLinesStatusForWeekend(
+            mockApi.getLinesStatusForDateRange(
                 any(),
                 any(),
                 any(),
@@ -50,6 +50,7 @@ class TflRepositoryTest {
         } returns stubbedTubeLines()
         every { calendarUtils.getFormattedLocateDateTime(any()) } returns FORMATTED_NOW_DATE
         every { calendarUtils.getWeekendDates() } returns weekendPair
+        every { calendarUtils.getTomorrowDates() } returns tomorrowPair
         every { mockTimeHelper.getCurrentDateTime() } returns theCurrentTime
         every { mockTimeHelper.getCurrentLocalDateTime() } returns theCurrentLocalTime
         repo = TflRepositoryImpl(mockApi, calendarUtils, mockTimeHelper)
@@ -71,7 +72,7 @@ class TflRepositoryTest {
     @Test
     fun shouldNotUseExpiredCacheForNow() = runBlockingTest {
         repo.loadTubeLines(selectionType = NOW, useCacheRequest = false)
-        every { mockTimeHelper.getCurrentDateTime() } returns theCurrentTime.plusMinutes(NOW_CACHE_TIME_MINUTES + 1)
+        every { mockTimeHelper.getCurrentLocalDateTime() } returns theCurrentLocalTime.plusMinutes(NOW_CACHE_TIME_MINUTES + 1)
 
         repo.loadTubeLines(selectionType = NOW, useCacheRequest = true)
 
@@ -83,7 +84,7 @@ class TflRepositoryTest {
         repo.loadTubeLines(selectionType = WEEKEND, useCacheRequest = false)
 
         coVerify {
-            mockApi.getLinesStatusForWeekend(
+            mockApi.getLinesStatusForDateRange(
                     APPLICATION_KEY,
                     weekendPair.first,
                     weekendPair.second
@@ -97,7 +98,7 @@ class TflRepositoryTest {
         repo.loadTubeLines(selectionType = WEEKEND, useCacheRequest = true)
 
         coVerify(exactly = 1) {
-            mockApi.getLinesStatusForWeekend(
+            mockApi.getLinesStatusForDateRange(
                     APPLICATION_KEY,
                     weekendPair.first,
                     weekendPair.second
@@ -108,15 +109,28 @@ class TflRepositoryTest {
     @Test
     fun shouldNotUseExpiredCacheForWeekend() = runBlockingTest {
         repo.loadTubeLines(selectionType = WEEKEND, useCacheRequest = false)
-        every { mockTimeHelper.getCurrentDateTime() } returns theCurrentTime.plusMinutes(WEEKEND_CACHE_TIME_MINUTES + 1)
+        every { mockTimeHelper.getCurrentLocalDateTime() } returns theCurrentLocalTime.plusMinutes(WEEKEND_CACHE_TIME_MINUTES + 1)
 
         repo.loadTubeLines(selectionType = WEEKEND, useCacheRequest = true)
 
         coVerify(exactly = 2) {
-            mockApi.getLinesStatusForWeekend(
+            mockApi.getLinesStatusForDateRange(
                     APPLICATION_KEY,
                     weekendPair.first,
                     weekendPair.second
+            )
+        }
+    }
+
+    @Test
+    fun shouldRequestTubeLinesForTomorrow() = runBlockingTest {
+        repo.loadTubeLines(selectionType = TOMORROW, useCacheRequest = false)
+
+        coVerify {
+            mockApi.getLinesStatusForDateRange(
+                APPLICATION_KEY,
+                tomorrowPair.first,
+                tomorrowPair.second
             )
         }
     }

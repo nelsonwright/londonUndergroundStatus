@@ -38,12 +38,23 @@ class CalendarUtilsTest {
     @Test
     fun shouldGetWeekendDates() {
         val expectedSaturday = "2020-09-05"
-        val expectedSunday = "2020-09-06T23:59:58+0100"
+        val expectedSunday = "2020-09-06T23:59:00+0100"
 
         val (saturday, sunday) = calendarUtils.getWeekendDates()
 
         assertThat(saturday).isEqualTo(expectedSaturday)
         assertThat(sunday).isEqualTo(expectedSunday)
+    }
+
+    @Test
+    fun shouldGetTomorrowDates() {
+        val expectedStartTomorrow = "2020-09-02"
+        val expectedEndTomorrow = "2020-09-02T23:59:00+0100"
+
+        val (start, end) = calendarUtils.getTomorrowDates()
+
+        assertThat(start).isEqualTo(expectedStartTomorrow)
+        assertThat(end).isEqualTo(expectedEndTomorrow)
     }
 
     private fun setupMockTimeHelper() {

@@ -1,6 +1,5 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: "androidx.navigation.safeargs.kotlin"
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.google.gms.google-services'
@@ -54,24 +53,25 @@ android {
 
 dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    def activity_version = "1.1.0"
-    def fragment_version = "1.2.5"
+    def activity_version = "1.2.3"
+    def fragment_version = "1.3.5"
 
     // Kotlin
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation "androidx.activity:activity-ktx:$activity_version"
+    implementation 'androidx.core:core-ktx:1.5.0'
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
-    implementation 'androidx.recyclerview:recyclerview:1.1.0'
-    implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.core:core-ktx:1.3.2'
+    implementation 'androidx.recyclerview:recyclerview:1.2.1'
+    implementation 'androidx.appcompat:appcompat:1.3.0'
 
     // Lifecycle
     implementation "androidx.lifecycle:lifecycle-common:$lifecyle_version"
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecyle_version"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecyle_version"
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecyle_version"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.3.1"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecyle_version"
 
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
@@ -98,7 +98,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-crashlytics'
 
-    testImplementation 'junit:junit:4.13'
+    testImplementation 'junit:junit:4.13.1'
     testImplementation "io.mockk:mockk:1.10.0"
     testImplementation "org.mockito:mockito-core:3.3.3"
     testImplementation 'androidx.test.ext:junit:1.1.2'
@@ -109,13 +109,7 @@ dependencies {
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.2"
 
     //    UI Tests...
-//    debugImplementation "androidx.fragment:fragment-testing:$fragment_version"
-
-    debugImplementation('androidx.fragment:fragment-testing:1.2.5') {
-        // this "exclude" is a temporary workaround due to an incompatibility between
-        // fragment-testing:1.2.5 and espresso_version 3.3.0, see https://github.com/android/android-test/issues/731
-        exclude group: 'androidx.test', module: 'monitor'
-    }
+    debugImplementation "androidx.fragment:fragment-testing:$fragment_version"
 
     // Espresso
     androidTestImplementation "androidx.test.espresso:espresso-core:$espresso_version"
